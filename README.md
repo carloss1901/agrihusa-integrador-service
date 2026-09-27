@@ -58,7 +58,7 @@ Linux/macOS:
 ./gradlew bootRun
 ```
 
-Actualmente está implementada la clase principal, el endpoint de prueba `GET /api/hola-mundo` y la estructura de paquetes; aún no hay servicios, repositorios ni modelos de negocio.
+Actualmente están implementados el endpoint de prueba `GET /api/hola-mundo` y el flujo de consulta de personas `GET /api/personas`. El resto de módulos de negocio aún está pendiente.
 
 ## Despliegue con Render
 

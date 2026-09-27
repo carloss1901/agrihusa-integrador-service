@@ -5,18 +5,11 @@ spring:
   application:
     name: agrihusa-integrador-service
 
-  # La BD queda preparada, pero no se conecta mientras no sea necesaria.
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
-      - org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration
-
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/bd_agrihusa?useSSL=false&serverTimezone=UTC&sessionVariables=lc_time_names=es_ES}
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${SUPABASE_DB_URL}
+    username: ${SUPABASE_DB_USER}
+    password: ${SUPABASE_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
     hikari:
       auto-commit: false
       connection-timeout: ${DB_CONNECTION_TIMEOUT:20000}
@@ -28,7 +21,10 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: false
-    database-platform: org.hibernate.dialect.MySQL8Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        default_schema: public
 
 springdoc:
   api-docs:

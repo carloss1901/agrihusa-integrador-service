@@ -39,10 +39,10 @@ agrihusa-integrador-service/
 - Spring Boot 3.0.6.
 - Gradle.
 - Spring Web, JPA, validación y Swagger/OpenAPI.
-- MySQL configurado mediante `DB_URL`, `DB_USERNAME` y `DB_PASSWORD`.
+- PostgreSQL de Supabase configurado mediante `SUPABASE_DB_URL`, `SUPABASE_DB_USER` y `SUPABASE_DB_PASSWORD`.
 - Puerto de ejecución: `8085`.
 
-La configuración de la BD está preparada, pero la auto-configuración de datasource y JPA está desactivada temporalmente porque todavía no se está utilizando una base de datos.
+La aplicación utiliza JPA/Hibernate con el esquema `public` y `ddl-auto=validate`; no crea ni elimina tablas al iniciar.
 
 ## Ejecución
 

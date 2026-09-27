@@ -19,10 +19,7 @@
 *.tar.gz
 *.rar
 
-# Maven build output
-target/
 logs/
-
 # Gradle
 .gradle/
 build/

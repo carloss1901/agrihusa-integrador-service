@@ -8,6 +8,7 @@ Esqueleto inicial del servicio integrador, organizado con Gradle y Spring Boot.
 agrihusa-integrador-service/
 ├── build.gradle
 ├── settings.gradle
+├── Dockerfile
 ├── gradlew
 ├── gradlew.bat
 ├── gradle/
@@ -57,4 +58,8 @@ Linux/macOS:
 ./gradlew bootRun
 ```
 
-Actualmente solo está implementada la clase principal y la estructura de paquetes; aún no hay controladores, servicios, repositorios ni modelos de negocio.
+Actualmente está implementada la clase principal, el endpoint de prueba `GET /api/hola-mundo` y la estructura de paquetes; aún no hay servicios, repositorios ni modelos de negocio.
+
+## Despliegue con Render
+
+El `Dockerfile` compila la aplicación con Gradle y ejecuta el JAR generado. En local usa el puerto `8085`; en Render toma automáticamente el puerto definido por la variable `PORT`.

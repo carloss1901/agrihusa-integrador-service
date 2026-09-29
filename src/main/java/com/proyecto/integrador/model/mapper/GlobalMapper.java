@@ -27,7 +27,7 @@ public class GlobalMapper {
 
                 Object value = method.invoke(source);
                 if (value == null || isAssignable(field.getType(), value.getClass())) {
-                    field.setAccessible(true);
+                    field.setAccessible(Boolean.TRUE);
                     field.set(destination, value);
                 }
             }
@@ -64,7 +64,7 @@ public class GlobalMapper {
 
     private boolean isAssignable(Class<?> targetType, Class<?> sourceType) {
         if (targetType.isAssignableFrom(sourceType)) {
-            return true;
+            return Boolean.TRUE;
         }
         return (targetType == Integer.TYPE && sourceType == Integer.class)
                 || (targetType == Boolean.TYPE && sourceType == Boolean.class);

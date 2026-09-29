@@ -55,10 +55,10 @@ public class UsuarioServiceImpl implements UsuarioService {
         entity.setCorreo(correo);
         entity.setTelefono(request.getTelefono() == null ? null : request.getTelefono().trim());
         entity.setContrasenia(passwordEncoder.encode(request.getContrasenia()));
-        entity.setEsSistema(false);
-        entity.setResetContrasenia(true);
+        entity.setEsSistema(Boolean.FALSE);
+        entity.setResetContrasenia(Boolean.TRUE);
         entity.setUltimoAcceso(null);
-        entity.setActivo(true);
+        entity.setActivo(Boolean.TRUE);
         entity.setFechaCreacion(LocalDate.now());
         entity.setFechaModificacion(null);
 
@@ -67,7 +67,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         UsuarioRolEntity usuarioRol = new UsuarioRolEntity();
         usuarioRol.setUsuarioId(usuarioGuardado.getUsuarioId());
         usuarioRol.setRolId(rol.getRolId());
-        usuarioRol.setActivo(true);
+        usuarioRol.setActivo(Boolean.TRUE);
         usuarioRol.setFechaAsignacion(LocalDate.now());
         usuarioRol.setFechaCreacion(LocalDate.now());
         usuarioRolRepository.save(usuarioRol);

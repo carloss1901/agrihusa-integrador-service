@@ -32,7 +32,7 @@ public class MessageResponse {
             HttpStatus status,
             String message,
             @Nullable Object data) {
-        return setResponse(false, status, message, data);
+        return setResponse(Boolean.FALSE, status, message, data);
     }
 
     public static ResponseEntity<Object> setResponse(
@@ -43,7 +43,7 @@ public class MessageResponse {
     }
 
     public static ResponseEntity<Object> setResponse(HttpStatus status, String message) {
-        return setResponse(false, status, message, null);
+        return setResponse(Boolean.FALSE, status, message, null);
     }
 
     public static ResponseEntity<Object> setResponse(
@@ -63,6 +63,6 @@ public class MessageResponse {
         String message = violations.stream()
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.joining(", "));
-        return setResponse(false, HttpStatus.BAD_REQUEST, message, null);
+        return setResponse(Boolean.FALSE, HttpStatus.BAD_REQUEST, message, null);
     }
 }

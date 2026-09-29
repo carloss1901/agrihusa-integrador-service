@@ -27,6 +27,9 @@ public class RolPermisoEntity extends AuditoriaEntity {
     @Column(name = "rol_id")
     private Integer rolId;
 
+    @Column(name = "modulo_id")
+    private Integer moduloId;
+
     @Column(name = "permiso_id")
     private Integer permisoId;
 

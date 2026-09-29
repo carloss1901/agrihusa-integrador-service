@@ -12,23 +12,23 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "permiso")
+@Table(name = "modulo")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PermisoEntity extends AuditoriaEntity {
+public class ModuloEntity extends AuditoriaEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "permiso_id")
-    private Integer permisoId;
+    @Column(name = "modulo_id")
+    private Integer moduloId;
 
-    @Column(name = "accion")
-    private String accion;
+    @Column(name = "codigo")
+    private String codigo;
 
-    @Column(name = "descripcion")
-    private String descripcion;
+    @Column(name = "nombre")
+    private String nombre;
 
     @Column(name = "activo")
     private Boolean activo;

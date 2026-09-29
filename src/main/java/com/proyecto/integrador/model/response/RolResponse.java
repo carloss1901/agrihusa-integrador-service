@@ -7,7 +7,9 @@ public record RolResponse(
         Integer rolId,
         String nombre,
         String descripcion,
+        Boolean esSistema,
         Boolean activo,
+        Long cantidadPermisos,
         String estadoDsc
 ) {
 
@@ -16,7 +18,9 @@ public record RolResponse(
                 projection.getRolId(),
                 projection.getNombre(),
                 projection.getDescripcion(),
+                projection.getEsSistema(),
                 projection.getActivo(),
+                projection.getCantidadPermisos(),
                 projection.getEstadoDsc()
         );
     }
@@ -26,7 +30,9 @@ public record RolResponse(
                 entity.getRolId(),
                 entity.getNombre(),
                 entity.getDescripcion(),
+                entity.getEsSistema(),
                 entity.getActivo(),
+                0L,
                 Boolean.TRUE.equals(entity.getActivo()) ? "Activo" : "Inactivo"
         );
     }

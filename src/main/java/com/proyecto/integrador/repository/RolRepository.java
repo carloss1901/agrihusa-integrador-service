@@ -17,11 +17,15 @@ public interface RolRepository extends JpaRepository<RolEntity, Integer> {
             r.rol_id AS rolId,
             r.nombre AS nombre,
             r.descripcion AS descripcion,
+            r.es_sistema AS esSistema,
             r.activo AS activo,
+            COUNT(CASE WHEN rp.activo = 1 THEN 1 END) AS cantidadPermisos,
             CASE WHEN r.activo = 1 THEN 'Activo' ELSE 'Inactivo' END AS estadoDsc
         FROM rol r
+        LEFT JOIN rol_permiso rp ON rp.rol_id = r.rol_id
         WHERE (:nombre IS NULL OR :nombre = '' OR LOWER(r.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')))
           AND (:activo IS NULL OR r.activo = :activo)
+        GROUP BY r.rol_id, r.nombre, r.descripcion, r.es_sistema, r.activo
         ORDER BY r.rol_id
         """,
         countQuery = """

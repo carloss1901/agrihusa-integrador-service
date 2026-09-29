@@ -8,7 +8,11 @@ public interface RolProjection {
 
     String getDescripcion();
 
+    Boolean getEsSistema();
+
     Boolean getActivo();
+
+    Long getCantidadPermisos();
 
     String getEstadoDsc();
 }

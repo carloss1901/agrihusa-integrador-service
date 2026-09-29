@@ -8,9 +8,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
+import java.util.List;
+
 public interface RolRepository extends JpaRepository<RolEntity, Integer> {
 
     boolean existsByNombreIgnoreCase(String nombre);
+
+    List<RolEntity> findAllByRolIdInAndActivoTrue(Collection<Integer> rolIds);
 
     @Query(value = """
         SELECT

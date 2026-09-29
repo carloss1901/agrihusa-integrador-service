@@ -2,8 +2,9 @@ package com.proyecto.integrador.service;
 
 import com.proyecto.integrador.model.entity.UsuarioEntity;
 import com.proyecto.integrador.model.request.UsuarioRegistroRequest;
+import org.springframework.http.ResponseEntity;
 
 public interface UsuarioService {
 
-    UsuarioEntity registrar(UsuarioRegistroRequest request);
+    ResponseEntity<Object> registrar(UsuarioRegistroRequest request);
 }

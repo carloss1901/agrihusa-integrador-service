@@ -20,10 +20,6 @@ public class UsuarioRegistroRequest {
     private String dni;
 
     @NotBlank(message = "{message.required}")
-    @Size(max = 30, message = "{message.longitudmax}")
-    private String usuario;
-
-    @NotBlank(message = "{message.required}")
     @Size(max = 80, message = "{message.longitudmax}")
     private String nombres;
 
@@ -46,7 +42,4 @@ public class UsuarioRegistroRequest {
     @NotNull(message = "{message.required}")
     private Integer rolId;
 
-    @NotBlank(message = "{message.required}")
-    @Size(min = 8, max = 255, message = "{message.longitudminmax}")
-    private String contrasenia;
 }

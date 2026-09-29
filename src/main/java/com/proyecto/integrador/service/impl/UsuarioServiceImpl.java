@@ -7,18 +7,25 @@ import com.proyecto.integrador.repository.RolRepository;
 import com.proyecto.integrador.repository.UsuarioRepository;
 import com.proyecto.integrador.repository.UsuarioRolRepository;
 import com.proyecto.integrador.service.UsuarioService;
+import com.proyecto.integrador.utils.MessageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
 public class UsuarioServiceImpl implements UsuarioService {
+
+    private static final String MSG_DNI_REGISTRADO = "El DNI ya está registrado";
+    private static final String MSG_CORREO_REGISTRADO = "El correo ya está registrado";
+    private static final String MSG_ROL_NO_EXISTE = "El rol no existe";
+    private static final String MSG_USUARIO_REGISTRADO_OK = "Usuario registrado correctamente";
+    private static final String CONTRASENIA_DEFAULT = "contraseña";
 
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
@@ -27,34 +34,31 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional
-    public UsuarioEntity registrar(UsuarioRegistroRequest request) {
+    public ResponseEntity<Object> registrar(UsuarioRegistroRequest request) {
         String dni = request.getDni().trim();
-        String usuario = request.getUsuario().trim().toUpperCase();
         String correo = request.getCorreo().trim().toLowerCase();
 
         if (usuarioRepository.existsByDni(dni)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "El DNI ya está registrado");
-        }
-        if (usuarioRepository.existsByUsuario(usuario)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "El usuario ya está registrado");
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_DNI_REGISTRADO);
         }
         if (usuarioRepository.existsByCorreo(correo)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "El correo ya está registrado");
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_CORREO_REGISTRADO);
         }
 
-        var rol = rolRepository.findById(request.getRolId())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST, "El rol no existe"));
+        var rol = rolRepository.findById(request.getRolId()).orElse(null);
+        if (rol == null) {
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.BAD_REQUEST, MSG_ROL_NO_EXISTE);
+        }
 
         UsuarioEntity entity = new UsuarioEntity();
         entity.setDni(dni);
-        entity.setUsuario(usuario);
+        entity.setUsuario(dni);
         entity.setNombres(request.getNombres().trim());
         entity.setApellidoPaterno(request.getApellidoPaterno().trim());
         entity.setApellidoMaterno(request.getApellidoMaterno().trim());
         entity.setCorreo(correo);
         entity.setTelefono(request.getTelefono() == null ? null : request.getTelefono().trim());
-        entity.setContrasenia(passwordEncoder.encode(request.getContrasenia()));
+        entity.setContrasenia(passwordEncoder.encode(CONTRASENIA_DEFAULT));
         entity.setEsSistema(Boolean.FALSE);
         entity.setResetContrasenia(Boolean.TRUE);
         entity.setUltimoAcceso(null);
@@ -72,6 +76,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuarioRol.setFechaCreacion(LocalDate.now());
         usuarioRolRepository.save(usuarioRol);
 
-        return usuarioGuardado;
+        return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.CREATED, MSG_USUARIO_REGISTRADO_OK);
     }
 }

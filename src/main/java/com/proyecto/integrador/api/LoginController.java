@@ -1,7 +1,7 @@
 package com.proyecto.integrador.api;
 
-import com.proyecto.integrador.model.request.UsuarioRegistroRequest;
-import com.proyecto.integrador.service.UsuarioService;
+import com.proyecto.integrador.model.request.LoginRequest;
+import com.proyecto.integrador.service.LoginService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/usuarios")
+@RequestMapping("/api/login")
 @RequiredArgsConstructor
-public class UsuarioController {
+public class LoginController {
 
-    private final UsuarioService usuarioService;
+    private final LoginService loginService;
 
     @PostMapping
-    public ResponseEntity<Object> registrar(@Valid @RequestBody UsuarioRegistroRequest request) {
-        return usuarioService.registrar(request);
+    public ResponseEntity<Object> login(@Valid @RequestBody LoginRequest request) {
+        return loginService.login(request);
     }
 }

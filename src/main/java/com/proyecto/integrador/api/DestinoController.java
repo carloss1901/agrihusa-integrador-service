@@ -4,6 +4,7 @@ import com.proyecto.integrador.model.request.DestinoRegistroRequest;
 import com.proyecto.integrador.model.response.DestinoResponse;
 import com.proyecto.integrador.service.DestinoService;
 import com.proyecto.integrador.utils.CustomPage;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/destinos")
 @RequiredArgsConstructor
 @Validated
+@SecurityRequirement(name = "bearerAuth")
 public class DestinoController {
 
     private final DestinoService destinoService;

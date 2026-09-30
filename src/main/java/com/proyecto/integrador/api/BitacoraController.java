@@ -4,6 +4,7 @@ import com.proyecto.integrador.model.request.BitacoraRegistroRequest;
 import com.proyecto.integrador.model.response.BitacoraResponse;
 import com.proyecto.integrador.service.BitacoraService;
 import com.proyecto.integrador.utils.CustomPage;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/bitacoras")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class BitacoraController {
 
     private final BitacoraService bitacoraService;

@@ -4,6 +4,7 @@ import com.proyecto.integrador.model.request.ViaRegistroRequest;
 import com.proyecto.integrador.model.response.ViaResponse;
 import com.proyecto.integrador.service.ViaService;
 import com.proyecto.integrador.utils.CustomPage;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/vias")
 @RequiredArgsConstructor
 @Validated
+@SecurityRequirement(name = "bearerAuth")
 public class ViaController {
 
     private final ViaService viaService;

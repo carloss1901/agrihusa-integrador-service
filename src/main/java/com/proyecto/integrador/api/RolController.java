@@ -5,6 +5,7 @@ import com.proyecto.integrador.model.response.RolResponse;
 import com.proyecto.integrador.service.RolService;
 import com.proyecto.integrador.utils.CustomPage;
 import com.proyecto.integrador.utils.MessageResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import org.springframework.validation.annotation.Validated;
 @RequestMapping("/api/roles")
 @RequiredArgsConstructor
 @Validated
+@SecurityRequirement(name = "bearerAuth")
 public class RolController {
 
     private final RolService rolService;

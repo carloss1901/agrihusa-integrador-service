@@ -2,8 +2,14 @@ package com.proyecto.integrador.service.impl;
 
 import com.proyecto.integrador.model.entity.UsuarioEntity;
 import com.proyecto.integrador.model.entity.UsuarioRolEntity;
+import com.proyecto.integrador.model.entity.ModuloEntity;
+import com.proyecto.integrador.model.entity.PermisoEntity;
+import com.proyecto.integrador.model.entity.RolPermisoEntity;
 import com.proyecto.integrador.model.request.LoginRequest;
+import com.proyecto.integrador.repository.ModuloRepository;
+import com.proyecto.integrador.repository.PermisoRepository;
 import com.proyecto.integrador.repository.RolRepository;
+import com.proyecto.integrador.repository.RolPermisoRepository;
 import com.proyecto.integrador.repository.UsuarioRepository;
 import com.proyecto.integrador.repository.UsuarioRolRepository;
 import com.proyecto.integrador.service.JwtService;
@@ -17,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +37,9 @@ public class LoginServiceImpl implements LoginService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioRolRepository usuarioRolRepository;
     private final RolRepository rolRepository;
+    private final RolPermisoRepository rolPermisoRepository;
+    private final ModuloRepository moduloRepository;
+    private final PermisoRepository permisoRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
@@ -55,6 +65,7 @@ public class LoginServiceImpl implements LoginService {
                         Map<String, Object> role = new HashMap<>();
                         role.put("rolId", rol.getRolId());
                         role.put("nombre", rol.getNombre());
+                        role.put("modulos", construirModulos(rol.getRolId()));
                         return role;
                     })
                     .toList();
@@ -62,5 +73,60 @@ public class LoginServiceImpl implements LoginService {
 
         String token = jwtService.generateToken(usuario, roles);
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, MSG_LOGIN_CORRECTO, token);
+    }
+
+    private List<Map<String, Object>> construirModulos(Integer rolId) {
+        List<RolPermisoEntity> relaciones = rolPermisoRepository.findAllByRolId(rolId)
+                .stream()
+                .filter(relacion -> Boolean.TRUE.equals(relacion.getActivo()))
+                .toList();
+
+        Map<Integer, ModuloEntity> modulos = new HashMap<>();
+        Map<Integer, PermisoEntity> permisos = new HashMap<>();
+
+        moduloRepository.findAllById(relaciones.stream()
+                        .map(RolPermisoEntity::getModuloId)
+                        .distinct()
+                        .toList())
+                .stream()
+                .filter(modulo -> Boolean.TRUE.equals(modulo.getActivo()))
+                .forEach(modulo -> modulos.put(modulo.getModuloId(), modulo));
+
+        permisoRepository.findAllById(relaciones.stream()
+                        .map(RolPermisoEntity::getPermisoId)
+                        .distinct()
+                        .toList())
+                .stream()
+                .filter(permiso -> Boolean.TRUE.equals(permiso.getActivo()))
+                .forEach(permiso -> permisos.put(permiso.getPermisoId(), permiso));
+
+        Map<Integer, Map<String, Object>> modulosPorId = new LinkedHashMap<>();
+        for (RolPermisoEntity relacion : relaciones) {
+            ModuloEntity modulo = modulos.get(relacion.getModuloId());
+            PermisoEntity permiso = permisos.get(relacion.getPermisoId());
+            if (modulo == null || permiso == null) {
+                continue;
+            }
+
+            Map<String, Object> moduloToken = modulosPorId.computeIfAbsent(modulo.getModuloId(), id -> {
+                Map<String, Object> datos = new LinkedHashMap<>();
+                datos.put("moduloId", modulo.getModuloId());
+                datos.put("codigo", modulo.getCodigo());
+                datos.put("nombre", modulo.getNombre());
+                datos.put("permisos", new ArrayList<Map<String, Object>>());
+                return datos;
+            });
+
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> permisosToken =
+                    (List<Map<String, Object>>) moduloToken.get("permisos");
+            Map<String, Object> permisoToken = new LinkedHashMap<>();
+            permisoToken.put("permisoId", permiso.getPermisoId());
+            permisoToken.put("accion", permiso.getAccion());
+            permisoToken.put("descripcion", permiso.getDescripcion());
+            permisosToken.add(permisoToken);
+        }
+
+        return new ArrayList<>(modulosPorId.values());
     }
 }

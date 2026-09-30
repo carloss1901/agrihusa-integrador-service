@@ -4,6 +4,7 @@ import com.proyecto.integrador.model.request.VariedadRegistroRequest;
 import com.proyecto.integrador.model.response.VariedadResponse;
 import com.proyecto.integrador.service.VariedadService;
 import com.proyecto.integrador.utils.CustomPage;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/variedades")
 @RequiredArgsConstructor
 @Validated
+@SecurityRequirement(name = "bearerAuth")
 public class VariedadController {
 
     private final VariedadService variedadService;

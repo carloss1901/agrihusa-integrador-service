@@ -4,6 +4,7 @@ import com.proyecto.integrador.model.request.SituacionRegistroRequest;
 import com.proyecto.integrador.model.response.SituacionResponse;
 import com.proyecto.integrador.service.SituacionService;
 import com.proyecto.integrador.utils.CustomPage;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/situaciones")
 @RequiredArgsConstructor
 @Validated
+@SecurityRequirement(name = "bearerAuth")
 public class SituacionController {
 
     private final SituacionService situacionService;

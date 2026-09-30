@@ -4,6 +4,7 @@ import com.proyecto.integrador.model.request.ClienteRegistroRequest;
 import com.proyecto.integrador.model.response.ClienteResponse;
 import com.proyecto.integrador.service.ClienteService;
 import com.proyecto.integrador.utils.CustomPage;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController @RequestMapping("/api/clientes") @RequiredArgsConstructor @Validated
+@SecurityRequirement(name = "bearerAuth")
 public class ClienteController {
     private final ClienteService clienteService;
     @GetMapping public CustomPage<ClienteResponse> listar(@RequestParam(value="texto", required=false) String texto,

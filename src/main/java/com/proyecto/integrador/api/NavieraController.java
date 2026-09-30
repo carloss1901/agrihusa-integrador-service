@@ -4,6 +4,7 @@ import com.proyecto.integrador.model.request.NavieraRegistroRequest;
 import com.proyecto.integrador.model.response.NavieraResponse;
 import com.proyecto.integrador.service.NavieraService;
 import com.proyecto.integrador.utils.CustomPage;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController @RequestMapping("/api/navieras") @RequiredArgsConstructor @Validated
+@SecurityRequirement(name = "bearerAuth")
 public class NavieraController {
     private final NavieraService navieraService;
     @GetMapping public CustomPage<NavieraResponse> listar(@RequestParam(value="texto", required=false) String texto,

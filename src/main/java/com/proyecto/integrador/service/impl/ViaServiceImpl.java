@@ -45,8 +45,7 @@ public class ViaServiceImpl implements ViaService {
 
         if (request.getViaId() == 0) {
             if (viaRepository.existsByDescripcionIgnoreCase(descripcion)) {
-                return MessageResponse.setResponse(
-                        Boolean.FALSE, HttpStatus.CONFLICT, MSG_VIA_YA_REGISTRADA);
+                return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_VIA_YA_REGISTRADA);
             }
 
             ViaEntity entity = new ViaEntity();
@@ -54,26 +53,21 @@ public class ViaServiceImpl implements ViaService {
             entity.setActivo(Boolean.TRUE);
             viaRepository.save(entity);
 
-            return MessageResponse.setResponse(
-                    Boolean.TRUE, HttpStatus.CREATED, MSG_VIA_REGISTRADA);
+            return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.CREATED, MSG_VIA_REGISTRADA);
         }
 
         ViaEntity entity = viaRepository.findById(request.getViaId()).orElse(null);
         if (entity == null) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_VIA_NO_ENCONTRADA);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_VIA_NO_ENCONTRADA);
         }
 
-        if (viaRepository.existsByDescripcionIgnoreCaseAndViaIdNot(
-                descripcion, request.getViaId())) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.CONFLICT, MSG_VIA_YA_REGISTRADA);
+        if (viaRepository.existsByDescripcionIgnoreCaseAndViaIdNot(descripcion, request.getViaId())) {
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_VIA_YA_REGISTRADA);
         }
 
         entity.setDescripcion(descripcion);
         viaRepository.save(entity);
-        return MessageResponse.setResponse(
-                Boolean.TRUE, HttpStatus.OK, MSG_VIA_ACTUALIZADA);
+        return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, MSG_VIA_ACTUALIZADA);
     }
 
     @Override
@@ -81,16 +75,13 @@ public class ViaServiceImpl implements ViaService {
     public ResponseEntity<Object> cambiarEstado(Integer viaId, Boolean activo) {
         ViaEntity entity = viaRepository.findById(viaId).orElse(null);
         if (entity == null) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_VIA_NO_ENCONTRADA);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_VIA_NO_ENCONTRADA);
         }
 
         entity.setActivo(activo);
         viaRepository.save(entity);
 
-        String mensaje = Boolean.TRUE.equals(activo)
-                ? MSG_VIA_ACTIVADA
-                : MSG_VIA_DESACTIVADA;
+        String mensaje = Boolean.TRUE.equals(activo) ? MSG_VIA_ACTIVADA : MSG_VIA_DESACTIVADA;
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
     }
 }

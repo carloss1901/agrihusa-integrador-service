@@ -3,10 +3,12 @@ package com.proyecto.integrador.service.impl;
 import com.proyecto.integrador.model.entity.UsuarioEntity;
 import com.proyecto.integrador.model.entity.UsuarioRolEntity;
 import com.proyecto.integrador.model.request.UsuarioRegistroRequest;
+import com.proyecto.integrador.model.request.CambiarContraseniaRequest;
 import com.proyecto.integrador.repository.RolRepository;
 import com.proyecto.integrador.repository.UsuarioRepository;
 import com.proyecto.integrador.repository.UsuarioRolRepository;
 import com.proyecto.integrador.service.UsuarioService;
+import com.proyecto.integrador.security.JwtData;
 import com.proyecto.integrador.utils.MessageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,6 +27,11 @@ public class UsuarioServiceImpl implements UsuarioService {
     private static final String MSG_CORREO_REGISTRADO = "El correo ya está registrado";
     private static final String MSG_ROL_NO_EXISTE = "El rol no existe";
     private static final String MSG_USUARIO_REGISTRADO_OK = "Usuario registrado correctamente";
+    private static final String MSG_USUARIO_NO_ENCONTRADO = "El usuario no existe o está inactivo";
+    private static final String MSG_CONTRASENIA_ACTUAL_INVALIDA = "La contraseña actual es incorrecta";
+    private static final String MSG_CONTRASENIAS_NO_COINCIDEN = "La nueva contraseña y su confirmación no coinciden";
+    private static final String MSG_CONTRASENIA_ACTUAL = "La nueva contraseña debe ser diferente a la actual";
+    private static final String MSG_CONTRASENIA_ACTUALIZADA = "Contraseña actualizada correctamente";
     private static final String CONTRASENIA_DEFAULT = "contraseña";
 
     private final UsuarioRepository usuarioRepository;
@@ -77,5 +84,33 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuarioRolRepository.save(usuarioRol);
 
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.CREATED, MSG_USUARIO_REGISTRADO_OK);
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<Object> cambiarContrasenia(CambiarContraseniaRequest request) {
+        Integer usuarioId = JwtData.getUsuarioId();
+        UsuarioEntity usuario = usuarioId == null
+                ? null
+                : usuarioRepository.findById(usuarioId).orElse(null);
+
+        if (usuario == null || !Boolean.TRUE.equals(usuario.getActivo())) {
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_USUARIO_NO_ENCONTRADO);
+        }
+        if (!passwordEncoder.matches(request.getContraseniaActual(), usuario.getContrasenia())) {
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.BAD_REQUEST, MSG_CONTRASENIA_ACTUAL_INVALIDA);
+        }
+        if (!request.getNuevaContrasenia().equals(request.getConfirmarContrasenia())) {
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.BAD_REQUEST, MSG_CONTRASENIAS_NO_COINCIDEN);
+        }
+        if (passwordEncoder.matches(request.getNuevaContrasenia(), usuario.getContrasenia())) {
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.BAD_REQUEST, MSG_CONTRASENIA_ACTUAL);
+        }
+
+        usuario.setContrasenia(passwordEncoder.encode(request.getNuevaContrasenia()));
+        usuario.setResetContrasenia(Boolean.FALSE);
+        usuarioRepository.save(usuario);
+
+        return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, MSG_CONTRASENIA_ACTUALIZADA);
     }
 }

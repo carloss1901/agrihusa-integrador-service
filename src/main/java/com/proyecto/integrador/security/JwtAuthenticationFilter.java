@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -59,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             List<SimpleGrantedAuthority> authorities = obtenerAuthorities(claims);
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(usuario, null, authorities);
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            authentication.setDetails(claims);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (ExpiredJwtException ignored) {
             request.setAttribute(JWT_ERROR_ATTRIBUTE, "El token ha expirado");

@@ -49,12 +49,10 @@ public class ProductoServiceImpl implements ProductoService {
 
         if (request.getProductoId() == 0) {
             if (productoRepository.existsByCodigoIgnoreCase(codigo)) {
-                return MessageResponse.setResponse(
-                        Boolean.FALSE, HttpStatus.CONFLICT, MSG_CODIGO_YA_REGISTRADO);
+                return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_CODIGO_YA_REGISTRADO);
             }
             if (productoRepository.existsByNombreIgnoreCase(nombre)) {
-                return MessageResponse.setResponse(
-                        Boolean.FALSE, HttpStatus.CONFLICT, MSG_NOMBRE_YA_REGISTRADO);
+                return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_NOMBRE_YA_REGISTRADO);
             }
 
             ProductoEntity entity = new ProductoEntity();
@@ -64,31 +62,26 @@ public class ProductoServiceImpl implements ProductoService {
             entity.setActivo(Boolean.TRUE);
             productoRepository.save(entity);
 
-            return MessageResponse.setResponse(
-                    Boolean.TRUE, HttpStatus.CREATED, MSG_PRODUCTO_REGISTRADO);
+            return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.CREATED, MSG_PRODUCTO_REGISTRADO);
         }
 
         ProductoEntity entity = productoRepository.findById(request.getProductoId()).orElse(null);
         if (entity == null) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_PRODUCTO_NO_ENCONTRADO);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_PRODUCTO_NO_ENCONTRADO);
         }
 
         if (productoRepository.existsByCodigoIgnoreCaseAndProductoIdNot(codigo, request.getProductoId())) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.CONFLICT, MSG_CODIGO_YA_REGISTRADO);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_CODIGO_YA_REGISTRADO);
         }
         if (productoRepository.existsByNombreIgnoreCaseAndProductoIdNot(nombre, request.getProductoId())) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.CONFLICT, MSG_NOMBRE_YA_REGISTRADO);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_NOMBRE_YA_REGISTRADO);
         }
 
         entity.setCodigo(codigo);
         entity.setNombre(nombre);
         entity.setDescripcion(descripcion);
         productoRepository.save(entity);
-        return MessageResponse.setResponse(
-                Boolean.TRUE, HttpStatus.OK, MSG_PRODUCTO_ACTUALIZADO);
+        return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, MSG_PRODUCTO_ACTUALIZADO);
     }
 
     @Override
@@ -96,16 +89,13 @@ public class ProductoServiceImpl implements ProductoService {
     public ResponseEntity<Object> cambiarEstado(Integer productoId, Boolean activo) {
         ProductoEntity entity = productoRepository.findById(productoId).orElse(null);
         if (entity == null) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_PRODUCTO_NO_ENCONTRADO);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_PRODUCTO_NO_ENCONTRADO);
         }
 
         entity.setActivo(activo);
         productoRepository.save(entity);
 
-        String mensaje = Boolean.TRUE.equals(activo)
-                ? MSG_PRODUCTO_ACTIVADO
-                : MSG_PRODUCTO_DESACTIVADO;
+        String mensaje = Boolean.TRUE.equals(activo) ? MSG_PRODUCTO_ACTIVADO : MSG_PRODUCTO_DESACTIVADO;
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
     }
 }

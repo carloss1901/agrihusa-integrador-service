@@ -45,8 +45,7 @@ public class SituacionServiceImpl implements SituacionService {
 
         if (request.getSituacionId() == 0) {
             if (situacionRepository.existsByDescripcionIgnoreCase(descripcion)) {
-                return MessageResponse.setResponse(
-                        Boolean.FALSE, HttpStatus.CONFLICT, MSG_SITUACION_YA_REGISTRADA);
+                return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_SITUACION_YA_REGISTRADA);
             }
 
             SituacionEntity entity = new SituacionEntity();
@@ -54,28 +53,22 @@ public class SituacionServiceImpl implements SituacionService {
             entity.setActivo(Boolean.TRUE);
             situacionRepository.save(entity);
 
-            return MessageResponse.setResponse(
-                    Boolean.TRUE, HttpStatus.CREATED, MSG_SITUACION_REGISTRADA);
+            return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.CREATED, MSG_SITUACION_REGISTRADA);
         }
 
-        SituacionEntity entity = situacionRepository
-                .findById(request.getSituacionId())
-                .orElse(null);
+        SituacionEntity entity = situacionRepository.findById(request.getSituacionId()).orElse(null);
         if (entity == null) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_SITUACION_NO_ENCONTRADA);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_SITUACION_NO_ENCONTRADA);
         }
 
         if (situacionRepository.existsByDescripcionIgnoreCaseAndSituacionIdNot(
                 descripcion, request.getSituacionId())) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.CONFLICT, MSG_SITUACION_YA_REGISTRADA);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_SITUACION_YA_REGISTRADA);
         }
 
         entity.setDescripcion(descripcion);
         situacionRepository.save(entity);
-        return MessageResponse.setResponse(
-                Boolean.TRUE, HttpStatus.OK, MSG_SITUACION_ACTUALIZADA);
+        return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, MSG_SITUACION_ACTUALIZADA);
     }
 
     @Override
@@ -83,16 +76,13 @@ public class SituacionServiceImpl implements SituacionService {
     public ResponseEntity<Object> cambiarEstado(Integer situacionId, Boolean activo) {
         SituacionEntity entity = situacionRepository.findById(situacionId).orElse(null);
         if (entity == null) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_SITUACION_NO_ENCONTRADA);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_SITUACION_NO_ENCONTRADA);
         }
 
         entity.setActivo(activo);
         situacionRepository.save(entity);
 
-        String mensaje = Boolean.TRUE.equals(activo)
-                ? MSG_SITUACION_ACTIVADA
-                : MSG_SITUACION_DESACTIVADA;
+        String mensaje = Boolean.TRUE.equals(activo) ? MSG_SITUACION_ACTIVADA : MSG_SITUACION_DESACTIVADA;
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
     }
 }

@@ -48,12 +48,10 @@ public class PuertoLlegadaServiceImpl implements PuertoLlegadaService {
 
         if (request.getPuertoLlegadaId() == 0) {
             if (puertoRepository.existsByCodigoIgnoreCase(codigo)) {
-                return MessageResponse.setResponse(
-                        Boolean.FALSE, HttpStatus.CONFLICT, MSG_PUERTO_YA_REGISTRADO);
+                return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_PUERTO_YA_REGISTRADO);
             }
             if (puertoRepository.existsByPuertoIgnoreCaseAndPaisIgnoreCase(puerto, pais)) {
-                return MessageResponse.setResponse(
-                        Boolean.FALSE, HttpStatus.CONFLICT, MSG_PUERTO_PAIS_YA_REGISTRADO);
+                return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_PUERTO_PAIS_YA_REGISTRADO);
             }
 
             PuertoLlegadaEntity entity = new PuertoLlegadaEntity();
@@ -63,33 +61,28 @@ public class PuertoLlegadaServiceImpl implements PuertoLlegadaService {
             entity.setActivo(Boolean.TRUE);
             puertoRepository.save(entity);
 
-            return MessageResponse.setResponse(
-                    Boolean.TRUE, HttpStatus.CREATED, MSG_PUERTO_REGISTRADO);
+            return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.CREATED, MSG_PUERTO_REGISTRADO);
         }
 
         PuertoLlegadaEntity entity = puertoRepository.findById(request.getPuertoLlegadaId()).orElse(null);
         if (entity == null) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_PUERTO_NO_ENCONTRADO);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_PUERTO_NO_ENCONTRADO);
         }
 
         if (puertoRepository.existsByCodigoIgnoreCaseAndPuertoLlegadaIdNot(
                 codigo, request.getPuertoLlegadaId())) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.CONFLICT, MSG_PUERTO_YA_REGISTRADO);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_PUERTO_YA_REGISTRADO);
         }
         if (puertoRepository.existsByPuertoIgnoreCaseAndPaisIgnoreCaseAndPuertoLlegadaIdNot(
                 puerto, pais, request.getPuertoLlegadaId())) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.CONFLICT, MSG_PUERTO_PAIS_YA_REGISTRADO);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_PUERTO_PAIS_YA_REGISTRADO);
         }
 
         entity.setCodigo(codigo);
         entity.setPuerto(puerto);
         entity.setPais(pais);
         puertoRepository.save(entity);
-        return MessageResponse.setResponse(
-                Boolean.TRUE, HttpStatus.OK, MSG_PUERTO_ACTUALIZADO);
+        return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, MSG_PUERTO_ACTUALIZADO);
     }
 
     @Override
@@ -97,16 +90,13 @@ public class PuertoLlegadaServiceImpl implements PuertoLlegadaService {
     public ResponseEntity<Object> cambiarEstado(Integer puertoLlegadaId, Boolean activo) {
         PuertoLlegadaEntity entity = puertoRepository.findById(puertoLlegadaId).orElse(null);
         if (entity == null) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_PUERTO_NO_ENCONTRADO);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_PUERTO_NO_ENCONTRADO);
         }
 
         entity.setActivo(activo);
         puertoRepository.save(entity);
 
-        String mensaje = Boolean.TRUE.equals(activo)
-                ? MSG_PUERTO_ACTIVADO
-                : MSG_PUERTO_DESACTIVADO;
+        String mensaje = Boolean.TRUE.equals(activo) ? MSG_PUERTO_ACTIVADO : MSG_PUERTO_DESACTIVADO;
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
     }
 }

@@ -38,8 +38,8 @@ public class VariedadServiceImpl implements VariedadService {
     public CustomPage<VariedadResponse> listarVariedades(
             String texto, Integer productoId, Boolean activo, Pageable pageable) {
         Page<VariedadResponse> variedades = variedadRepository
-                .listarVariedades(texto, productoId, activo, pageable)
-                .map(VariedadResponse::from);
+            .listarVariedades(texto, productoId, activo, pageable)
+            .map(VariedadResponse::from);
         return new CustomPage<>(variedades);
     }
 
@@ -49,15 +49,12 @@ public class VariedadServiceImpl implements VariedadService {
         String nombre = request.getNombre().trim();
         ProductoEntity producto = productoRepository.findById(request.getProductoId()).orElse(null);
         if (producto == null) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_PRODUCTO_NO_ENCONTRADO);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_PRODUCTO_NO_ENCONTRADO);
         }
 
         if (request.getVariedadId() == 0) {
-            if (variedadRepository.existsByProductoIdAndNombreIgnoreCase(
-                    request.getProductoId(), nombre)) {
-                return MessageResponse.setResponse(
-                        Boolean.FALSE, HttpStatus.CONFLICT, MSG_VARIEDAD_YA_REGISTRADA);
+            if (variedadRepository.existsByProductoIdAndNombreIgnoreCase( request.getProductoId(), nombre)) {
+                return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_VARIEDAD_YA_REGISTRADA);
             }
 
             VariedadEntity entity = new VariedadEntity();
@@ -66,27 +63,23 @@ public class VariedadServiceImpl implements VariedadService {
             entity.setActivo(Boolean.TRUE);
             variedadRepository.save(entity);
 
-            return MessageResponse.setResponse(
-                    Boolean.TRUE, HttpStatus.CREATED, MSG_VARIEDAD_REGISTRADA);
+            return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.CREATED, MSG_VARIEDAD_REGISTRADA);
         }
 
         VariedadEntity entity = variedadRepository.findById(request.getVariedadId()).orElse(null);
         if (entity == null) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_VARIEDAD_NO_ENCONTRADA);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_VARIEDAD_NO_ENCONTRADA);
         }
 
         if (variedadRepository.existsByProductoIdAndNombreIgnoreCaseAndVariedadIdNot(
                 request.getProductoId(), nombre, request.getVariedadId())) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.CONFLICT, MSG_VARIEDAD_YA_REGISTRADA);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_VARIEDAD_YA_REGISTRADA);
         }
 
         entity.setProductoId(request.getProductoId());
         entity.setNombre(nombre);
         variedadRepository.save(entity);
-        return MessageResponse.setResponse(
-                Boolean.TRUE, HttpStatus.OK, MSG_VARIEDAD_ACTUALIZADA);
+        return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, MSG_VARIEDAD_ACTUALIZADA);
     }
 
     @Override
@@ -94,28 +87,23 @@ public class VariedadServiceImpl implements VariedadService {
     public ResponseEntity<Object> cambiarEstado(Integer variedadId, Boolean activo) {
         VariedadEntity entity = variedadRepository.findById(variedadId).orElse(null);
         if (entity == null) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_VARIEDAD_NO_ENCONTRADA);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_VARIEDAD_NO_ENCONTRADA);
         }
 
         if (Boolean.TRUE.equals(activo)) {
             ProductoEntity producto = productoRepository.findById(entity.getProductoId()).orElse(null);
             if (producto == null) {
-                return MessageResponse.setResponse(
-                        Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_PRODUCTO_NO_ENCONTRADO);
+                return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_PRODUCTO_NO_ENCONTRADO);
             }
             if (!Boolean.TRUE.equals(producto.getActivo())) {
-                return MessageResponse.setResponse(
-                        Boolean.FALSE, HttpStatus.BAD_REQUEST, MSG_PRODUCTO_INACTIVO);
+                return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.BAD_REQUEST, MSG_PRODUCTO_INACTIVO);
             }
         }
 
         entity.setActivo(activo);
         variedadRepository.save(entity);
 
-        String mensaje = Boolean.TRUE.equals(activo)
-                ? MSG_VARIEDAD_ACTIVADA
-                : MSG_VARIEDAD_DESACTIVADA;
+        String mensaje = Boolean.TRUE.equals(activo) ? MSG_VARIEDAD_ACTIVADA : MSG_VARIEDAD_DESACTIVADA;
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
     }
 }

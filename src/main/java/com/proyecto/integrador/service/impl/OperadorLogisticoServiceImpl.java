@@ -48,12 +48,10 @@ public class OperadorLogisticoServiceImpl implements OperadorLogisticoService {
 
         if (request.getOperadorLogisticoId() == 0) {
             if (operadorRepository.existsByRucIgnoreCase(ruc)) {
-                return MessageResponse.setResponse(
-                        Boolean.FALSE, HttpStatus.CONFLICT, MSG_RUC_YA_REGISTRADO);
+                return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_RUC_YA_REGISTRADO);
             }
             if (operadorRepository.existsByRazonSocialIgnoreCase(razonSocial)) {
-                return MessageResponse.setResponse(
-                        Boolean.FALSE, HttpStatus.CONFLICT, MSG_RAZON_SOCIAL_YA_REGISTRADA);
+                return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_RAZON_SOCIAL_YA_REGISTRADA);
             }
 
             OperadorLogisticoEntity entity = new OperadorLogisticoEntity();
@@ -61,32 +59,26 @@ public class OperadorLogisticoServiceImpl implements OperadorLogisticoService {
             entity.setActivo(Boolean.TRUE);
             operadorRepository.save(entity);
 
-            return MessageResponse.setResponse(
-                    Boolean.TRUE, HttpStatus.CREATED, MSG_OPERADOR_REGISTRADO);
+            return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.CREATED, MSG_OPERADOR_REGISTRADO);
         }
 
-        OperadorLogisticoEntity entity = operadorRepository
-                .findById(request.getOperadorLogisticoId()).orElse(null);
+        OperadorLogisticoEntity entity = operadorRepository.findById(request.getOperadorLogisticoId()).orElse(null);
         if (entity == null) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_OPERADOR_NO_ENCONTRADO);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_OPERADOR_NO_ENCONTRADO);
         }
 
         if (operadorRepository.existsByRucIgnoreCaseAndOperadorLogisticoIdNot(
                 ruc, request.getOperadorLogisticoId())) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.CONFLICT, MSG_RUC_YA_REGISTRADO);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_RUC_YA_REGISTRADO);
         }
         if (operadorRepository.existsByRazonSocialIgnoreCaseAndOperadorLogisticoIdNot(
                 razonSocial, request.getOperadorLogisticoId())) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.CONFLICT, MSG_RAZON_SOCIAL_YA_REGISTRADA);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_RAZON_SOCIAL_YA_REGISTRADA);
         }
 
         asignarDatos(entity, request, ruc, razonSocial);
         operadorRepository.save(entity);
-        return MessageResponse.setResponse(
-                Boolean.TRUE, HttpStatus.OK, MSG_OPERADOR_ACTUALIZADO);
+        return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, MSG_OPERADOR_ACTUALIZADO);
     }
 
     private void asignarDatos(
@@ -113,16 +105,13 @@ public class OperadorLogisticoServiceImpl implements OperadorLogisticoService {
         OperadorLogisticoEntity entity = operadorRepository
                 .findById(operadorLogisticoId).orElse(null);
         if (entity == null) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_OPERADOR_NO_ENCONTRADO);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_OPERADOR_NO_ENCONTRADO);
         }
 
         entity.setActivo(activo);
         operadorRepository.save(entity);
 
-        String mensaje = Boolean.TRUE.equals(activo)
-                ? MSG_OPERADOR_ACTIVADO
-                : MSG_OPERADOR_DESACTIVADO;
+        String mensaje = Boolean.TRUE.equals(activo) ? MSG_OPERADOR_ACTIVADO : MSG_OPERADOR_DESACTIVADO;
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
     }
 }

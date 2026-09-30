@@ -46,8 +46,7 @@ public class DestinoServiceImpl implements DestinoService {
 
         if (request.getDestinoId() == 0) {
             if (destinoRepository.existsByPaisIgnoreCaseAndCiudadIgnoreCase(pais, ciudad)) {
-                return MessageResponse.setResponse(
-                        Boolean.FALSE, HttpStatus.CONFLICT, MSG_DESTINO_YA_REGISTRADO);
+                return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_DESTINO_YA_REGISTRADO);
             }
 
             DestinoEntity entity = new DestinoEntity();
@@ -56,27 +55,23 @@ public class DestinoServiceImpl implements DestinoService {
             entity.setActivo(Boolean.TRUE);
             destinoRepository.save(entity);
 
-            return MessageResponse.setResponse(
-                    Boolean.TRUE, HttpStatus.CREATED, MSG_DESTINO_REGISTRADO);
+            return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.CREATED, MSG_DESTINO_REGISTRADO);
         }
 
         DestinoEntity entity = destinoRepository.findById(request.getDestinoId()).orElse(null);
         if (entity == null) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_DESTINO_NO_ENCONTRADO);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_DESTINO_NO_ENCONTRADO);
         }
 
         if (destinoRepository.existsByPaisIgnoreCaseAndCiudadIgnoreCaseAndDestinoIdNot(
                 pais, ciudad, request.getDestinoId())) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.CONFLICT, MSG_DESTINO_YA_REGISTRADO);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_DESTINO_YA_REGISTRADO);
         }
 
         entity.setPais(pais);
         entity.setCiudad(ciudad);
         destinoRepository.save(entity);
-        return MessageResponse.setResponse(
-                Boolean.TRUE, HttpStatus.OK, MSG_DESTINO_ACTUALIZADO);
+        return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, MSG_DESTINO_ACTUALIZADO);
     }
 
     @Override
@@ -84,16 +79,13 @@ public class DestinoServiceImpl implements DestinoService {
     public ResponseEntity<Object> cambiarEstado(Integer destinoId, Boolean activo) {
         DestinoEntity entity = destinoRepository.findById(destinoId).orElse(null);
         if (entity == null) {
-            return MessageResponse.setResponse(
-                    Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_DESTINO_NO_ENCONTRADO);
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_DESTINO_NO_ENCONTRADO);
         }
 
         entity.setActivo(activo);
         destinoRepository.save(entity);
 
-        String mensaje = Boolean.TRUE.equals(activo)
-                ? MSG_DESTINO_ACTIVADO
-                : MSG_DESTINO_DESACTIVADO;
+        String mensaje = Boolean.TRUE.equals(activo) ? MSG_DESTINO_ACTIVADO : MSG_DESTINO_DESACTIVADO;
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
     }
 }

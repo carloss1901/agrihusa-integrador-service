@@ -39,10 +39,10 @@ agrihusa-integrador-service/
 - Spring Boot 3.0.6.
 - Gradle.
 - Spring Web, JPA, validación y Swagger/OpenAPI.
-- PostgreSQL de Supabase configurado mediante `SUPABASE_DB_URL`, `SUPABASE_DB_USER` y `SUPABASE_DB_PASSWORD`.
+- SQL Server configurado mediante `SQLSERVER_DB_URL`, `SQLSERVER_DB_USER` y `SQLSERVER_DB_PASSWORD`.
 - Puerto de ejecución: `8085`.
 
-La aplicación utiliza JPA/Hibernate con el esquema `public` y `ddl-auto=validate`; no crea ni elimina tablas al iniciar.
+La aplicación utiliza JPA/Hibernate con `ddl-auto=validate`; no crea ni elimina tablas al iniciar.
 
 ## Ejecución
 
@@ -58,7 +58,7 @@ Linux/macOS:
 ./gradlew bootRun
 ```
 
-Actualmente están implementados el endpoint de prueba `GET /api/hola-mundo` y el flujo de consulta de personas `GET /api/personas`. El resto de módulos de negocio aún está pendiente.
+Actualmente está implementado el endpoint de prueba `GET /api/hola-mundo`. El resto de módulos de negocio aún está pendiente.
 
 ## Despliegue con Render
 

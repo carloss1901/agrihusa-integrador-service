@@ -20,6 +20,17 @@
 *.rar
 
 logs/
+
+# Variables de entorno locales
+.env
+
+# IDEs y archivos generados por el editor
+.idea/
+*.iml
+.vscode/
+bin/
+out/
+
 # Gradle
 .gradle/
 build/

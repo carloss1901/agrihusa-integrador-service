@@ -17,10 +17,10 @@ spring:
     encoding: UTF-8
 
   datasource:
-    url: ${MYSQL_DB_URL}
-    username: ${MYSQL_DB_USER}
-    password: ${MYSQL_DB_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${SQLSERVER_DB_URL}
+    username: ${SQLSERVER_DB_USER}
+    password: ${SQLSERVER_DB_PASSWORD}
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
     hikari:
       auto-commit: false
       connection-timeout: ${DB_CONNECTION_TIMEOUT:20000}
@@ -30,9 +30,9 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     show-sql: false
-    database-platform: org.hibernate.dialect.MySQLDialect
+    database-platform: org.hibernate.dialect.SQLServerDialect
 
 springdoc:
   api-docs:

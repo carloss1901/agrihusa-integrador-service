@@ -39,7 +39,7 @@ agrihusa-integrador-service/
 - Spring Boot 3.0.6.
 - Gradle.
 - Spring Web, JPA, validación y Swagger/OpenAPI.
-- MySQL configurado mediante `MYSQL_DB_URL`, `MYSQL_DB_USER` y `MYSQL_DB_PASSWORD`.
+- SQL Server configurado mediante `SQLSERVER_DB_URL`, `SQLSERVER_DB_USER` y `SQLSERVER_DB_PASSWORD`.
 - Puerto de ejecución: `8085`.
 
 La aplicación utiliza JPA/Hibernate con `ddl-auto=validate`; no crea ni elimina tablas al iniciar.

@@ -1,5 +1,7 @@
 package com.proyecto.integrador.model.projection;
 
+import java.time.LocalDate;
+
 public interface OperadorLogisticoProjection {
 
     Integer getOperadorLogisticoId();
@@ -21,4 +23,8 @@ public interface OperadorLogisticoProjection {
     Boolean getActivo();
 
     String getEstadoDsc();
+
+    LocalDate getFechaCreacion();
+
+    LocalDate getFechaModificacion();
 }

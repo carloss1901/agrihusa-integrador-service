@@ -3,6 +3,8 @@ package com.proyecto.integrador.model.response;
 import com.proyecto.integrador.model.entity.OperadorLogisticoEntity;
 import com.proyecto.integrador.model.projection.OperadorLogisticoProjection;
 
+import java.time.LocalDate;
+
 public record OperadorLogisticoResponse(
         Integer operadorLogisticoId,
         String ruc,
@@ -13,7 +15,9 @@ public record OperadorLogisticoResponse(
         String telefono,
         String direccion,
         Boolean activo,
-        String estadoDsc
+        String estadoDsc,
+        LocalDate fechaCreacion,
+        LocalDate fechaModificacion
 ) {
 
     public static OperadorLogisticoResponse from(OperadorLogisticoProjection projection) {
@@ -27,7 +31,9 @@ public record OperadorLogisticoResponse(
                 projection.getTelefono(),
                 projection.getDireccion(),
                 projection.getActivo(),
-                projection.getEstadoDsc()
+                projection.getEstadoDsc(),
+                projection.getFechaCreacion(),
+                projection.getFechaModificacion()
         );
     }
 
@@ -42,7 +48,9 @@ public record OperadorLogisticoResponse(
                 entity.getTelefono(),
                 entity.getDireccion(),
                 entity.getActivo(),
-                Boolean.TRUE.equals(entity.getActivo()) ? "Activo" : "Inactivo"
+                Boolean.TRUE.equals(entity.getActivo()) ? "Activo" : "Inactivo",
+                entity.getFechaCreacion(),
+                entity.getFechaModificacion()
         );
     }
 }

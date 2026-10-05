@@ -14,11 +14,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/operadores-logisticos")
@@ -37,6 +40,24 @@ public class OperadorLogisticoController {
             @RequestParam(value = "tamPagina", defaultValue = "10") Integer tamanioPagina) {
         Pageable pageable = PageRequest.of(pagina - 1, tamanioPagina);
         return operadorService.listarOperadores(texto, activo, pageable);
+    }
+
+    @GetMapping("/activos")
+    public List<OperadorLogisticoResponse> listarActivos() {
+        return operadorService.listarActivos();
+    }
+
+    @GetMapping("/validar")
+    public ResponseEntity<Object> validarDuplicados(
+            @RequestParam(value = "ruc", required = false) String ruc,
+            @RequestParam(value = "razonSocial", required = false) String razonSocial,
+            @RequestParam(value = "operadorLogisticoId", required = false) Integer operadorLogisticoId) {
+        return operadorService.validarDuplicados(ruc, razonSocial, operadorLogisticoId);
+    }
+
+    @GetMapping("/{operadorLogisticoId}")
+    public ResponseEntity<Object> obtenerPorId(@PathVariable("operadorLogisticoId") Integer operadorLogisticoId) {
+        return operadorService.obtenerPorId(operadorLogisticoId);
     }
 
     @DeleteMapping

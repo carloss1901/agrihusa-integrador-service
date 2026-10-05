@@ -1,7 +1,9 @@
 package com.proyecto.integrador.model.request;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,7 +20,7 @@ public class OperadorLogisticoRegistroRequest {
     private Integer operadorLogisticoId;
 
     @NotBlank(message = "{message.required}")
-    @Size(max = 11, message = "{message.longitudmax}")
+    @Pattern(regexp = "^\\s*[0-9]{11}\\s*$", message = "{message.ruc}")
     private String ruc;
 
     @NotBlank(message = "{message.required}")
@@ -31,12 +33,19 @@ public class OperadorLogisticoRegistroRequest {
     @Size(max = 150, message = "{message.longitudmax}")
     private String contacto;
 
+    @Email(message = "{message.email}")
     @Size(max = 150, message = "{message.longitudmax}")
     private String correo;
 
+    @Pattern(regexp = "^[0-9+\\s()-]*$", message = "{message.telefono}")
     @Size(max = 30, message = "{message.longitudmax}")
     private String telefono;
 
     @Size(max = 250, message = "{message.longitudmax}")
     private String direccion;
+
+    // Se recorta antes de validar para que @Email no rechace espacios al inicio o al final
+    public void setCorreo(String correo) {
+        this.correo = correo == null ? null : correo.trim();
+    }
 }

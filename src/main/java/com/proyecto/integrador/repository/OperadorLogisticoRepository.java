@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface OperadorLogisticoRepository extends JpaRepository<OperadorLogisticoEntity, Integer> {
 
     boolean existsByRucIgnoreCase(String ruc);
@@ -18,6 +20,8 @@ public interface OperadorLogisticoRepository extends JpaRepository<OperadorLogis
 
     boolean existsByRazonSocialIgnoreCaseAndOperadorLogisticoIdNot(
             String razonSocial, Integer operadorLogisticoId);
+
+    List<OperadorLogisticoEntity> findAllByActivoTrueOrderByRazonSocialAsc();
 
     @Query(value = """
             SELECT
@@ -30,15 +34,19 @@ public interface OperadorLogisticoRepository extends JpaRepository<OperadorLogis
                 o.telefono AS telefono,
                 o.direccion AS direccion,
                 o.activo AS activo,
-                CASE WHEN o.activo = 1 THEN 'Activo' ELSE 'Inactivo' END AS estadoDsc
+                CASE WHEN o.activo = 1 THEN 'Activo' ELSE 'Inactivo' END AS estadoDsc,
+                o.fecha_creacion AS fechaCreacion,
+                o.fecha_modificacion AS fechaModificacion
             FROM operador_logistico o
             WHERE (:texto IS NULL OR :texto = ''
                    OR LOWER(o.ruc) LIKE LOWER(CONCAT('%', :texto, '%'))
                    OR LOWER(o.razon_social) LIKE LOWER(CONCAT('%', :texto, '%'))
                    OR LOWER(o.nombre_comercial) LIKE LOWER(CONCAT('%', :texto, '%'))
-                   OR LOWER(o.contacto) LIKE LOWER(CONCAT('%', :texto, '%')))
+                   OR LOWER(o.contacto) LIKE LOWER(CONCAT('%', :texto, '%'))
+                   OR LOWER(o.correo) LIKE LOWER(CONCAT('%', :texto, '%'))
+                   OR LOWER(o.telefono) LIKE LOWER(CONCAT('%', :texto, '%')))
               AND (:activo IS NULL OR o.activo = :activo)
-            ORDER BY o.operador_logistico_id
+            ORDER BY o.razon_social
             """,
             countQuery = """
                     SELECT COUNT(*)
@@ -47,7 +55,9 @@ public interface OperadorLogisticoRepository extends JpaRepository<OperadorLogis
                            OR LOWER(o.ruc) LIKE LOWER(CONCAT('%', :texto, '%'))
                            OR LOWER(o.razon_social) LIKE LOWER(CONCAT('%', :texto, '%'))
                            OR LOWER(o.nombre_comercial) LIKE LOWER(CONCAT('%', :texto, '%'))
-                           OR LOWER(o.contacto) LIKE LOWER(CONCAT('%', :texto, '%')))
+                           OR LOWER(o.contacto) LIKE LOWER(CONCAT('%', :texto, '%'))
+                           OR LOWER(o.correo) LIKE LOWER(CONCAT('%', :texto, '%'))
+                           OR LOWER(o.telefono) LIKE LOWER(CONCAT('%', :texto, '%')))
                       AND (:activo IS NULL OR o.activo = :activo)
                     """,
             nativeQuery = true)

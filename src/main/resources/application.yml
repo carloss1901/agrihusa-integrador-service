@@ -1,6 +1,9 @@
 server:
   port: ${PORT:8085}
 
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+
 jwt:
   secret: ${JWT_SECRET:agrihusa-integrador-dev-secret-key-2026}
   expiration-ms: ${JWT_EXPIRATION_MS:3600000}
@@ -30,7 +33,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: ${DDL_AUTO:none}
     show-sql: false
     database-platform: org.hibernate.dialect.SQLServerDialect
 

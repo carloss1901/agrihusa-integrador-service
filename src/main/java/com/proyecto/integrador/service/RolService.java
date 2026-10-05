@@ -10,6 +10,9 @@ import org.springframework.http.ResponseEntity;
 public interface RolService {
 
     ResponseEntity<Object> registrar(RolRegistroRequest request);
+    default ResponseEntity<Object> actualizar(RolRegistroRequest request) {
+        return registrar(request);
+    }
 
     ResponseEntity<Object> cambiarEstado(Integer rolId, Boolean activo);
 

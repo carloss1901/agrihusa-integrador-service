@@ -12,6 +12,9 @@ public interface DestinoService {
             String pais, String ciudad, Boolean activo, Pageable pageable);
 
     ResponseEntity<Object> registrar(DestinoRegistroRequest request);
+    default ResponseEntity<Object> actualizar(DestinoRegistroRequest request) {
+        return registrar(request);
+    }
 
     ResponseEntity<Object> cambiarEstado(Integer destinoId, Boolean activo);
 }

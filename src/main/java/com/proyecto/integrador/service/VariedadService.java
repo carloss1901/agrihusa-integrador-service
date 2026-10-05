@@ -12,6 +12,9 @@ public interface VariedadService {
             String texto, Integer productoId, Boolean activo, Pageable pageable);
 
     ResponseEntity<Object> registrar(VariedadRegistroRequest request);
+    default ResponseEntity<Object> actualizar(VariedadRegistroRequest request) {
+        return registrar(request);
+    }
 
     ResponseEntity<Object> cambiarEstado(Integer variedadId, Boolean activo);
 }

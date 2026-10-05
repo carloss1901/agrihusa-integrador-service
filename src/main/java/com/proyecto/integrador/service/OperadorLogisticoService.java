@@ -12,6 +12,9 @@ public interface OperadorLogisticoService {
             String texto, Boolean activo, Pageable pageable);
 
     ResponseEntity<Object> registrar(OperadorLogisticoRegistroRequest request);
+    default ResponseEntity<Object> actualizar(OperadorLogisticoRegistroRequest request) {
+        return registrar(request);
+    }
 
     ResponseEntity<Object> cambiarEstado(Integer operadorLogisticoId, Boolean activo);
 }

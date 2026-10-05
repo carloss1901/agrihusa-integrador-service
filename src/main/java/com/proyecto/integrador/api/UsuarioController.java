@@ -4,6 +4,7 @@ import com.proyecto.integrador.model.request.UsuarioRegistroRequest;
 import com.proyecto.integrador.model.request.CambiarContraseniaRequest;
 import com.proyecto.integrador.service.UsuarioService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
 
     @PostMapping
+    @PreAuthorize("hasRole('Administrador')")
     public ResponseEntity<Object> registrar(@Valid @RequestBody UsuarioRegistroRequest request) {
         return usuarioService.registrar(request);
     }

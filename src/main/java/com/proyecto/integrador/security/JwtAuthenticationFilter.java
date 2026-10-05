@@ -15,7 +15,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -69,18 +71,54 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private List<SimpleGrantedAuthority> obtenerAuthorities(Claims claims) {
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         Object rolesClaim = claims.get("roles");
         if (!(rolesClaim instanceof Collection<?> roles)) {
-            return List.of();
+            return authorities;
         }
 
-        return roles.stream()
-                .filter(java.util.Map.class::isInstance)
-                .map(java.util.Map.class::cast)
-                .map(role -> role.get("nombre"))
-                .filter(String.class::isInstance)
-                .map(String.class::cast)
-                .map(nombre -> new SimpleGrantedAuthority("ROLE_" + nombre))
-                .toList();
+        for (Object roleObject : roles) {
+            if (!(roleObject instanceof Map<?, ?> role)) {
+                continue;
+            }
+
+            Object nombre = role.get("nombre");
+            if (nombre instanceof String nombreRol && !nombreRol.isBlank()) {
+                authorities.add(new SimpleGrantedAuthority("ROLE_" + nombreRol));
+            }
+
+            Object modulosObject = role.get("modulos");
+            if (!(modulosObject instanceof Collection<?> modulos)) {
+                continue;
+            }
+
+            for (Object moduloObject : modulos) {
+                if (!(moduloObject instanceof Map<?, ?> modulo)) {
+                    continue;
+                }
+
+                Object codigoObject = modulo.get("codigo");
+                Object permisosObject = modulo.get("permisos");
+                if (!(codigoObject instanceof String codigoModulo)
+                        || !(permisosObject instanceof Collection<?> permisos)) {
+                    continue;
+                }
+
+                for (Object permisoObject : permisos) {
+                    if (!(permisoObject instanceof Map<?, ?> permiso)) {
+                        continue;
+                    }
+
+                    Object accionObject = permiso.get("accion");
+                    if (accionObject instanceof String accion
+                            && !codigoModulo.isBlank() && !accion.isBlank()) {
+                        authorities.add(new SimpleGrantedAuthority(
+                                "PERM_" + codigoModulo + "_" + accion));
+                    }
+                }
+            }
+        }
+
+        return authorities;
     }
 }

@@ -5,6 +5,7 @@ import com.proyecto.integrador.model.response.OperadorLogisticoResponse;
 import com.proyecto.integrador.service.OperadorLogisticoService;
 import com.proyecto.integrador.utils.CustomPage;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,6 +32,7 @@ public class OperadorLogisticoController {
     private final OperadorLogisticoService operadorService;
 
     @GetMapping
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_operadores-logisticos_consultar')")
     public CustomPage<OperadorLogisticoResponse> listarOperadores(
             @RequestParam(value = "texto", required = false) String texto,
             @RequestParam(value = "activo", required = false) Boolean activo,
@@ -40,6 +43,7 @@ public class OperadorLogisticoController {
     }
 
     @DeleteMapping
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_operadores-logisticos_eliminar')")
     public ResponseEntity<Object> cambiarEstado(
             @NotNull(message = "{message.required}") @RequestParam("operadorLogisticoId") Integer operadorLogisticoId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {
@@ -47,7 +51,14 @@ public class OperadorLogisticoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_operadores-logisticos_crear')")
     public ResponseEntity<Object> registrar(@Valid @RequestBody OperadorLogisticoRegistroRequest request) {
         return operadorService.registrar(request);
+    }
+
+    @PutMapping
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_operadores-logisticos_editar')")
+    public ResponseEntity<Object> actualizar(@Valid @RequestBody OperadorLogisticoRegistroRequest request) {
+        return operadorService.actualizar(request);
     }
 }

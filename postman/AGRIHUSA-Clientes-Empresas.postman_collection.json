@@ -1,0 +1,2327 @@
+{
+    "info":  {
+                 "name":  "AGRIHUSA - Clientes y empresas relacionadas",
+                 "description":  "Plan de pruebas de API (nivel 3) para clientes, navieras y operadores logísticos.\n\nEjecutar con el Collection Runner en orden. La primera petición genera datos aleatorios, por lo que la colección se puede correr varias veces sin conflictos de duplicados.",
+                 "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+             },
+    "item":  [
+                 {
+                     "name":  "00 Preparación",
+                     "description":  "Genera los datos de prueba. Ejecutar siempre primero.",
+                     "item":  [
+                                  {
+                                      "name":  "00 Generar datos de prueba y verificar API",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "pm.test(\u0027La API responde con paginación\u0027, () =\u003e pm.expect(pm.response.json()).to.have.property(\u0027paginacion\u0027));"
+                                                                                ]
+                                                                   }
+                                                    },
+                                                    {
+                                                        "listen":  "prerequest",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "// Genera datos únicos en cada ejecución para que la colección se pueda correr varias veces",
+                                                                                    "const rnd = n =\u003e Array.from({ length: n }, () =\u003e Math.floor(Math.random() * 10)).join(\u0027\u0027);",
+                                                                                    "const suf = rnd(6);",
+                                                                                    "const set = (k, v) =\u003e pm.collectionVariables.set(k, v);",
+                                                                                    "set(\u0027sufijo\u0027, suf);",
+                                                                                    "const cliRuc = \u002720\u0027 + rnd(9);",
+                                                                                    "set(\u0027cliRuc\u0027, cliRuc);",
+                                                                                    "set(\u0027cliRucEspacios\u0027, cliRuc.slice(0, 3) + \u0027 \u0027 + cliRuc.slice(3, 7) + \u0027 \u0027 + cliRuc.slice(7));",
+                                                                                    "set(\u0027cliDni\u0027, rnd(8));",
+                                                                                    "set(\u0027cliPasaporte\u0027, \u0027PA\u0027 + rnd(7));",
+                                                                                    "set(\u0027navCodigo\u0027, \u0027NV\u0027 + suf);",
+                                                                                    "set(\u0027navCodigoMin\u0027, \u0027nv\u0027 + suf);",
+                                                                                    "set(\u0027navCodigo2\u0027, \u0027NX\u0027 + suf);",
+                                                                                    "set(\u0027opeRuc\u0027, \u002720\u0027 + rnd(9));",
+                                                                                    "set(\u0027opeRuc2\u0027, \u002720\u0027 + rnd(9));",
+                                                                                    "[\u0027clienteId\u0027, \u0027clienteId2\u0027, \u0027navieraId\u0027, \u0027navieraId2\u0027, \u0027operadorId\u0027, \u0027operadorId2\u0027].forEach(k =\u003e pm.collectionVariables.unset(k));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes?tamPagina=1",
+                                                      "description":  "Ejecutar SIEMPRE primero: genera RUCs, códigos y razones sociales aleatorios y limpia los ids guardados."
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "01 Clientes",
+                     "description":  "CRUD, validaciones, duplicados, filtros, paginación y eliminación lógica de clientes.",
+                     "item":  [
+                                  {
+                                      "name":  "CLI-01 Crear cliente válido (normaliza datos)",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 201\u0027, () =\u003e pm.response.to.have.status(201));",
+                                                                                    "pm.test(\u0027Mensaje: Cliente registrado correctamente\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027Cliente registrado correctamente\u0027));",
+                                                                                    "const d = pm.response.json().data; const suf = pm.collectionVariables.get(\u0027sufijo\u0027);",
+                                                                                    "pm.test(\u0027Razón social en mayúsculas y sin espacios extra\u0027, () =\u003e pm.expect(d.razonSocial).to.eql(\u0027CLIENTE PRUEBA \u0027 + suf + \u0027 SAC\u0027));",
+                                                                                    "pm.test(\u0027Correo en minúsculas\u0027, () =\u003e pm.expect(d.correo).to.eql(\u0027ventas\u0027 + suf + \u0027@agri.pe\u0027));",
+                                                                                    "pm.test(\u0027País en mayúsculas\u0027, () =\u003e pm.expect(d.pais).to.eql(\u0027PERU\u0027));",
+                                                                                    "pm.test(\u0027Queda activo\u0027, () =\u003e pm.expect(d.activo).to.be.true);",
+                                                                                    "pm.collectionVariables.set(\u0027clienteId\u0027, pm.response.json().data.clienteId);"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\n  \"clienteId\": 0,\n  \"tipoDocumento\": \"RUC\",\n  \"numeroDocumento\": \"{{cliRuc}}\",\n  \"razonSocial\": \"  cliente prueba {{sufijo}} sac \",\n  \"nombreComercial\": \"frutas {{sufijo}}\",\n  \"contacto\": \" Ana Torres \",\n  \"correo\": \" Ventas{{sufijo}}@AGRI.pe \",\n  \"telefono\": \"(01) 555-1234\",\n  \"direccion\": \"Av. Principal 123\",\n  \"pais\": \" peru \"\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-02 Documento duplicado (con espacios) -\u003e 409",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 409\u0027, () =\u003e pm.response.to.have.status(409));",
+                                                                                    "pm.test(\u0027Mensaje: El número de documento ya está registrado\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027El número de documento ya está registrado\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"clienteId\": 0, \"tipoDocumento\": \"RUC\", \"numeroDocumento\": \"{{cliRucEspacios}}\", \"razonSocial\": \"Otra razon {{sufijo}}\", \"pais\": \"Peru\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-03 Razón social duplicada (minúsculas) -\u003e 409",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 409\u0027, () =\u003e pm.response.to.have.status(409));",
+                                                                                    "pm.test(\u0027Mensaje: La razón social ya está registrada\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027La razón social ya está registrada\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"clienteId\": 0, \"tipoDocumento\": \"DNI\", \"numeroDocumento\": \"{{cliDni}}\", \"razonSocial\": \"cliente prueba {{sufijo}} sac\", \"pais\": \"Peru\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-05a DNI con 7 dígitos -\u003e 400",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 400\u0027, () =\u003e pm.response.to.have.status(400));",
+                                                                                    "pm.test(\u0027Mensaje: El DNI debe contener exactamente 8 dígitos numéricos\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027El DNI debe contener exactamente 8 dígitos numéricos\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"clienteId\": 0, \"tipoDocumento\": \"DNI\", \"numeroDocumento\": \"1234567\", \"razonSocial\": \"DNI corto {{sufijo}}\", \"pais\": \"Peru\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-05b DNI con 9 dígitos -\u003e 400",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 400\u0027, () =\u003e pm.response.to.have.status(400));",
+                                                                                    "pm.test(\u0027Mensaje: El DNI debe contener exactamente 8 dígitos numéricos\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027El DNI debe contener exactamente 8 dígitos numéricos\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"clienteId\": 0, \"tipoDocumento\": \"DNI\", \"numeroDocumento\": \"123456789\", \"razonSocial\": \"DNI largo {{sufijo}}\", \"pais\": \"Peru\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-05c RUC con letras -\u003e 400",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 400\u0027, () =\u003e pm.response.to.have.status(400));",
+                                                                                    "pm.test(\u0027Mensaje: El RUC debe contener exactamente 11 dígitos numéricos\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027El RUC debe contener exactamente 11 dígitos numéricos\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"clienteId\": 0, \"tipoDocumento\": \"RUC\", \"numeroDocumento\": \"2012345678A\", \"razonSocial\": \"RUC letras {{sufijo}}\", \"pais\": \"Peru\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-05d Pasaporte válido -\u003e 201",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 201\u0027, () =\u003e pm.response.to.have.status(201));",
+                                                                                    "pm.collectionVariables.set(\u0027clienteId2\u0027, pm.response.json().data.clienteId);"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"clienteId\": 0, \"tipoDocumento\": \"PASAPORTE\", \"numeroDocumento\": \"{{cliPasaporte}}\", \"razonSocial\": \"cliente pasaporte {{sufijo}}\", \"pais\": \"Chile\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-06 Tipo de documento inválido -\u003e 400",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 400\u0027, () =\u003e pm.response.to.have.status(400));",
+                                                                                    "const campos = (pm.response.json().errores || []).map(e =\u003e e.campo);",
+                                                                                    "pm.test(\u0027Error de validación en el campo tipoDocumento\u0027, () =\u003e pm.expect(campos).to.include(\u0027tipoDocumento\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"clienteId\": 0, \"tipoDocumento\": \"XYZ\", \"numeroDocumento\": \"123\", \"razonSocial\": \"Tipo invalido {{sufijo}}\", \"pais\": \"Peru\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-07 Correo inválido -\u003e 400",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 400\u0027, () =\u003e pm.response.to.have.status(400));",
+                                                                                    "const campos = (pm.response.json().errores || []).map(e =\u003e e.campo);",
+                                                                                    "pm.test(\u0027Error de validación en el campo correo\u0027, () =\u003e pm.expect(campos).to.include(\u0027correo\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"clienteId\": 0, \"tipoDocumento\": \"DNI\", \"numeroDocumento\": \"87654321\", \"razonSocial\": \"Correo invalido {{sufijo}}\", \"correo\": \"no-es-correo\", \"pais\": \"Peru\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-08 Campos obligatorios vacíos -\u003e 400",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 400\u0027, () =\u003e pm.response.to.have.status(400));",
+                                                                                    "const campos = (pm.response.json().errores || []).map(e =\u003e e.campo);",
+                                                                                    "pm.test(\u0027Error de validación en el campo numeroDocumento\u0027, () =\u003e pm.expect(campos).to.include(\u0027numeroDocumento\u0027));",
+                                                                                    "pm.test(\u0027Error de validación en el campo razonSocial\u0027, () =\u003e pm.expect(campos).to.include(\u0027razonSocial\u0027));",
+                                                                                    "pm.test(\u0027Error de validación en el campo pais\u0027, () =\u003e pm.expect(campos).to.include(\u0027pais\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"clienteId\": 0, \"tipoDocumento\": \"RUC\", \"numeroDocumento\": \"\", \"razonSocial\": \"\", \"pais\": \"\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-21 Teléfono con letras -\u003e 400",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 400\u0027, () =\u003e pm.response.to.have.status(400));",
+                                                                                    "const campos = (pm.response.json().errores || []).map(e =\u003e e.campo);",
+                                                                                    "pm.test(\u0027Error de validación en el campo telefono\u0027, () =\u003e pm.expect(campos).to.include(\u0027telefono\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"clienteId\": 0, \"tipoDocumento\": \"DNI\", \"numeroDocumento\": \"87654321\", \"razonSocial\": \"Telefono invalido {{sufijo}}\", \"telefono\": \"abc-123\", \"pais\": \"Peru\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-04 Editar cliente existente -\u003e 200",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "pm.test(\u0027Mensaje: Cliente actualizado correctamente\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027Cliente actualizado correctamente\u0027));",
+                                                                                    "const d = pm.response.json().data;",
+                                                                                    "pm.test(\u0027Mantiene el mismo id\u0027, () =\u003e pm.expect(d.clienteId).to.eql(Number(pm.collectionVariables.get(\u0027clienteId\u0027))));",
+                                                                                    "pm.test(\u0027Actualiza el contacto\u0027, () =\u003e pm.expect(d.contacto).to.eql(\u0027Luis Ramos\u0027));",
+                                                                                    "pm.test(\u0027Registra fecha de modificación\u0027, () =\u003e pm.expect(d.fechaModificacion).to.not.be.null);"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"clienteId\": {{clienteId}}, \"tipoDocumento\": \"RUC\", \"numeroDocumento\": \"{{cliRuc}}\", \"razonSocial\": \"cliente prueba {{sufijo}} sac\", \"contacto\": \"Luis Ramos\", \"pais\": \"Peru\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-17 Editar con documento de otro cliente -\u003e 409",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 409\u0027, () =\u003e pm.response.to.have.status(409));",
+                                                                                    "pm.test(\u0027Mensaje: El número de documento ya está registrado\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027El número de documento ya está registrado\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"clienteId\": {{clienteId2}}, \"tipoDocumento\": \"RUC\", \"numeroDocumento\": \"{{cliRuc}}\", \"razonSocial\": \"cliente pasaporte {{sufijo}}\", \"pais\": \"Chile\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-09 Editar cliente inexistente -\u003e 404",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 404\u0027, () =\u003e pm.response.to.have.status(404));",
+                                                                                    "pm.test(\u0027Mensaje: No se encontró el cliente\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027No se encontró el cliente\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"clienteId\": 999999, \"tipoDocumento\": \"RUC\", \"numeroDocumento\": \"20999999999\", \"razonSocial\": \"No existe {{sufijo}}\", \"pais\": \"Peru\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-19a Obtener cliente por id -\u003e 200",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "pm.test(\u0027Retorna el cliente solicitado\u0027, () =\u003e pm.expect(pm.response.json().data.clienteId).to.eql(Number(pm.collectionVariables.get(\u0027clienteId\u0027))));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes/{{clienteId}}"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-19b Obtener cliente inexistente -\u003e 404",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 404\u0027, () =\u003e pm.response.to.have.status(404));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes/999999"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-16a Validar duplicados (documento existe)",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "const d = pm.response.json().data;",
+                                                                                    "pm.test(\u0027existeNumeroDocumento = true\u0027, () =\u003e pm.expect(d.existeNumeroDocumento).to.be.true);",
+                                                                                    "pm.test(\u0027existeRazonSocial = false\u0027, () =\u003e pm.expect(d.existeRazonSocial).to.be.false);"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes/validar?numeroDocumento={{cliRuc}}\u0026razonSocial=NO%20EXISTE%20{{sufijo}}"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-16b Validar duplicados excluyendo su propio id",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "pm.test(\u0027No se considera duplicado a sí mismo\u0027, () =\u003e pm.expect(pm.response.json().data.existeNumeroDocumento).to.be.false);"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes/validar?numeroDocumento={{cliRuc}}\u0026clienteId={{clienteId}}"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-13 Filtro por texto",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "const r = pm.response.json(); const suf = pm.collectionVariables.get(\u0027sufijo\u0027);",
+                                                                                    "pm.test(\u0027Encuentra los 2 clientes creados\u0027, () =\u003e pm.expect(r.paginacion.totalElementos).to.eql(2));",
+                                                                                    "pm.test(\u0027Todos coinciden con el texto\u0027, () =\u003e r.datos.forEach(c =\u003e pm.expect(c.razonSocial).to.include(suf)));",
+                                                                                    "pm.test(\u0027Ordenados por razón social\u0027, () =\u003e pm.expect(r.datos.map(c =\u003e c.razonSocial)).to.eql([...r.datos.map(c =\u003e c.razonSocial)].sort()));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes?texto={{sufijo}}"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-14a Filtro por texto + tipo de documento",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "const r = pm.response.json();",
+                                                                                    "pm.test(\u0027Solo 1 resultado\u0027, () =\u003e pm.expect(r.paginacion.totalElementos).to.eql(1));",
+                                                                                    "pm.test(\u0027Es de tipo RUC\u0027, () =\u003e pm.expect(r.datos[0].tipoDocumento).to.eql(\u0027RUC\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes?texto={{sufijo}}\u0026tipoDocumento=RUC"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-15 Paginación (página 2 de tamaño 1)",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "const r = pm.response.json();",
+                                                                                    "pm.test(\u0027Retorna 1 elemento\u0027, () =\u003e pm.expect(r.datos.length).to.eql(1));",
+                                                                                    "pm.test(\u0027Página 2 de tamaño 1\u0027, () =\u003e { pm.expect(r.paginacion.numeroPagina).to.eql(2); pm.expect(r.paginacion.tamanioPagina).to.eql(1); });",
+                                                                                    "pm.test(\u0027Total 2 elementos\u0027, () =\u003e pm.expect(r.paginacion.totalElementos).to.eql(2));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes?texto={{sufijo}}\u0026pagina=2\u0026tamPagina=1"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-10 Eliminación lógica (desactivar) -\u003e 200",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "pm.test(\u0027Mensaje: Cliente desactivado correctamente\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027Cliente desactivado correctamente\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes?clienteId={{clienteId}}\u0026activo=false"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-11a Cliente inactivo NO aparece en /activos",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "const ids = pm.response.json().map(c =\u003e c.clienteId);",
+                                                                                    "pm.test(\u0027No incluye al cliente desactivado\u0027, () =\u003e pm.expect(ids).to.not.include(Number(pm.collectionVariables.get(\u0027clienteId\u0027))));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes/activos"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-14b Filtro por estado inactivo",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "const r = pm.response.json();",
+                                                                                    "pm.test(\u0027Solo el cliente desactivado\u0027, () =\u003e pm.expect(r.paginacion.totalElementos).to.eql(1));",
+                                                                                    "pm.test(\u0027Sigue existiendo en BD con estado Inactivo\u0027, () =\u003e pm.expect(r.datos[0].estadoDsc).to.eql(\u0027Inactivo\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes?texto={{sufijo}}\u0026activo=false"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-12 Reactivar cliente -\u003e 200",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "pm.test(\u0027Mensaje: Cliente activado correctamente\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027Cliente activado correctamente\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes?clienteId={{clienteId}}\u0026activo=true"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-11b Cliente reactivado aparece en /activos",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "const ids = pm.response.json().map(c =\u003e c.clienteId);",
+                                                                                    "pm.test(\u0027Incluye al cliente reactivado\u0027, () =\u003e pm.expect(ids).to.include(Number(pm.collectionVariables.get(\u0027clienteId\u0027))));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes/activos"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-18 Cambiar estado de cliente inexistente -\u003e 404",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 404\u0027, () =\u003e pm.response.to.have.status(404));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes?clienteId=999999\u0026activo=false"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLI-20 Cambiar estado sin parámetro activo -\u003e 400",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 400\u0027, () =\u003e pm.response.to.have.status(400));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes?clienteId={{clienteId}}"
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "02 Navieras",
+                     "description":  "CRUD, validaciones, duplicados, filtros, paginación y eliminación lógica de navieras.",
+                     "item":  [
+                                  {
+                                      "name":  "NAV-01 Crear naviera válida (normaliza datos)",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 201\u0027, () =\u003e pm.response.to.have.status(201));",
+                                                                                    "pm.test(\u0027Mensaje: Naviera registrada correctamente\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027Naviera registrada correctamente\u0027));",
+                                                                                    "const d = pm.response.json().data; const suf = pm.collectionVariables.get(\u0027sufijo\u0027);",
+                                                                                    "pm.test(\u0027Código en mayúsculas\u0027, () =\u003e pm.expect(d.codigo).to.eql(\u0027NV\u0027 + suf));",
+                                                                                    "pm.test(\u0027Nombre en mayúsculas\u0027, () =\u003e pm.expect(d.nombre).to.eql(\u0027NAVIERA PRUEBA \u0027 + suf));",
+                                                                                    "pm.test(\u0027Correo en minúsculas\u0027, () =\u003e pm.expect(d.correo).to.eql(\u0027info\u0027 + suf + \u0027@naviera.com\u0027));",
+                                                                                    "pm.test(\u0027Queda activa\u0027, () =\u003e pm.expect(d.activo).to.be.true);",
+                                                                                    "pm.collectionVariables.set(\u0027navieraId\u0027, pm.response.json().data.navieraId);"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\n  \"navieraId\": 0,\n  \"codigo\": \" {{navCodigoMin}} \",\n  \"nombre\": \" naviera prueba {{sufijo}} \",\n  \"pais\": \" suiza \",\n  \"contacto\": \"Juan Perez\",\n  \"correo\": \" Info{{sufijo}}@NAVIERA.com \",\n  \"telefono\": \"+41 22 703 8888\",\n  \"sitioWeb\": \"https://www.naviera{{sufijo}}.com\"\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-02 Código duplicado (minúsculas y espacios) -\u003e 409",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 409\u0027, () =\u003e pm.response.to.have.status(409));",
+                                                                                    "pm.test(\u0027Mensaje: El código ya está registrado\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027El código ya está registrado\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"navieraId\": 0, \"codigo\": \" {{navCodigoMin}} \", \"nombre\": \"Otra naviera {{sufijo}}\", \"pais\": \"Suiza\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-03 Nombre duplicado -\u003e 409",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 409\u0027, () =\u003e pm.response.to.have.status(409));",
+                                                                                    "pm.test(\u0027Mensaje: El nombre ya está registrado\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027El nombre ya está registrado\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"navieraId\": 0, \"codigo\": \"ZZ{{sufijo}}\", \"nombre\": \"NAVIERA prueba {{sufijo}}\", \"pais\": \"Suiza\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-15 Crear segunda naviera -\u003e 201",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 201\u0027, () =\u003e pm.response.to.have.status(201));",
+                                                                                    "pm.collectionVariables.set(\u0027navieraId2\u0027, pm.response.json().data.navieraId);"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"navieraId\": 0, \"codigo\": \"{{navCodigo2}}\", \"nombre\": \"naviera alterna {{sufijo}}\", \"pais\": \"Francia\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-13a Código con caracteres inválidos -\u003e 400",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 400\u0027, () =\u003e pm.response.to.have.status(400));",
+                                                                                    "const campos = (pm.response.json().errores || []).map(e =\u003e e.campo);",
+                                                                                    "pm.test(\u0027Error de validación en el campo codigo\u0027, () =\u003e pm.expect(campos).to.include(\u0027codigo\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"navieraId\": 0, \"codigo\": \"N V$1\", \"nombre\": \"Codigo invalido {{sufijo}}\", \"pais\": \"Suiza\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-13b Sitio web sin http(s) -\u003e 400",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 400\u0027, () =\u003e pm.response.to.have.status(400));",
+                                                                                    "const campos = (pm.response.json().errores || []).map(e =\u003e e.campo);",
+                                                                                    "pm.test(\u0027Error de validación en el campo sitioWeb\u0027, () =\u003e pm.expect(campos).to.include(\u0027sitioWeb\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"navieraId\": 0, \"codigo\": \"SW{{sufijo}}\", \"nombre\": \"Sitio invalido {{sufijo}}\", \"pais\": \"Suiza\", \"sitioWeb\": \"www.sin-protocolo.com\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-13c Correo y teléfono inválidos -\u003e 400",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 400\u0027, () =\u003e pm.response.to.have.status(400));",
+                                                                                    "const campos = (pm.response.json().errores || []).map(e =\u003e e.campo);",
+                                                                                    "pm.test(\u0027Error de validación en el campo correo\u0027, () =\u003e pm.expect(campos).to.include(\u0027correo\u0027));",
+                                                                                    "pm.test(\u0027Error de validación en el campo telefono\u0027, () =\u003e pm.expect(campos).to.include(\u0027telefono\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"navieraId\": 0, \"codigo\": \"CT{{sufijo}}\", \"nombre\": \"Contacto invalido {{sufijo}}\", \"pais\": \"Suiza\", \"correo\": \"x@\", \"telefono\": \"abc\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-13d Campos obligatorios vacíos -\u003e 400",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 400\u0027, () =\u003e pm.response.to.have.status(400));",
+                                                                                    "const campos = (pm.response.json().errores || []).map(e =\u003e e.campo);",
+                                                                                    "pm.test(\u0027Error de validación en el campo codigo\u0027, () =\u003e pm.expect(campos).to.include(\u0027codigo\u0027));",
+                                                                                    "pm.test(\u0027Error de validación en el campo nombre\u0027, () =\u003e pm.expect(campos).to.include(\u0027nombre\u0027));",
+                                                                                    "pm.test(\u0027Error de validación en el campo pais\u0027, () =\u003e pm.expect(campos).to.include(\u0027pais\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"navieraId\": 0, \"codigo\": \"\", \"nombre\": \"\", \"pais\": \"\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-04 Editar naviera (vacía sitio web) -\u003e 200",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "pm.test(\u0027Mensaje: Naviera actualizada correctamente\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027Naviera actualizada correctamente\u0027));",
+                                                                                    "const d = pm.response.json().data;",
+                                                                                    "pm.test(\u0027Actualiza el nombre\u0027, () =\u003e pm.expect(d.nombre).to.include(\u0027EDITADA\u0027));",
+                                                                                    "pm.test(\u0027Sitio web vacío se guarda como null\u0027, () =\u003e pm.expect(d.sitioWeb).to.be.null);",
+                                                                                    "pm.test(\u0027Registra fecha de modificación\u0027, () =\u003e pm.expect(d.fechaModificacion).to.not.be.null);"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"navieraId\": {{navieraId}}, \"codigo\": \"{{navCodigo}}\", \"nombre\": \"naviera prueba {{sufijo}} editada\", \"pais\": \"Suiza\", \"sitioWeb\": \"\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-05 Editar con código de otra naviera -\u003e 409",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 409\u0027, () =\u003e pm.response.to.have.status(409));",
+                                                                                    "pm.test(\u0027Mensaje: El código ya está registrado\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027El código ya está registrado\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"navieraId\": {{navieraId2}}, \"codigo\": \"{{navCodigo}}\", \"nombre\": \"naviera alterna {{sufijo}}\", \"pais\": \"Francia\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-06 Editar naviera inexistente -\u003e 404",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 404\u0027, () =\u003e pm.response.to.have.status(404));",
+                                                                                    "pm.test(\u0027Mensaje: No se encontró la naviera\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027No se encontró la naviera\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"navieraId\": 999999, \"codigo\": \"NOEXISTE\", \"nombre\": \"No existe {{sufijo}}\", \"pais\": \"Suiza\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-12a Obtener naviera por id -\u003e 200",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "pm.test(\u0027Retorna la naviera solicitada\u0027, () =\u003e pm.expect(pm.response.json().data.navieraId).to.eql(Number(pm.collectionVariables.get(\u0027navieraId\u0027))));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras/{{navieraId}}"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-12b Obtener naviera inexistente -\u003e 404",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 404\u0027, () =\u003e pm.response.to.have.status(404));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras/999999"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-10a Validar duplicados (código existe)",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "const d = pm.response.json().data;",
+                                                                                    "pm.test(\u0027existeCodigo = true\u0027, () =\u003e pm.expect(d.existeCodigo).to.be.true);",
+                                                                                    "pm.test(\u0027existeNombre = false\u0027, () =\u003e pm.expect(d.existeNombre).to.be.false);"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras/validar?codigo={{navCodigoMin}}\u0026nombre=NO%20EXISTE%20{{sufijo}}"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-10b Validar duplicados excluyendo su propio id",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "pm.test(\u0027No se considera duplicada a sí misma\u0027, () =\u003e pm.expect(pm.response.json().data.existeCodigo).to.be.false);"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras/validar?codigo={{navCodigo}}\u0026navieraId={{navieraId}}"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-14a Filtro por texto",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "pm.test(\u0027Encuentra las 2 navieras creadas\u0027, () =\u003e pm.expect(pm.response.json().paginacion.totalElementos).to.eql(2));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras?texto={{sufijo}}"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-14b Filtro por texto + país",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "const r = pm.response.json();",
+                                                                                    "pm.test(\u0027Solo 1 resultado\u0027, () =\u003e pm.expect(r.paginacion.totalElementos).to.eql(1));",
+                                                                                    "pm.test(\u0027Es la naviera de Francia\u0027, () =\u003e pm.expect(r.datos[0].codigo).to.eql(pm.collectionVariables.get(\u0027navCodigo2\u0027)));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras?texto={{sufijo}}\u0026pais=francia"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-14c Paginación (tamaño 1)",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "const r = pm.response.json();",
+                                                                                    "pm.test(\u0027Retorna 1 elemento de 2\u0027, () =\u003e { pm.expect(r.datos.length).to.eql(1); pm.expect(r.paginacion.totalElementos).to.eql(2); });"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras?texto={{sufijo}}\u0026pagina=1\u0026tamPagina=1"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-07 Eliminación lógica (desactivar) -\u003e 200",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "pm.test(\u0027Mensaje: Naviera desactivada correctamente\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027Naviera desactivada correctamente\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras?navieraId={{navieraId}}\u0026activo=false"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-11a Naviera inactiva NO aparece en /activas",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "const ids = pm.response.json().map(n =\u003e n.navieraId);",
+                                                                                    "pm.test(\u0027No incluye la naviera desactivada\u0027, () =\u003e pm.expect(ids).to.not.include(Number(pm.collectionVariables.get(\u0027navieraId\u0027))));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras/activas"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-14d Filtro por estado inactivo",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "const r = pm.response.json();",
+                                                                                    "pm.test(\u0027Solo la naviera desactivada\u0027, () =\u003e pm.expect(r.paginacion.totalElementos).to.eql(1));",
+                                                                                    "pm.test(\u0027Estado Inactivo\u0027, () =\u003e pm.expect(r.datos[0].estadoDsc).to.eql(\u0027Inactivo\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras?texto={{sufijo}}\u0026activo=false"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-08 Reactivar naviera -\u003e 200",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "pm.test(\u0027Mensaje: Naviera activada correctamente\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027Naviera activada correctamente\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras?navieraId={{navieraId}}\u0026activo=true"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-11b Naviera reactivada aparece en /activas",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "const ids = pm.response.json().map(n =\u003e n.navieraId);",
+                                                                                    "pm.test(\u0027Incluye la naviera reactivada\u0027, () =\u003e pm.expect(ids).to.include(Number(pm.collectionVariables.get(\u0027navieraId\u0027))));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras/activas"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "NAV-09 Cambiar estado de naviera inexistente -\u003e 404",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 404\u0027, () =\u003e pm.response.to.have.status(404));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/navieras?navieraId=999999\u0026activo=false"
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "03 Operadores logísticos",
+                     "description":  "CRUD, validaciones, duplicados, filtros, paginación y eliminación lógica de operadores logísticos.",
+                     "item":  [
+                                  {
+                                      "name":  "OPE-01 Crear operador válido (normaliza datos)",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 201\u0027, () =\u003e pm.response.to.have.status(201));",
+                                                                                    "pm.test(\u0027Mensaje: Operador logístico registrado correctamente\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027Operador logístico registrado correctamente\u0027));",
+                                                                                    "const d = pm.response.json().data; const suf = pm.collectionVariables.get(\u0027sufijo\u0027);",
+                                                                                    "pm.test(\u0027RUC sin espacios\u0027, () =\u003e pm.expect(d.ruc).to.eql(pm.collectionVariables.get(\u0027opeRuc\u0027)));",
+                                                                                    "pm.test(\u0027Razón social en mayúsculas\u0027, () =\u003e pm.expect(d.razonSocial).to.eql(\u0027OPERADOR PRUEBA \u0027 + suf + \u0027 SAC\u0027));",
+                                                                                    "pm.test(\u0027Correo en minúsculas\u0027, () =\u003e pm.expect(d.correo).to.eql(\u0027contacto\u0027 + suf + \u0027@operador.pe\u0027));",
+                                                                                    "pm.test(\u0027Queda activo\u0027, () =\u003e pm.expect(d.activo).to.be.true);",
+                                                                                    "pm.collectionVariables.set(\u0027operadorId\u0027, pm.response.json().data.operadorLogisticoId);"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\n  \"operadorLogisticoId\": 0,\n  \"ruc\": \" {{opeRuc}} \",\n  \"razonSocial\": \" operador prueba {{sufijo}} sac \",\n  \"nombreComercial\": \"operador {{sufijo}}\",\n  \"contacto\": \"Pedro Diaz\",\n  \"correo\": \" Contacto{{sufijo}}@OPERADOR.pe \",\n  \"telefono\": \"(01) 555-9876\",\n  \"direccion\": \"Av. Argentina 456\"\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-02 RUC duplicado -\u003e 409",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 409\u0027, () =\u003e pm.response.to.have.status(409));",
+                                                                                    "pm.test(\u0027Mensaje: El RUC ya está registrado\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027El RUC ya está registrado\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"operadorLogisticoId\": 0, \"ruc\": \"{{opeRuc}}\", \"razonSocial\": \"Otro operador {{sufijo}}\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-03 Razón social duplicada (minúsculas) -\u003e 409",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 409\u0027, () =\u003e pm.response.to.have.status(409));",
+                                                                                    "pm.test(\u0027Mensaje: La razón social ya está registrada\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027La razón social ya está registrada\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"operadorLogisticoId\": 0, \"ruc\": \"{{opeRuc2}}\", \"razonSocial\": \"operador prueba {{sufijo}} sac\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-15 Crear segundo operador -\u003e 201",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 201\u0027, () =\u003e pm.response.to.have.status(201));",
+                                                                                    "pm.collectionVariables.set(\u0027operadorId2\u0027, pm.response.json().data.operadorLogisticoId);"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"operadorLogisticoId\": 0, \"ruc\": \"{{opeRuc2}}\", \"razonSocial\": \"operador alterno {{sufijo}}\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-13a RUC con 10 dígitos -\u003e 400",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 400\u0027, () =\u003e pm.response.to.have.status(400));",
+                                                                                    "const campos = (pm.response.json().errores || []).map(e =\u003e e.campo);",
+                                                                                    "pm.test(\u0027Error de validación en el campo ruc\u0027, () =\u003e pm.expect(campos).to.include(\u0027ruc\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"operadorLogisticoId\": 0, \"ruc\": \"2055555555\", \"razonSocial\": \"RUC corto {{sufijo}}\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-13b RUC con letras -\u003e 400",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 400\u0027, () =\u003e pm.response.to.have.status(400));",
+                                                                                    "const campos = (pm.response.json().errores || []).map(e =\u003e e.campo);",
+                                                                                    "pm.test(\u0027Error de validación en el campo ruc\u0027, () =\u003e pm.expect(campos).to.include(\u0027ruc\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"operadorLogisticoId\": 0, \"ruc\": \"2055555555A\", \"razonSocial\": \"RUC letras {{sufijo}}\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-13c Correo y teléfono inválidos -\u003e 400",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 400\u0027, () =\u003e pm.response.to.have.status(400));",
+                                                                                    "const campos = (pm.response.json().errores || []).map(e =\u003e e.campo);",
+                                                                                    "pm.test(\u0027Error de validación en el campo correo\u0027, () =\u003e pm.expect(campos).to.include(\u0027correo\u0027));",
+                                                                                    "pm.test(\u0027Error de validación en el campo telefono\u0027, () =\u003e pm.expect(campos).to.include(\u0027telefono\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"operadorLogisticoId\": 0, \"ruc\": \"20123123123\", \"razonSocial\": \"Contacto invalido {{sufijo}}\", \"correo\": \"no-es-correo\", \"telefono\": \"abc\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-13d Campos obligatorios vacíos -\u003e 400",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 400\u0027, () =\u003e pm.response.to.have.status(400));",
+                                                                                    "const campos = (pm.response.json().errores || []).map(e =\u003e e.campo);",
+                                                                                    "pm.test(\u0027Error de validación en el campo ruc\u0027, () =\u003e pm.expect(campos).to.include(\u0027ruc\u0027));",
+                                                                                    "pm.test(\u0027Error de validación en el campo razonSocial\u0027, () =\u003e pm.expect(campos).to.include(\u0027razonSocial\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"operadorLogisticoId\": 0, \"ruc\": \"\", \"razonSocial\": \"\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-04 Editar operador existente -\u003e 200",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "pm.test(\u0027Mensaje: Operador logístico actualizado correctamente\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027Operador logístico actualizado correctamente\u0027));",
+                                                                                    "const d = pm.response.json().data;",
+                                                                                    "pm.test(\u0027Actualiza la razón social\u0027, () =\u003e pm.expect(d.razonSocial).to.include(\u0027EDITADO\u0027));",
+                                                                                    "pm.test(\u0027Actualiza el contacto\u0027, () =\u003e pm.expect(d.contacto).to.eql(\u0027Maria Lopez\u0027));",
+                                                                                    "pm.test(\u0027Registra fecha de modificación\u0027, () =\u003e pm.expect(d.fechaModificacion).to.not.be.null);"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"operadorLogisticoId\": {{operadorId}}, \"ruc\": \"{{opeRuc}}\", \"razonSocial\": \"operador prueba {{sufijo}} editado\", \"contacto\": \"Maria Lopez\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-05 Editar con razón social de otro operador -\u003e 409",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 409\u0027, () =\u003e pm.response.to.have.status(409));",
+                                                                                    "pm.test(\u0027Mensaje: La razón social ya está registrada\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027La razón social ya está registrada\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"operadorLogisticoId\": {{operadorId2}}, \"ruc\": \"{{opeRuc2}}\", \"razonSocial\": \"OPERADOR PRUEBA {{sufijo}} EDITADO\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-06 Editar operador inexistente -\u003e 404",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 404\u0027, () =\u003e pm.response.to.have.status(404));",
+                                                                                    "pm.test(\u0027Mensaje: No se encontró el operador logístico\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027No se encontró el operador logístico\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{ \"operadorLogisticoId\": 999999, \"ruc\": \"20999999999\", \"razonSocial\": \"No existe {{sufijo}}\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-12a Obtener operador por id -\u003e 200",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "pm.test(\u0027Retorna el operador solicitado\u0027, () =\u003e pm.expect(pm.response.json().data.operadorLogisticoId).to.eql(Number(pm.collectionVariables.get(\u0027operadorId\u0027))));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos/{{operadorId}}"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-12b Obtener operador inexistente -\u003e 404",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 404\u0027, () =\u003e pm.response.to.have.status(404));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos/999999"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-10a Validar duplicados (RUC existe)",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "const d = pm.response.json().data;",
+                                                                                    "pm.test(\u0027existeRuc = true\u0027, () =\u003e pm.expect(d.existeRuc).to.be.true);",
+                                                                                    "pm.test(\u0027existeRazonSocial = false\u0027, () =\u003e pm.expect(d.existeRazonSocial).to.be.false);"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos/validar?ruc={{opeRuc}}\u0026razonSocial=NO%20EXISTE%20{{sufijo}}"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-10b Validar duplicados excluyendo su propio id",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "pm.test(\u0027No se considera duplicado a sí mismo\u0027, () =\u003e pm.expect(pm.response.json().data.existeRuc).to.be.false);"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos/validar?ruc={{opeRuc}}\u0026operadorLogisticoId={{operadorId}}"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-14a Filtro por texto",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "pm.test(\u0027Encuentra los 2 operadores creados\u0027, () =\u003e pm.expect(pm.response.json().paginacion.totalElementos).to.eql(2));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos?texto={{sufijo}}"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-14b Filtro por RUC",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "const r = pm.response.json();",
+                                                                                    "pm.test(\u0027Solo 1 resultado\u0027, () =\u003e pm.expect(r.paginacion.totalElementos).to.eql(1));",
+                                                                                    "pm.test(\u0027Es el operador buscado\u0027, () =\u003e pm.expect(r.datos[0].ruc).to.eql(pm.collectionVariables.get(\u0027opeRuc2\u0027)));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos?texto={{opeRuc2}}"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-14c Paginación (tamaño 1)",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "const r = pm.response.json();",
+                                                                                    "pm.test(\u0027Retorna 1 elemento de 2 en la página 2\u0027, () =\u003e { pm.expect(r.datos.length).to.eql(1); pm.expect(r.paginacion.numeroPagina).to.eql(2); pm.expect(r.paginacion.totalElementos).to.eql(2); });"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos?texto={{sufijo}}\u0026pagina=2\u0026tamPagina=1"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-07 Eliminación lógica (desactivar) -\u003e 200",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "pm.test(\u0027Mensaje: Operador logístico desactivado correctamente\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027Operador logístico desactivado correctamente\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos?operadorLogisticoId={{operadorId}}\u0026activo=false"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-11a Operador inactivo NO aparece en /activos",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "const ids = pm.response.json().map(o =\u003e o.operadorLogisticoId);",
+                                                                                    "pm.test(\u0027No incluye al operador desactivado\u0027, () =\u003e pm.expect(ids).to.not.include(Number(pm.collectionVariables.get(\u0027operadorId\u0027))));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos/activos"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-14d Filtro por estado inactivo",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "const r = pm.response.json();",
+                                                                                    "pm.test(\u0027Solo el operador desactivado\u0027, () =\u003e pm.expect(r.paginacion.totalElementos).to.eql(1));",
+                                                                                    "pm.test(\u0027Estado Inactivo\u0027, () =\u003e pm.expect(r.datos[0].estadoDsc).to.eql(\u0027Inactivo\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos?texto={{sufijo}}\u0026activo=false"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-08 Reactivar operador -\u003e 200",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "pm.test(\u0027Mensaje: Operador logístico activado correctamente\u0027, () =\u003e pm.expect(pm.response.json().message).to.eql(\u0027Operador logístico activado correctamente\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos?operadorLogisticoId={{operadorId}}\u0026activo=true"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-11b Operador reactivado aparece en /activos",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "const ids = pm.response.json().map(o =\u003e o.operadorLogisticoId);",
+                                                                                    "pm.test(\u0027Incluye al operador reactivado\u0027, () =\u003e pm.expect(ids).to.include(Number(pm.collectionVariables.get(\u0027operadorId\u0027))));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos/activos"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "OPE-09 Cambiar estado de operador inexistente -\u003e 404",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 404\u0027, () =\u003e pm.response.to.have.status(404));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/operadores-logisticos?operadorLogisticoId=999999\u0026activo=false"
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "04 Seguridad",
+                     "description":  "Configuración CORS para el front Angular.",
+                     "item":  [
+                                  {
+                                      "name":  "SEG-01 CORS permite el origen del front (localhost:4200)",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 200\u0027, () =\u003e pm.response.to.have.status(200));",
+                                                                                    "pm.test(\u0027Devuelve Access-Control-Allow-Origin\u0027, () =\u003e pm.expect(pm.response.headers.get(\u0027Access-Control-Allow-Origin\u0027)).to.eql(\u0027http://localhost:4200\u0027));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "OPTIONS",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Origin",
+                                                                         "value":  "http://localhost:4200"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Access-Control-Request-Method",
+                                                                         "value":  "POST"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes"
+                                                  }
+                                  },
+                                  {
+                                      "name":  "SEG-02 CORS bloquea un origen no permitido",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "pm.test(\u0027HTTP 403\u0027, () =\u003e pm.response.to.have.status(403));"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "OPTIONS",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Origin",
+                                                                         "value":  "http://otro-sitio.com"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Access-Control-Request-Method",
+                                                                         "value":  "POST"
+                                                                     }
+                                                                 ],
+                                                      "url":  "{{baseUrl}}/api/clientes"
+                                                  }
+                                  }
+                              ]
+                 }
+             ],
+    "variable":  [
+                     {
+                         "key":  "baseUrl",
+                         "value":  "http://localhost:8085"
+                     }
+                 ]
+}

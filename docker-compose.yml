@@ -1,0 +1,93 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: agrihusa-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: ${DB_PASSWORD:-Agrihusa#2026}
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  # Crea la base de datos y ejecuta los scripts .sql de db/init (en orden alfabético)
+  db-init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: agrihusa-db-init
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      SA_PASSWORD: ${DB_PASSWORD:-Agrihusa#2026}
+      DB_NAME: ${DB_NAME:-BD_AGRIHUSA}
+    volumes:
+      - ./db/init:/scripts:ro
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        SQLCMD="/opt/mssql-tools18/bin/sqlcmd -S sqlserver -U sa -P $$SA_PASSWORD -C -b"
+        $$SQLCMD -Q "IF DB_ID('$$DB_NAME') IS NULL CREATE DATABASE [$$DB_NAME]"
+        for f in /scripts/*.sql; do
+          [ -e "$$f" ] || continue
+          echo "Ejecutando $$f"
+          $$SQLCMD -d "$$DB_NAME" -i "$$f" || exit 1
+        done
+    restart: "no"
+
+  app:
+    build: .
+    container_name: agrihusa-integrador-service
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    environment:
+      PORT: 8085
+      SQLSERVER_DB_URL: jdbc:sqlserver://sqlserver:1433;databaseName=${DB_NAME:-BD_AGRIHUSA};encrypt=true;trustServerCertificate=true
+      SQLSERVER_DB_USER: sa
+      SQLSERVER_DB_PASSWORD: ${DB_PASSWORD:-Agrihusa#2026}
+      JWT_SECRET: ${JWT_SECRET:-agrihusa-integrador-dev-secret-key-2026}
+      # El esquema lo crean los scripts de db/init; usa DDL_AUTO=update solo si no tienes scripts
+      DDL_AUTO: ${DDL_AUTO:-none}
+    ports:
+      - "8085:8085"
+
+  # Ejecuta las pruebas sin instalar Java: docker compose run --rm tests
+  # Solo unitarias: docker compose run --rm -e GRADLE_TASK=unitTest tests
+  # Copia el proyecto dentro del contenedor porque compilar sobre la carpeta montada de Windows es muy lento;
+  # al final deja el reporte HTML en build/reports/tests.
+  tests:
+    image: eclipse-temurin:17-jdk
+    profiles: ["test"]
+    working_dir: /app
+    volumes:
+      - .:/app
+      - gradle-cache:/root/.gradle
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      # Testcontainers corre dentro de este contenedor y llega al SQL Server de pruebas por el host
+      TESTCONTAINERS_HOST_OVERRIDE: host.docker.internal
+      GRADLE_TASK: test
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command:
+      - sh
+      - -c
+      - |
+        mkdir -p /work
+        tar -C /app --exclude=./build --exclude=./.gradle --exclude=./.git --exclude=./bin --exclude=./.idea -cf - . | tar -C /work -xf -
+        cd /work && sed -i 's/\r$$//' gradlew && sh gradlew $$GRADLE_TASK --no-daemon
+        estado=$$?
+        mkdir -p /app/build/reports && rm -rf /app/build/reports/tests && cp -r build/reports/tests /app/build/reports/ 2>/dev/null
+        exit $$estado
+
+volumes:
+  sqlserver-data:
+  gradle-cache:

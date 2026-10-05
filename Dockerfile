@@ -7,7 +7,7 @@ COPY gradlew gradlew.bat settings.gradle build.gradle ./
 COPY gradle ./gradle
 COPY src ./src
 
-RUN chmod +x ./gradlew && ./gradlew clean bootJar -x test
+RUN sed -i 's/\r$//' ./gradlew && chmod +x ./gradlew && ./gradlew clean bootJar -x test
 
 # Etapa 2: ejecución
 FROM eclipse-temurin:17-jre

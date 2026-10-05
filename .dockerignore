@@ -1,0 +1,9 @@
+.git
+.idea
+.gradle
+build
+bin
+out
+.env
+*.iml
+db

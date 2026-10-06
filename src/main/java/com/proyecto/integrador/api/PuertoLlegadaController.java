@@ -5,6 +5,7 @@ import com.proyecto.integrador.model.response.PuertoLlegadaResponse;
 import com.proyecto.integrador.service.PuertoLlegadaService;
 import com.proyecto.integrador.utils.CustomPage;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,6 +32,7 @@ public class PuertoLlegadaController {
     private final PuertoLlegadaService puertoService;
 
     @GetMapping
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_puertos-llegada_consultar')")
     public CustomPage<PuertoLlegadaResponse> listarPuertos(
             @RequestParam(value = "texto", required = false) String texto,
             @RequestParam(value = "pais", required = false) String pais,
@@ -41,6 +44,7 @@ public class PuertoLlegadaController {
     }
 
     @DeleteMapping
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_puertos-llegada_eliminar')")
     public ResponseEntity<Object> cambiarEstado(
             @NotNull(message = "{message.required}") @RequestParam("puertoLlegadaId") Integer puertoLlegadaId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {
@@ -48,7 +52,14 @@ public class PuertoLlegadaController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_puertos-llegada_crear')")
     public ResponseEntity<Object> registrar(@Valid @RequestBody PuertoLlegadaRegistroRequest request) {
         return puertoService.registrar(request);
+    }
+
+    @PutMapping
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_puertos-llegada_editar')")
+    public ResponseEntity<Object> actualizar(@Valid @RequestBody PuertoLlegadaRegistroRequest request) {
+        return puertoService.actualizar(request);
     }
 }

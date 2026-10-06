@@ -11,6 +11,9 @@ public interface ProductoService {
     CustomPage<ProductoResponse> listarProductos(String texto, Boolean activo, Pageable pageable);
 
     ResponseEntity<Object> registrar(ProductoRegistroRequest request);
+    default ResponseEntity<Object> actualizar(ProductoRegistroRequest request) {
+        return registrar(request);
+    }
 
     ResponseEntity<Object> cambiarEstado(Integer productoId, Boolean activo);
 }

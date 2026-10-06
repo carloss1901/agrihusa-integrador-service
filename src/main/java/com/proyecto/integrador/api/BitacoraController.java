@@ -5,6 +5,7 @@ import com.proyecto.integrador.model.response.BitacoraResponse;
 import com.proyecto.integrador.service.BitacoraService;
 import com.proyecto.integrador.utils.CustomPage;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +27,7 @@ public class BitacoraController {
     private final BitacoraService bitacoraService;
 
     @GetMapping
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_bitacora_consultar')")
     public CustomPage<BitacoraResponse> listar(
             @RequestParam(value = "usuarioId", required = false) Integer usuarioId,
             @RequestParam(value = "modulo", required = false) String modulo,
@@ -40,6 +42,7 @@ public class BitacoraController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_bitacora_crear')")
     public ResponseEntity<Object> registrar(@Valid @RequestBody BitacoraRegistroRequest request) {
         return bitacoraService.registrar(request);
     }

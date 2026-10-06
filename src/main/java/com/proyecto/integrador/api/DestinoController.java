@@ -5,6 +5,7 @@ import com.proyecto.integrador.model.response.DestinoResponse;
 import com.proyecto.integrador.service.DestinoService;
 import com.proyecto.integrador.utils.CustomPage;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,6 +32,7 @@ public class DestinoController {
     private final DestinoService destinoService;
 
     @GetMapping
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_destinos_consultar')")
     public CustomPage<DestinoResponse> listarDestinos(
             @RequestParam(value = "pais", required = false) String pais,
             @RequestParam(value = "ciudad", required = false) String ciudad,
@@ -41,6 +44,7 @@ public class DestinoController {
     }
 
     @DeleteMapping
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_destinos_eliminar')")
     public ResponseEntity<Object> cambiarEstado(
             @NotNull(message = "{message.required}") @RequestParam("destinoId") Integer destinoId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {
@@ -48,7 +52,14 @@ public class DestinoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_destinos_crear')")
     public ResponseEntity<Object> registrar(@Valid @RequestBody DestinoRegistroRequest request) {
         return destinoService.registrar(request);
+    }
+
+    @PutMapping
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_destinos_editar')")
+    public ResponseEntity<Object> actualizar(@Valid @RequestBody DestinoRegistroRequest request) {
+        return destinoService.actualizar(request);
     }
 }

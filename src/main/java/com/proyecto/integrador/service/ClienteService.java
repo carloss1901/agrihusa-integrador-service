@@ -9,5 +9,8 @@ import org.springframework.http.ResponseEntity;
 public interface ClienteService {
     CustomPage<ClienteResponse> listarClientes(String texto, String tipoDocumento, Boolean activo, Pageable pageable);
     ResponseEntity<Object> registrar(ClienteRegistroRequest request);
+    default ResponseEntity<Object> actualizar(ClienteRegistroRequest request) {
+        return registrar(request);
+    }
     ResponseEntity<Object> cambiarEstado(Integer clienteId, Boolean activo);
 }

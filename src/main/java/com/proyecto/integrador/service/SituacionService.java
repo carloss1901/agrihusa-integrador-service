@@ -12,6 +12,9 @@ public interface SituacionService {
             String descripcion, Boolean activo, Pageable pageable);
 
     ResponseEntity<Object> registrar(SituacionRegistroRequest request);
+    default ResponseEntity<Object> actualizar(SituacionRegistroRequest request) {
+        return registrar(request);
+    }
 
     ResponseEntity<Object> cambiarEstado(Integer situacionId, Boolean activo);
 }

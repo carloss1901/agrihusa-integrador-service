@@ -44,12 +44,19 @@ public class LoginServiceImpl implements LoginService {
     private final JwtService jwtService;
 
     @Override
-    public ResponseEntity<Object> login(LoginRequest request) {
+    public ResponseEntity<MessageResponse> login(LoginRequest request) {
         String usuarioIngresado = request.getUsuario().trim();
         UsuarioEntity usuario = usuarioRepository.findByUsuarioAndActivoTrue(usuarioIngresado).orElse(null);
 
         if (usuario == null || !passwordEncoder.matches(request.getContrasenia(), usuario.getContrasenia())) {
-            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.UNAUTHORIZED, MSG_CREDENCIALES_INVALIDAS);
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(MessageResponse.body(
+                            Boolean.FALSE,
+                            HttpStatus.UNAUTHORIZED,
+                            MSG_CREDENCIALES_INVALIDAS,
+                            null
+                    ));
         }
 
         List<Integer> rolesIds = usuarioRolRepository.findAllByUsuarioIdAndActivoTrue(usuario.getUsuarioId())
@@ -72,7 +79,13 @@ public class LoginServiceImpl implements LoginService {
         }
 
         String token = jwtService.generateToken(usuario, roles);
-        return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, MSG_LOGIN_CORRECTO, token);
+        return ResponseEntity
+                .ok(MessageResponse.body(
+                        Boolean.TRUE,
+                        HttpStatus.OK,
+                        MSG_LOGIN_CORRECTO,
+                        token
+                ));
     }
 
     private List<Map<String, Object>> construirModulos(Integer rolId) {

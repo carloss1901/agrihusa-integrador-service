@@ -1,18 +1,36 @@
 package com.proyecto.integrador.utils;
 
 import jakarta.validation.ConstraintViolation;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Schema(name = "MessageResponse")
 public class MessageResponse {
 
-    private MessageResponse() {
+    private Boolean success;
+    private String message;
+    private Integer status;
+    private Object data;
+
+    public static MessageResponse body(
+            boolean success,
+            HttpStatus status,
+            String message,
+            @Nullable Object data) {
+        return new MessageResponse(success, message, status.value(), data);
     }
 
     public static ResponseEntity<Object> setResponse(
@@ -20,12 +38,10 @@ public class MessageResponse {
             HttpStatus status,
             @Nullable String message,
             @Nullable Object data) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", success);
-        response.put("message", message);
-        response.put("status", status.value());
-        response.put("data", data);
-        return new ResponseEntity<>(response, status);
+        return new ResponseEntity<>(
+                body(success, status, message, data),
+                status
+        );
     }
 
     public static ResponseEntity<Object> setResponse(

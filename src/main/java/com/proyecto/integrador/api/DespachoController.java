@@ -5,6 +5,7 @@ import com.proyecto.integrador.model.response.DespachoResponse;
 import com.proyecto.integrador.service.DespachoService;
 import com.proyecto.integrador.utils.CustomPage;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,6 +32,7 @@ public class DespachoController {
     private final DespachoService despachoService;
 
     @GetMapping
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_despachos_consultar')")
     public CustomPage<DespachoResponse> listar(
             @RequestParam(value = "texto", required = false) String texto,
             @RequestParam(value = "clienteId", required = false) Integer clienteId,
@@ -42,11 +45,19 @@ public class DespachoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_despachos_crear')")
     public ResponseEntity<Object> registrar(@Valid @RequestBody DespachoRegistroRequest request) {
         return despachoService.registrar(request);
     }
 
+    @PutMapping
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_despachos_editar')")
+    public ResponseEntity<Object> actualizar(@Valid @RequestBody DespachoRegistroRequest request) {
+        return despachoService.actualizar(request);
+    }
+
     @DeleteMapping
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_despachos_eliminar')")
     public ResponseEntity<Object> cambiarEstado(
             @NotNull(message = "{message.required}") @RequestParam("despachoId") Integer despachoId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {

@@ -12,6 +12,9 @@ public interface PuertoLlegadaService {
             String texto, String pais, Boolean activo, Pageable pageable);
 
     ResponseEntity<Object> registrar(PuertoLlegadaRegistroRequest request);
+    default ResponseEntity<Object> actualizar(PuertoLlegadaRegistroRequest request) {
+        return registrar(request);
+    }
 
     ResponseEntity<Object> cambiarEstado(Integer puertoLlegadaId, Boolean activo);
 }

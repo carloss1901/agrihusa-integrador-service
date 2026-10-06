@@ -2,6 +2,7 @@ package com.proyecto.integrador.api;
 
 import com.proyecto.integrador.model.request.LoginRequest;
 import com.proyecto.integrador.service.LoginService;
+import com.proyecto.integrador.utils.MessageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class LoginController {
     private final LoginService loginService;
 
     @PostMapping
-    public ResponseEntity<Object> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<MessageResponse> login(@Valid @RequestBody LoginRequest request) {
         return loginService.login(request);
     }
 }

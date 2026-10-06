@@ -11,6 +11,9 @@ public interface ViaService {
     CustomPage<ViaResponse> listarVias(String descripcion, Boolean activo, Pageable pageable);
 
     ResponseEntity<Object> registrar(ViaRegistroRequest request);
+    default ResponseEntity<Object> actualizar(ViaRegistroRequest request) {
+        return registrar(request);
+    }
 
     ResponseEntity<Object> cambiarEstado(Integer viaId, Boolean activo);
 }

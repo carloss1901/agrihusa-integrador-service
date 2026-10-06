@@ -10,5 +10,8 @@ public interface DespachoService {
     CustomPage<DespachoResponse> listarDespachos(String texto, Integer clienteId, Integer situacionId,
                                                   Boolean activo, Pageable pageable);
     ResponseEntity<Object> registrar(DespachoRegistroRequest request);
+    default ResponseEntity<Object> actualizar(DespachoRegistroRequest request) {
+        return registrar(request);
+    }
     ResponseEntity<Object> cambiarEstado(Integer despachoId, Boolean activo);
 }

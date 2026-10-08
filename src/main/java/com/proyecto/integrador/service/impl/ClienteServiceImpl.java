@@ -33,7 +33,7 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     @Override @Transactional
-    public ResponseEntity<Object> registrar(ClienteRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(ClienteRegistroRequest request) {
         String numero = request.getNumeroDocumento().trim(), razon = request.getRazonSocial().trim();
         if (request.getClienteId() == 0) {
             if (clienteRepository.existsByNumeroDocumentoIgnoreCase(numero)) return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_DOCUMENTO);
@@ -58,10 +58,11 @@ public class ClienteServiceImpl implements ClienteService {
     private String normalizar(String value) { return value == null || value.isBlank() ? null : value.trim(); }
 
     @Override @Transactional
-    public ResponseEntity<Object> cambiarEstado(Integer clienteId, Boolean activo) {
+    public ResponseEntity<MessageResponse> cambiarEstado(Integer clienteId, Boolean activo) {
         ClienteEntity entity = clienteRepository.findById(clienteId).orElse(null);
         if (entity == null) return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_NO_ENCONTRADO);
         entity.setActivo(activo); clienteRepository.save(entity);
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, Boolean.TRUE.equals(activo) ? MSG_ACTIVADO : MSG_DESACTIVADO);
     }
 }
+

@@ -40,7 +40,7 @@ public class SituacionServiceImpl implements SituacionService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> registrar(SituacionRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(SituacionRegistroRequest request) {
         String descripcion = request.getDescripcion().trim();
 
         if (request.getSituacionId() == 0) {
@@ -73,7 +73,7 @@ public class SituacionServiceImpl implements SituacionService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> cambiarEstado(Integer situacionId, Boolean activo) {
+    public ResponseEntity<MessageResponse> cambiarEstado(Integer situacionId, Boolean activo) {
         SituacionEntity entity = situacionRepository.findById(situacionId).orElse(null);
         if (entity == null) {
             return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_SITUACION_NO_ENCONTRADA);
@@ -86,3 +86,4 @@ public class SituacionServiceImpl implements SituacionService {
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
     }
 }
+

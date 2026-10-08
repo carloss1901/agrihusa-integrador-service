@@ -42,7 +42,7 @@ public class OperadorLogisticoServiceImpl implements OperadorLogisticoService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> registrar(OperadorLogisticoRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(OperadorLogisticoRegistroRequest request) {
         String ruc = request.getRuc().trim();
         String razonSocial = request.getRazonSocial().trim();
 
@@ -101,7 +101,7 @@ public class OperadorLogisticoServiceImpl implements OperadorLogisticoService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> cambiarEstado(Integer operadorLogisticoId, Boolean activo) {
+    public ResponseEntity<MessageResponse> cambiarEstado(Integer operadorLogisticoId, Boolean activo) {
         OperadorLogisticoEntity entity = operadorRepository
                 .findById(operadorLogisticoId).orElse(null);
         if (entity == null) {
@@ -115,3 +115,4 @@ public class OperadorLogisticoServiceImpl implements OperadorLogisticoService {
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
     }
 }
+

@@ -42,7 +42,7 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> registrar(ProductoRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(ProductoRegistroRequest request) {
         String codigo = request.getCodigo().trim();
         String nombre = request.getNombre().trim();
         String descripcion = request.getDescripcion().trim();
@@ -86,7 +86,7 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> cambiarEstado(Integer productoId, Boolean activo) {
+    public ResponseEntity<MessageResponse> cambiarEstado(Integer productoId, Boolean activo) {
         ProductoEntity entity = productoRepository.findById(productoId).orElse(null);
         if (entity == null) {
             return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_PRODUCTO_NO_ENCONTRADO);
@@ -99,3 +99,4 @@ public class ProductoServiceImpl implements ProductoService {
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
     }
 }
+

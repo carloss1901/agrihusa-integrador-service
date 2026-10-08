@@ -45,7 +45,7 @@ public class VariedadServiceImpl implements VariedadService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> registrar(VariedadRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(VariedadRegistroRequest request) {
         String nombre = request.getNombre().trim();
         ProductoEntity producto = productoRepository.findById(request.getProductoId()).orElse(null);
         if (producto == null) {
@@ -84,7 +84,7 @@ public class VariedadServiceImpl implements VariedadService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> cambiarEstado(Integer variedadId, Boolean activo) {
+    public ResponseEntity<MessageResponse> cambiarEstado(Integer variedadId, Boolean activo) {
         VariedadEntity entity = variedadRepository.findById(variedadId).orElse(null);
         if (entity == null) {
             return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_VARIEDAD_NO_ENCONTRADA);
@@ -107,3 +107,4 @@ public class VariedadServiceImpl implements VariedadService {
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
     }
 }
+

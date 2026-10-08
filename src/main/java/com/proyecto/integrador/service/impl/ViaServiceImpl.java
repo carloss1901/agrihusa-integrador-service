@@ -40,7 +40,7 @@ public class ViaServiceImpl implements ViaService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> registrar(ViaRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(ViaRegistroRequest request) {
         String descripcion = request.getDescripcion().trim();
 
         if (request.getViaId() == 0) {
@@ -72,7 +72,7 @@ public class ViaServiceImpl implements ViaService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> cambiarEstado(Integer viaId, Boolean activo) {
+    public ResponseEntity<MessageResponse> cambiarEstado(Integer viaId, Boolean activo) {
         ViaEntity entity = viaRepository.findById(viaId).orElse(null);
         if (entity == null) {
             return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_VIA_NO_ENCONTRADA);
@@ -85,3 +85,4 @@ public class ViaServiceImpl implements ViaService {
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
     }
 }
+

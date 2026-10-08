@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -44,23 +45,24 @@ public class RolController {
         return rolService.listarRoles(nombre, activo, pageable);
     }
 
-    @DeleteMapping
+    @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador')")
-    public ResponseEntity<Object> cambiarEstado(
+    public ResponseEntity<MessageResponse> cambiarEstado(
             @NotNull(message = "{message.required}") @RequestParam("rolId") Integer rolId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {
         return rolService.cambiarEstado(rolId, activo);
     }
 
-    @PostMapping
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador')")
-    public ResponseEntity<Object> registrar(@Valid @RequestBody RolRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(@Valid @RequestBody RolRegistroRequest request) {
         return rolService.registrar(request);
     }
 
-    @PutMapping
+    @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_roles_editar')")
-    public ResponseEntity<Object> actualizar(@Valid @RequestBody RolRegistroRequest request) {
+    public ResponseEntity<MessageResponse> actualizar(@Valid @RequestBody RolRegistroRequest request) {
         return rolService.actualizar(request);
     }
 }
+

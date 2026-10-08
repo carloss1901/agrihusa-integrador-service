@@ -4,12 +4,14 @@ import com.proyecto.integrador.model.entity.ProductoEntity;
 import com.proyecto.integrador.model.entity.VariedadEntity;
 import com.proyecto.integrador.model.request.VariedadRegistroRequest;
 import com.proyecto.integrador.model.response.VariedadResponse;
+import com.proyecto.integrador.model.mapper.GlobalMapper;
 import com.proyecto.integrador.repository.ProductoRepository;
 import com.proyecto.integrador.repository.VariedadRepository;
 import com.proyecto.integrador.service.VariedadService;
 import com.proyecto.integrador.utils.CustomPage;
 import com.proyecto.integrador.utils.MessageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -18,7 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class VariedadServiceImpl implements VariedadService {
 
     private static final String MSG_VARIEDAD_YA_REGISTRADA = "La variedad ya está registrada";
@@ -32,6 +34,11 @@ public class VariedadServiceImpl implements VariedadService {
 
     private final VariedadRepository variedadRepository;
     private final ProductoRepository productoRepository;
+    private final GlobalMapper globalMapper;
+
+    public VariedadServiceImpl(VariedadRepository variedadRepository, ProductoRepository productoRepository) {
+        this(variedadRepository, productoRepository, new GlobalMapper());
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -39,7 +46,7 @@ public class VariedadServiceImpl implements VariedadService {
             String texto, Integer productoId, Boolean activo, Pageable pageable) {
         Page<VariedadResponse> variedades = variedadRepository
             .listarVariedades(texto, productoId, activo, pageable)
-            .map(VariedadResponse::from);
+            .map(projection -> globalMapper.map(projection, VariedadResponse.class));
         return new CustomPage<>(variedades);
     }
 

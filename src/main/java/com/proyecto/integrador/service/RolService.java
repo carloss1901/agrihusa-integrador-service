@@ -5,9 +5,13 @@ import com.proyecto.integrador.utils.MessageResponse;
 import com.proyecto.integrador.model.entity.RolEntity;
 import com.proyecto.integrador.model.request.RolRegistroRequest;
 import com.proyecto.integrador.model.response.RolResponse;
+import com.proyecto.integrador.model.response.ComunResponse;
+import com.proyecto.integrador.model.response.RolDetalleResponse;
 import com.proyecto.integrador.utils.CustomPage;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 public interface RolService {
 
@@ -19,5 +23,9 @@ public interface RolService {
     ResponseEntity<MessageResponse> cambiarEstado(Integer rolId, Boolean activo);
 
     CustomPage<RolResponse> listarRoles(String nombre, Boolean activo, Pageable pageable);
+
+    List<ComunResponse> listarRolesActivosCombo();
+
+    RolDetalleResponse obtenerRol(Integer rolId);
 }
 

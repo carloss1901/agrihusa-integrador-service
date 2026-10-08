@@ -48,7 +48,7 @@ public class VariedadController {
 
     @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_variedades_eliminar')")
-    public ResponseEntity<MessageResponse> cambiarEstado(
+    public ResponseEntity<MessageResponse> cambiarEstadoVariedad(
             @NotNull(message = "{message.required}") @RequestParam("variedadId") Integer variedadId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {
         return variedadService.cambiarEstado(variedadId, activo);
@@ -56,13 +56,13 @@ public class VariedadController {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_variedades_crear')")
-    public ResponseEntity<MessageResponse> registrar(@Valid @RequestBody VariedadRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrarVariedad(@Valid @RequestBody VariedadRegistroRequest request) {
         return variedadService.registrar(request);
     }
 
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_variedades_editar')")
-    public ResponseEntity<MessageResponse> actualizar(@Valid @RequestBody VariedadRegistroRequest request) {
+    public ResponseEntity<MessageResponse> actualizarVariedad(@Valid @RequestBody VariedadRegistroRequest request) {
         return variedadService.actualizar(request);
     }
 }

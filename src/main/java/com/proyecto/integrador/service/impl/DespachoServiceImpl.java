@@ -3,6 +3,7 @@ package com.proyecto.integrador.service.impl;
 import com.proyecto.integrador.model.entity.DespachoEntity;
 import com.proyecto.integrador.model.request.DespachoRegistroRequest;
 import com.proyecto.integrador.model.response.DespachoResponse;
+import com.proyecto.integrador.model.mapper.GlobalMapper;
 import com.proyecto.integrador.repository.ClienteRepository;
 import com.proyecto.integrador.repository.DespachoRepository;
 import com.proyecto.integrador.repository.DestinoRepository;
@@ -17,6 +18,7 @@ import com.proyecto.integrador.service.DespachoService;
 import com.proyecto.integrador.utils.CustomPage;
 import com.proyecto.integrador.utils.MessageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -25,7 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class DespachoServiceImpl implements DespachoService {
 
     private static final String MSG_CODIGO = "El código de despacho ya está registrado";
@@ -46,6 +48,22 @@ public class DespachoServiceImpl implements DespachoService {
     private final VariedadRepository variedadRepository;
     private final ViaRepository viaRepository;
     private final SituacionRepository situacionRepository;
+    private final GlobalMapper globalMapper;
+
+    public DespachoServiceImpl(DespachoRepository despachoRepository,
+                               ClienteRepository clienteRepository,
+                               NavieraRepository navieraRepository,
+                               DestinoRepository destinoRepository,
+                               OperadorLogisticoRepository operadorLogisticoRepository,
+                               PuertoLlegadaRepository puertoLlegadaRepository,
+                               ProductoRepository productoRepository,
+                               VariedadRepository variedadRepository,
+                               ViaRepository viaRepository,
+                               SituacionRepository situacionRepository) {
+        this(despachoRepository, clienteRepository, navieraRepository, destinoRepository,
+                operadorLogisticoRepository, puertoLlegadaRepository, productoRepository,
+                variedadRepository, viaRepository, situacionRepository, new GlobalMapper());
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -53,7 +71,7 @@ public class DespachoServiceImpl implements DespachoService {
                                                         Boolean activo, Pageable pageable) {
         Page<DespachoResponse> page = despachoRepository
                 .listarDespachos(texto, clienteId, situacionId, activo, pageable)
-                .map(DespachoResponse::from);
+                .map(projection -> globalMapper.map(projection, DespachoResponse.class));
         return new CustomPage<>(page);
     }
 

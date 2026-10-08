@@ -3,11 +3,13 @@ package com.proyecto.integrador.service.impl;
 import com.proyecto.integrador.model.entity.BitacoraEntity;
 import com.proyecto.integrador.model.request.BitacoraRegistroRequest;
 import com.proyecto.integrador.model.response.BitacoraResponse;
+import com.proyecto.integrador.model.mapper.GlobalMapper;
 import com.proyecto.integrador.repository.BitacoraRepository;
 import com.proyecto.integrador.service.BitacoraService;
 import com.proyecto.integrador.utils.CustomPage;
 import com.proyecto.integrador.utils.MessageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -18,11 +20,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class BitacoraServiceImpl implements BitacoraService {
 
     private static final String MSG_REGISTRADA = "Bitácora registrada correctamente";
     private final BitacoraRepository bitacoraRepository;
+    private final GlobalMapper globalMapper;
+
+    public BitacoraServiceImpl(BitacoraRepository bitacoraRepository) {
+        this(bitacoraRepository, new GlobalMapper());
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -31,7 +38,7 @@ public class BitacoraServiceImpl implements BitacoraService {
                                                          Pageable pageable) {
         Page<BitacoraResponse> page = bitacoraRepository
                 .listarBitacoras(usuarioId, modulo, accion, entidad, resultado, activo, pageable)
-                .map(BitacoraResponse::from);
+                .map(projection -> globalMapper.map(projection, BitacoraResponse.class));
         return new CustomPage<>(page);
     }
 

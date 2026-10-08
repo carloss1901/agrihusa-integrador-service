@@ -47,7 +47,7 @@ public class ProductoController {
 
     @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_productos_eliminar')")
-    public ResponseEntity<MessageResponse> cambiarEstado(
+    public ResponseEntity<MessageResponse> cambiarEstadoProducto(
             @NotNull(message = "{message.required}") @RequestParam("productoId") Integer productoId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {
         return productoService.cambiarEstado(productoId, activo);
@@ -55,13 +55,13 @@ public class ProductoController {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_productos_crear')")
-    public ResponseEntity<MessageResponse> registrar(@Valid @RequestBody ProductoRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrarProducto(@Valid @RequestBody ProductoRegistroRequest request) {
         return productoService.registrar(request);
     }
 
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_productos_editar')")
-    public ResponseEntity<MessageResponse> actualizar(@Valid @RequestBody ProductoRegistroRequest request) {
+    public ResponseEntity<MessageResponse> actualizarProducto(@Valid @RequestBody ProductoRegistroRequest request) {
         return productoService.actualizar(request);
     }
 }

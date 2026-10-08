@@ -9,7 +9,7 @@ class ClienteControllerTest {
     @Test
     void listar_delegaAlServicio() {
         ClienteService service = mock(ClienteService.class);
-        new ClienteController(service).listar("texto", "DNI", true, 1, 10);
+        new ClienteController(service).listarClientes("texto", "DNI", true, 1, 10);
         verify(service).listarClientes("texto", "DNI", true, PageRequest.of(0, 10));
     }
 }

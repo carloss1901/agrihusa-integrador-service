@@ -2,6 +2,7 @@ package com.proyecto.integrador.api;
 
 import com.proyecto.integrador.model.request.RolRegistroRequest;
 import com.proyecto.integrador.model.response.RolResponse;
+import com.proyecto.integrador.model.response.RolDetalleResponse;
 import com.proyecto.integrador.service.RolService;
 import com.proyecto.integrador.utils.CustomPage;
 import com.proyecto.integrador.utils.MessageResponse;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.validation.annotation.Validated;
 
@@ -34,7 +36,7 @@ public class RolController {
 
     private final RolService rolService;
 
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_roles_consultar')")
     public CustomPage<RolResponse> listarRoles(
             @RequestParam(value = "nombre", required = false) String nombre,
@@ -45,9 +47,19 @@ public class RolController {
         return rolService.listarRoles(nombre, activo, pageable);
     }
 
+    @GetMapping(value = "/{rolId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_roles_consultar')")
+    public ResponseEntity<RolDetalleResponse> obtenerRol(
+            @NotNull(message = "{message.required}") @PathVariable Integer rolId) {
+        RolDetalleResponse response = rolService.obtenerRol(rolId);
+        return response == null
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(response);
+    }
+
     @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador')")
-    public ResponseEntity<MessageResponse> cambiarEstado(
+    public ResponseEntity<MessageResponse> cambiarEstadoRol(
             @NotNull(message = "{message.required}") @RequestParam("rolId") Integer rolId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {
         return rolService.cambiarEstado(rolId, activo);
@@ -55,13 +67,13 @@ public class RolController {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador')")
-    public ResponseEntity<MessageResponse> registrar(@Valid @RequestBody RolRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrarRol(@Valid @RequestBody RolRegistroRequest request) {
         return rolService.registrar(request);
     }
 
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_roles_editar')")
-    public ResponseEntity<MessageResponse> actualizar(@Valid @RequestBody RolRegistroRequest request) {
+    public ResponseEntity<MessageResponse> actualizarRol(@Valid @RequestBody RolRegistroRequest request) {
         return rolService.actualizar(request);
     }
 }

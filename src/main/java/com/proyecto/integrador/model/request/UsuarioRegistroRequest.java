@@ -15,6 +15,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UsuarioRegistroRequest {
 
+    private Integer usuarioId = 0;
+
     @NotBlank(message = "{message.required}")
     @jakarta.validation.constraints.Pattern(regexp = "\\d{8}", message = "{message.dni}")
     private String dni;
@@ -41,5 +43,11 @@ public class UsuarioRegistroRequest {
 
     @NotNull(message = "{message.required}")
     private Integer rolId;
+
+    public UsuarioRegistroRequest(String dni, String nombres, String apellidoPaterno,
+                                  String apellidoMaterno, String correo, String telefono,
+                                  Integer rolId) {
+        this(0, dni, nombres, apellidoPaterno, apellidoMaterno, correo, telefono, rolId);
+    }
 
 }

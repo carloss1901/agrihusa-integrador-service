@@ -1,25 +1,20 @@
 package com.proyecto.integrador.model.response;
 
 import com.proyecto.integrador.model.entity.DestinoEntity;
-import com.proyecto.integrador.model.projection.DestinoProjection;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public record DestinoResponse(
-        Integer destinoId,
-        String pais,
-        String ciudad,
-        Boolean activo,
-        String estadoDsc
-) {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class DestinoResponse {
 
-    public static DestinoResponse from(DestinoProjection projection) {
-        return new DestinoResponse(
-                projection.getDestinoId(),
-                projection.getPais(),
-                projection.getCiudad(),
-                projection.getActivo(),
-                projection.getEstadoDsc()
-        );
-    }
+    private Integer destinoId;
+    private String pais;
+    private String ciudad;
+    private Boolean activo;
+    private String estadoDsc;
 
     public static DestinoResponse from(DestinoEntity entity) {
         return new DestinoResponse(

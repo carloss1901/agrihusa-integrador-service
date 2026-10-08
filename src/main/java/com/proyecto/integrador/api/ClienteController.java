@@ -36,7 +36,7 @@ public class ClienteController {
 
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_clientes_consultar')")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public CustomPage<ClienteResponse> listar(
+    public CustomPage<ClienteResponse> listarClientes(
             @RequestParam(value = "texto", required = false) String texto,
             @RequestParam(value = "tipoDocumento", required = false) String tipoDocumento,
             @RequestParam(value = "activo", required = false) Boolean activo,
@@ -48,7 +48,7 @@ public class ClienteController {
 
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_clientes_eliminar')")
     @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MessageResponse> cambiarEstado(
+    public ResponseEntity<MessageResponse> cambiarEstadoCliente(
             @NotNull(message = "{message.required}") @RequestParam("clienteId") Integer clienteId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {
         return clienteService.cambiarEstado(clienteId, activo);
@@ -56,13 +56,13 @@ public class ClienteController {
 
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_clientes_crear')")
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MessageResponse> registrar(@Valid @RequestBody ClienteRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrarCliente(@Valid @RequestBody ClienteRegistroRequest request) {
         return clienteService.registrar(request);
     }
 
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_clientes_editar')")
-    public ResponseEntity<MessageResponse> actualizar(@Valid @RequestBody ClienteRegistroRequest request) {
+    public ResponseEntity<MessageResponse> actualizarCliente(@Valid @RequestBody ClienteRegistroRequest request) {
         return clienteService.actualizar(request);
     }
 }

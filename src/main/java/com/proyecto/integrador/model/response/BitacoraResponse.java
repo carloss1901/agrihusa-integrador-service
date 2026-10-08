@@ -1,21 +1,30 @@
 package com.proyecto.integrador.model.response;
 
 import com.proyecto.integrador.model.entity.BitacoraEntity;
-import com.proyecto.integrador.model.projection.BitacoraProjection;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public record BitacoraResponse(Integer bitacoraId, LocalDateTime fecha, Integer usuarioId, String modulo,
-                               String accion, String entidad, Integer registroId, String detalle,
-                               String resultado, Boolean activo, LocalDate fechaCreacion,
-                               LocalDate fechaModificacion) {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class BitacoraResponse {
 
-    public static BitacoraResponse from(BitacoraProjection p) {
-        return new BitacoraResponse(p.getBitacoraId(), p.getFecha(), p.getUsuarioId(), p.getModulo(),
-                p.getAccion(), p.getEntidad(), p.getRegistroId(), p.getDetalle(), p.getResultado(),
-                p.getActivo(), p.getFechaCreacion(), p.getFechaModificacion());
-    }
+    private Integer bitacoraId;
+    private LocalDateTime fecha;
+    private Integer usuarioId;
+    private String modulo;
+    private String accion;
+    private String entidad;
+    private Integer registroId;
+    private String detalle;
+    private String resultado;
+    private Boolean activo;
+    private LocalDate fechaCreacion;
+    private LocalDate fechaModificacion;
 
     public static BitacoraResponse from(BitacoraEntity e) {
         return new BitacoraResponse(e.getBitacoraId(), e.getFecha(), e.getUsuarioId(), e.getModulo(),

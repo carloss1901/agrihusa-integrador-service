@@ -3,11 +3,13 @@ package com.proyecto.integrador.service.impl;
 import com.proyecto.integrador.model.entity.SituacionEntity;
 import com.proyecto.integrador.model.request.SituacionRegistroRequest;
 import com.proyecto.integrador.model.response.SituacionResponse;
+import com.proyecto.integrador.model.mapper.GlobalMapper;
 import com.proyecto.integrador.repository.SituacionRepository;
 import com.proyecto.integrador.service.SituacionService;
 import com.proyecto.integrador.utils.CustomPage;
 import com.proyecto.integrador.utils.MessageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -16,7 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class SituacionServiceImpl implements SituacionService {
 
     private static final String MSG_SITUACION_YA_REGISTRADA = "La situación ya está registrada";
@@ -27,6 +29,11 @@ public class SituacionServiceImpl implements SituacionService {
     private static final String MSG_SITUACION_DESACTIVADA = "Situación desactivada correctamente";
 
     private final SituacionRepository situacionRepository;
+    private final GlobalMapper globalMapper;
+
+    public SituacionServiceImpl(SituacionRepository situacionRepository) {
+        this(situacionRepository, new GlobalMapper());
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -34,7 +41,7 @@ public class SituacionServiceImpl implements SituacionService {
             String descripcion, Boolean activo, Pageable pageable) {
         Page<SituacionResponse> situaciones = situacionRepository
                 .listarSituaciones(descripcion, activo, pageable)
-                .map(SituacionResponse::from);
+                .map(projection -> globalMapper.map(projection, SituacionResponse.class));
         return new CustomPage<>(situaciones);
     }
 

@@ -47,7 +47,7 @@ public class SituacionController {
 
     @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_situaciones_eliminar')")
-    public ResponseEntity<MessageResponse> cambiarEstado(
+    public ResponseEntity<MessageResponse> cambiarEstadoSituacion(
             @NotNull(message = "{message.required}") @RequestParam("situacionId") Integer situacionId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {
         return situacionService.cambiarEstado(situacionId, activo);
@@ -55,13 +55,13 @@ public class SituacionController {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_situaciones_crear')")
-    public ResponseEntity<MessageResponse> registrar(@Valid @RequestBody SituacionRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrarSituacion(@Valid @RequestBody SituacionRegistroRequest request) {
         return situacionService.registrar(request);
     }
 
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_situaciones_editar')")
-    public ResponseEntity<MessageResponse> actualizar(@Valid @RequestBody SituacionRegistroRequest request) {
+    public ResponseEntity<MessageResponse> actualizarSituacion(@Valid @RequestBody SituacionRegistroRequest request) {
         return situacionService.actualizar(request);
     }
 }

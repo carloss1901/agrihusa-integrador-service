@@ -59,7 +59,7 @@ public class DespachoServiceImpl implements DespachoService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> registrar(DespachoRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(DespachoRegistroRequest request) {
         String codigo = request.getCodigo().trim();
         if (!referenciasExisten(request)) {
             return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_REFERENCIA);
@@ -125,7 +125,7 @@ public class DespachoServiceImpl implements DespachoService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> cambiarEstado(Integer despachoId, Boolean activo) {
+    public ResponseEntity<MessageResponse> cambiarEstado(Integer despachoId, Boolean activo) {
         DespachoEntity entity = despachoRepository.findById(despachoId).orElse(null);
         if (entity == null) {
             return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_NO_ENCONTRADO);
@@ -136,3 +136,4 @@ public class DespachoServiceImpl implements DespachoService {
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
     }
 }
+

@@ -1,5 +1,7 @@
 package com.proyecto.integrador.api;
 
+import com.proyecto.integrador.utils.MessageResponse;
+
 import com.proyecto.integrador.model.request.ProductoRegistroRequest;
 import com.proyecto.integrador.model.response.ProductoResponse;
 import com.proyecto.integrador.service.ProductoService;
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +34,7 @@ public class ProductoController {
 
     private final ProductoService productoService;
 
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_productos_consultar')")
     public CustomPage<ProductoResponse> listarProductos(
             @RequestParam(value = "texto", required = false) String texto,
@@ -42,23 +45,24 @@ public class ProductoController {
         return productoService.listarProductos(texto, activo, pageable);
     }
 
-    @DeleteMapping
+    @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_productos_eliminar')")
-    public ResponseEntity<Object> cambiarEstado(
+    public ResponseEntity<MessageResponse> cambiarEstado(
             @NotNull(message = "{message.required}") @RequestParam("productoId") Integer productoId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {
         return productoService.cambiarEstado(productoId, activo);
     }
 
-    @PostMapping
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_productos_crear')")
-    public ResponseEntity<Object> registrar(@Valid @RequestBody ProductoRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(@Valid @RequestBody ProductoRegistroRequest request) {
         return productoService.registrar(request);
     }
 
-    @PutMapping
+    @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_productos_editar')")
-    public ResponseEntity<Object> actualizar(@Valid @RequestBody ProductoRegistroRequest request) {
+    public ResponseEntity<MessageResponse> actualizar(@Valid @RequestBody ProductoRegistroRequest request) {
         return productoService.actualizar(request);
     }
 }
+

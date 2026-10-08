@@ -58,7 +58,7 @@ public class RolServiceImpl implements RolService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> cambiarEstado(Integer rolId, Boolean activo) {
+    public ResponseEntity<MessageResponse> cambiarEstado(Integer rolId, Boolean activo) {
         RolEntity entity = rolRepository.findById(rolId).orElse(null);
         if (entity == null) {
             return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_ROL_NO_ENCONTRADO);
@@ -73,7 +73,7 @@ public class RolServiceImpl implements RolService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> registrar(RolRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(RolRegistroRequest request) {
         String nombre = request.getNombre().trim();
         String descripcion = request.getDescripcion().trim();
         List<PermisoSeleccionado> permisos = new ArrayList<>();
@@ -188,3 +188,4 @@ public class RolServiceImpl implements RolService {
 
     private record PermisoSeleccionado(Integer moduloId, PermisoEntity permiso) {}
 }
+

@@ -1,5 +1,7 @@
 package com.proyecto.integrador.service;
 
+import com.proyecto.integrador.utils.MessageResponse;
+
 import com.proyecto.integrador.model.request.BitacoraRegistroRequest;
 import com.proyecto.integrador.model.response.BitacoraResponse;
 import com.proyecto.integrador.utils.CustomPage;
@@ -11,5 +13,6 @@ public interface BitacoraService {
                                                   String entidad, String resultado, Boolean activo,
                                                   Pageable pageable);
 
-    ResponseEntity<Object> registrar(BitacoraRegistroRequest request);
+    ResponseEntity<MessageResponse> registrar(BitacoraRegistroRequest request);
 }
+

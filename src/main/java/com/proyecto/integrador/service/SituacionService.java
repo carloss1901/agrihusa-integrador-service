@@ -1,5 +1,7 @@
 package com.proyecto.integrador.service;
 
+import com.proyecto.integrador.utils.MessageResponse;
+
 import com.proyecto.integrador.model.request.SituacionRegistroRequest;
 import com.proyecto.integrador.model.response.SituacionResponse;
 import com.proyecto.integrador.utils.CustomPage;
@@ -11,10 +13,11 @@ public interface SituacionService {
     CustomPage<SituacionResponse> listarSituaciones(
             String descripcion, Boolean activo, Pageable pageable);
 
-    ResponseEntity<Object> registrar(SituacionRegistroRequest request);
-    default ResponseEntity<Object> actualizar(SituacionRegistroRequest request) {
+    ResponseEntity<MessageResponse> registrar(SituacionRegistroRequest request);
+    default ResponseEntity<MessageResponse> actualizar(SituacionRegistroRequest request) {
         return registrar(request);
     }
 
-    ResponseEntity<Object> cambiarEstado(Integer situacionId, Boolean activo);
+    ResponseEntity<MessageResponse> cambiarEstado(Integer situacionId, Boolean activo);
 }
+

@@ -41,7 +41,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> registrar(UsuarioRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(UsuarioRegistroRequest request) {
         String dni = request.getDni().trim();
         String correo = request.getCorreo().trim().toLowerCase();
 
@@ -88,7 +88,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> cambiarContrasenia(CambiarContraseniaRequest request) {
+    public ResponseEntity<MessageResponse> cambiarContrasenia(CambiarContraseniaRequest request) {
         Integer usuarioId = JwtData.getUsuarioId();
         UsuarioEntity usuario = usuarioId == null
                 ? null
@@ -114,3 +114,4 @@ public class UsuarioServiceImpl implements UsuarioService {
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, MSG_CONTRASENIA_ACTUALIZADA);
     }
 }
+

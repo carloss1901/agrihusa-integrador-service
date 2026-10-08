@@ -37,7 +37,7 @@ public class BitacoraServiceImpl implements BitacoraService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> registrar(BitacoraRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(BitacoraRegistroRequest request) {
         BitacoraEntity entity = new BitacoraEntity();
         entity.setFecha(LocalDateTime.now());
         entity.setUsuarioId(request.getUsuarioId());
@@ -52,3 +52,4 @@ public class BitacoraServiceImpl implements BitacoraService {
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.CREATED, MSG_REGISTRADA);
     }
 }
+

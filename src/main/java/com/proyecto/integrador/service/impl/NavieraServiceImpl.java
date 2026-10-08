@@ -33,7 +33,7 @@ public class NavieraServiceImpl implements NavieraService {
     }
 
     @Override @Transactional
-    public ResponseEntity<Object> registrar(NavieraRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(NavieraRegistroRequest request) {
         String codigo = request.getCodigo().trim(), nombre = request.getNombre().trim(), pais = request.getPais().trim();
         if (request.getNavieraId() == 0) {
             if (navieraRepository.existsByCodigoIgnoreCase(codigo)) return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_CODIGO);
@@ -57,10 +57,11 @@ public class NavieraServiceImpl implements NavieraService {
     private String normalizar(String value) { return value == null || value.isBlank() ? null : value.trim(); }
 
     @Override @Transactional
-    public ResponseEntity<Object> cambiarEstado(Integer navieraId, Boolean activo) {
+    public ResponseEntity<MessageResponse> cambiarEstado(Integer navieraId, Boolean activo) {
         NavieraEntity entity = navieraRepository.findById(navieraId).orElse(null);
         if (entity == null) return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_NO_ENCONTRADA);
         entity.setActivo(activo); navieraRepository.save(entity);
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, Boolean.TRUE.equals(activo) ? MSG_ACTIVADA : MSG_DESACTIVADA);
     }
 }
+

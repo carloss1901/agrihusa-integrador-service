@@ -1,5 +1,7 @@
 package com.proyecto.integrador.api;
 
+import com.proyecto.integrador.utils.MessageResponse;
+
 import com.proyecto.integrador.model.request.VariedadRegistroRequest;
 import com.proyecto.integrador.model.response.VariedadResponse;
 import com.proyecto.integrador.service.VariedadService;
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +34,7 @@ public class VariedadController {
 
     private final VariedadService variedadService;
 
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_variedades_consultar')")
     public CustomPage<VariedadResponse> listarVariedades(
             @RequestParam(value = "texto", required = false) String texto,
@@ -43,23 +46,24 @@ public class VariedadController {
         return variedadService.listarVariedades(texto, productoId, activo, pageable);
     }
 
-    @DeleteMapping
+    @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_variedades_eliminar')")
-    public ResponseEntity<Object> cambiarEstado(
+    public ResponseEntity<MessageResponse> cambiarEstado(
             @NotNull(message = "{message.required}") @RequestParam("variedadId") Integer variedadId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {
         return variedadService.cambiarEstado(variedadId, activo);
     }
 
-    @PostMapping
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_variedades_crear')")
-    public ResponseEntity<Object> registrar(@Valid @RequestBody VariedadRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(@Valid @RequestBody VariedadRegistroRequest request) {
         return variedadService.registrar(request);
     }
 
-    @PutMapping
+    @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_variedades_editar')")
-    public ResponseEntity<Object> actualizar(@Valid @RequestBody VariedadRegistroRequest request) {
+    public ResponseEntity<MessageResponse> actualizar(@Valid @RequestBody VariedadRegistroRequest request) {
         return variedadService.actualizar(request);
     }
 }
+

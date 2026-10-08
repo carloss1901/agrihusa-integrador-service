@@ -4,6 +4,7 @@ import com.proyecto.integrador.model.request.DestinoRegistroRequest;
 import com.proyecto.integrador.model.response.DestinoResponse;
 import com.proyecto.integrador.service.DestinoService;
 import com.proyecto.integrador.utils.CustomPage;
+import com.proyecto.integrador.utils.MessageResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.validation.Valid;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +33,7 @@ public class DestinoController {
 
     private final DestinoService destinoService;
 
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_destinos_consultar')")
     public CustomPage<DestinoResponse> listarDestinos(
             @RequestParam(value = "pais", required = false) String pais,
@@ -43,23 +45,23 @@ public class DestinoController {
         return destinoService.listarDestinos(pais, ciudad, activo, pageable);
     }
 
-    @DeleteMapping
+    @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_destinos_eliminar')")
-    public ResponseEntity<Object> cambiarEstado(
+    public ResponseEntity<MessageResponse> cambiarEstado(
             @NotNull(message = "{message.required}") @RequestParam("destinoId") Integer destinoId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {
         return destinoService.cambiarEstado(destinoId, activo);
     }
 
-    @PostMapping
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_destinos_crear')")
-    public ResponseEntity<Object> registrar(@Valid @RequestBody DestinoRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(@Valid @RequestBody DestinoRegistroRequest request) {
         return destinoService.registrar(request);
     }
 
-    @PutMapping
+    @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_destinos_editar')")
-    public ResponseEntity<Object> actualizar(@Valid @RequestBody DestinoRegistroRequest request) {
+    public ResponseEntity<MessageResponse> actualizar(@Valid @RequestBody DestinoRegistroRequest request) {
         return destinoService.actualizar(request);
     }
 }

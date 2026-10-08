@@ -1,5 +1,7 @@
 package com.proyecto.integrador.service;
 
+import com.proyecto.integrador.utils.MessageResponse;
+
 import com.proyecto.integrador.model.request.ProductoRegistroRequest;
 import com.proyecto.integrador.model.response.ProductoResponse;
 import com.proyecto.integrador.utils.CustomPage;
@@ -10,10 +12,11 @@ public interface ProductoService {
 
     CustomPage<ProductoResponse> listarProductos(String texto, Boolean activo, Pageable pageable);
 
-    ResponseEntity<Object> registrar(ProductoRegistroRequest request);
-    default ResponseEntity<Object> actualizar(ProductoRegistroRequest request) {
+    ResponseEntity<MessageResponse> registrar(ProductoRegistroRequest request);
+    default ResponseEntity<MessageResponse> actualizar(ProductoRegistroRequest request) {
         return registrar(request);
     }
 
-    ResponseEntity<Object> cambiarEstado(Integer productoId, Boolean activo);
+    ResponseEntity<MessageResponse> cambiarEstado(Integer productoId, Boolean activo);
 }
+

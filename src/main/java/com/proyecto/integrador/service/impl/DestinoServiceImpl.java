@@ -40,13 +40,13 @@ public class DestinoServiceImpl implements DestinoService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> registrar(DestinoRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(DestinoRegistroRequest request) {
         String pais = request.getPais().trim();
         String ciudad = request.getCiudad().trim();
 
         if (request.getDestinoId() == 0) {
             if (destinoRepository.existsByPaisIgnoreCaseAndCiudadIgnoreCase(pais, ciudad)) {
-                return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_DESTINO_YA_REGISTRADO);
+                return response(Boolean.FALSE, HttpStatus.CONFLICT, MSG_DESTINO_YA_REGISTRADO);
             }
 
             DestinoEntity entity = new DestinoEntity();
@@ -55,37 +55,45 @@ public class DestinoServiceImpl implements DestinoService {
             entity.setActivo(Boolean.TRUE);
             destinoRepository.save(entity);
 
-            return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.CREATED, MSG_DESTINO_REGISTRADO);
+            return response(Boolean.TRUE, HttpStatus.CREATED, MSG_DESTINO_REGISTRADO);
         }
 
         DestinoEntity entity = destinoRepository.findById(request.getDestinoId()).orElse(null);
         if (entity == null) {
-            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_DESTINO_NO_ENCONTRADO);
+            return response(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_DESTINO_NO_ENCONTRADO);
         }
 
         if (destinoRepository.existsByPaisIgnoreCaseAndCiudadIgnoreCaseAndDestinoIdNot(
                 pais, ciudad, request.getDestinoId())) {
-            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_DESTINO_YA_REGISTRADO);
+            return response(Boolean.FALSE, HttpStatus.CONFLICT, MSG_DESTINO_YA_REGISTRADO);
         }
 
         entity.setPais(pais);
         entity.setCiudad(ciudad);
         destinoRepository.save(entity);
-        return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, MSG_DESTINO_ACTUALIZADO);
+        return response(Boolean.TRUE, HttpStatus.OK, MSG_DESTINO_ACTUALIZADO);
     }
 
     @Override
     @Transactional
-    public ResponseEntity<Object> cambiarEstado(Integer destinoId, Boolean activo) {
+    public ResponseEntity<MessageResponse> cambiarEstado(Integer destinoId, Boolean activo) {
         DestinoEntity entity = destinoRepository.findById(destinoId).orElse(null);
         if (entity == null) {
-            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_DESTINO_NO_ENCONTRADO);
+            return response(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_DESTINO_NO_ENCONTRADO);
         }
 
         entity.setActivo(activo);
         destinoRepository.save(entity);
 
         String mensaje = Boolean.TRUE.equals(activo) ? MSG_DESTINO_ACTIVADO : MSG_DESTINO_DESACTIVADO;
-        return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
+        return response(Boolean.TRUE, HttpStatus.OK, mensaje);
+    }
+
+    private ResponseEntity<MessageResponse> response(
+            boolean success,
+            HttpStatus status,
+            String message) {
+        return ResponseEntity.status(status)
+                .body(MessageResponse.body(success, status, message, null));
     }
 }

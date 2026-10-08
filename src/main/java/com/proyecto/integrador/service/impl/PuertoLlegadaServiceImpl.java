@@ -41,7 +41,7 @@ public class PuertoLlegadaServiceImpl implements PuertoLlegadaService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> registrar(PuertoLlegadaRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(PuertoLlegadaRegistroRequest request) {
         String codigo = request.getCodigo().trim();
         String puerto = request.getPuerto().trim();
         String pais = request.getPais().trim();
@@ -87,7 +87,7 @@ public class PuertoLlegadaServiceImpl implements PuertoLlegadaService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> cambiarEstado(Integer puertoLlegadaId, Boolean activo) {
+    public ResponseEntity<MessageResponse> cambiarEstado(Integer puertoLlegadaId, Boolean activo) {
         PuertoLlegadaEntity entity = puertoRepository.findById(puertoLlegadaId).orElse(null);
         if (entity == null) {
             return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_PUERTO_NO_ENCONTRADO);
@@ -100,3 +100,4 @@ public class PuertoLlegadaServiceImpl implements PuertoLlegadaService {
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
     }
 }
+

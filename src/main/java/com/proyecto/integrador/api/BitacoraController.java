@@ -1,5 +1,7 @@
 package com.proyecto.integrador.api;
 
+import com.proyecto.integrador.utils.MessageResponse;
+
 import com.proyecto.integrador.model.request.BitacoraRegistroRequest;
 import com.proyecto.integrador.model.response.BitacoraResponse;
 import com.proyecto.integrador.service.BitacoraService;
@@ -11,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,9 +44,10 @@ public class BitacoraController {
         return bitacoraService.listarBitacoras(usuarioId, modulo, accion, entidad, resultado, activo, pageable);
     }
 
-    @PostMapping
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_bitacora_crear')")
-    public ResponseEntity<Object> registrar(@Valid @RequestBody BitacoraRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(@Valid @RequestBody BitacoraRegistroRequest request) {
         return bitacoraService.registrar(request);
     }
 }
+

@@ -1,5 +1,7 @@
 package com.proyecto.integrador.api;
 
+import com.proyecto.integrador.utils.MessageResponse;
+
 import com.proyecto.integrador.model.request.DespachoRegistroRequest;
 import com.proyecto.integrador.model.response.DespachoResponse;
 import com.proyecto.integrador.service.DespachoService;
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,23 +47,24 @@ public class DespachoController {
         return despachoService.listarDespachos(texto, clienteId, situacionId, activo, pageable);
     }
 
-    @PostMapping
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_despachos_crear')")
-    public ResponseEntity<Object> registrar(@Valid @RequestBody DespachoRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(@Valid @RequestBody DespachoRegistroRequest request) {
         return despachoService.registrar(request);
     }
 
-    @PutMapping
+    @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_despachos_editar')")
-    public ResponseEntity<Object> actualizar(@Valid @RequestBody DespachoRegistroRequest request) {
+    public ResponseEntity<MessageResponse> actualizar(@Valid @RequestBody DespachoRegistroRequest request) {
         return despachoService.actualizar(request);
     }
 
-    @DeleteMapping
+    @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_despachos_eliminar')")
-    public ResponseEntity<Object> cambiarEstado(
+    public ResponseEntity<MessageResponse> cambiarEstado(
             @NotNull(message = "{message.required}") @RequestParam("despachoId") Integer despachoId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {
         return despachoService.cambiarEstado(despachoId, activo);
     }
 }
+

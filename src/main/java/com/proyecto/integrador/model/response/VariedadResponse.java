@@ -1,20 +1,25 @@
 package com.proyecto.integrador.model.response;
 
 import com.proyecto.integrador.model.entity.VariedadEntity;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.proyecto.integrador.model.projection.VariedadProjection;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class VariedadResponse {
+public record VariedadResponse(
+        Integer variedadId,
+        Integer productoId,
+        String nombre,
+        Boolean activo,
+        String estadoDsc
+) {
 
-    private Integer variedadId;
-    private Integer productoId;
-    private String nombre;
-    private Boolean activo;
-    private String estadoDsc;
+    public static VariedadResponse from(VariedadProjection projection) {
+        return new VariedadResponse(
+                projection.getVariedadId(),
+                projection.getProductoId(),
+                projection.getNombre(),
+                projection.getActivo(),
+                projection.getEstadoDsc()
+        );
+    }
 
     public static VariedadResponse from(VariedadEntity entity) {
         return new VariedadResponse(

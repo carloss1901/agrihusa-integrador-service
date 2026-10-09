@@ -1,19 +1,23 @@
 package com.proyecto.integrador.model.response;
 
 import com.proyecto.integrador.model.entity.SituacionEntity;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.proyecto.integrador.model.projection.SituacionProjection;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class SituacionResponse {
+public record SituacionResponse(
+        Integer situacionId,
+        String descripcion,
+        Boolean activo,
+        String estadoDsc
+) {
 
-    private Integer situacionId;
-    private String descripcion;
-    private Boolean activo;
-    private String estadoDsc;
+    public static SituacionResponse from(SituacionProjection projection) {
+        return new SituacionResponse(
+                projection.getSituacionId(),
+                projection.getDescripcion(),
+                projection.getActivo(),
+                projection.getEstadoDsc()
+        );
+    }
 
     public static SituacionResponse from(SituacionEntity entity) {
         return new SituacionResponse(

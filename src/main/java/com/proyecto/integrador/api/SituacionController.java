@@ -1,7 +1,5 @@
 package com.proyecto.integrador.api;
 
-import com.proyecto.integrador.utils.MessageResponse;
-
 import com.proyecto.integrador.model.request.SituacionRegistroRequest;
 import com.proyecto.integrador.model.response.SituacionResponse;
 import com.proyecto.integrador.service.SituacionService;
@@ -14,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,7 +31,7 @@ public class SituacionController {
 
     private final SituacionService situacionService;
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_situaciones_consultar')")
     public CustomPage<SituacionResponse> listarSituaciones(
             @RequestParam(value = "descripcion", required = false) String descripcion,
@@ -45,24 +42,23 @@ public class SituacionController {
         return situacionService.listarSituaciones(descripcion, activo, pageable);
     }
 
-    @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_situaciones_eliminar')")
-    public ResponseEntity<MessageResponse> cambiarEstadoSituacion(
+    public ResponseEntity<Object> cambiarEstado(
             @NotNull(message = "{message.required}") @RequestParam("situacionId") Integer situacionId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {
         return situacionService.cambiarEstado(situacionId, activo);
     }
 
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_situaciones_crear')")
-    public ResponseEntity<MessageResponse> registrarSituacion(@Valid @RequestBody SituacionRegistroRequest request) {
+    public ResponseEntity<Object> registrar(@Valid @RequestBody SituacionRegistroRequest request) {
         return situacionService.registrar(request);
     }
 
-    @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_situaciones_editar')")
-    public ResponseEntity<MessageResponse> actualizarSituacion(@Valid @RequestBody SituacionRegistroRequest request) {
+    public ResponseEntity<Object> actualizar(@Valid @RequestBody SituacionRegistroRequest request) {
         return situacionService.actualizar(request);
     }
 }
-

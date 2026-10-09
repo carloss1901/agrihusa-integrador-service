@@ -1,37 +1,25 @@
 package com.proyecto.integrador.model.response;
 
 import com.proyecto.integrador.model.entity.DespachoEntity;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.proyecto.integrador.model.projection.DespachoProjection;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class DespachoResponse {
+public record DespachoResponse(Integer despachoId, String codigo, LocalDate fechaDespacho,
+                               LocalDate fechaEstimadaLlegada, Integer clienteId, Integer navieraId,
+                               Integer destinoId, Integer operadorLogisticoId, Integer puertoLlegadaId,
+                               Integer productoId, Integer variedadId, Integer viaId, Integer situacionId,
+                               BigDecimal cantidad, String unidadMedida, String numeroContenedor,
+                               String observaciones, Boolean activo, String estadoDsc) {
 
-    private Integer despachoId;
-    private String codigo;
-    private LocalDate fechaDespacho;
-    private LocalDate fechaEstimadaLlegada;
-    private Integer clienteId;
-    private Integer navieraId;
-    private Integer destinoId;
-    private Integer operadorLogisticoId;
-    private Integer puertoLlegadaId;
-    private Integer productoId;
-    private Integer variedadId;
-    private Integer viaId;
-    private Integer situacionId;
-    private BigDecimal cantidad;
-    private String unidadMedida;
-    private String numeroContenedor;
-    private String observaciones;
-    private Boolean activo;
-    private String estadoDsc;
+    public static DespachoResponse from(DespachoProjection p) {
+        return new DespachoResponse(p.getDespachoId(), p.getCodigo(), p.getFechaDespacho(),
+                p.getFechaEstimadaLlegada(), p.getClienteId(), p.getNavieraId(), p.getDestinoId(),
+                p.getOperadorLogisticoId(), p.getPuertoLlegadaId(), p.getProductoId(), p.getVariedadId(),
+                p.getViaId(), p.getSituacionId(), p.getCantidad(), p.getUnidadMedida(),
+                p.getNumeroContenedor(), p.getObservaciones(), p.getActivo(), p.getEstadoDsc());
+    }
 
     public static DespachoResponse from(DespachoEntity e) {
         return new DespachoResponse(e.getDespachoId(), e.getCodigo(), e.getFechaDespacho(),

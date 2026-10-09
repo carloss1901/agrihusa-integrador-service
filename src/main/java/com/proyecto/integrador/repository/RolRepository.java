@@ -15,8 +15,6 @@ public interface RolRepository extends JpaRepository<RolEntity, Integer> {
 
     boolean existsByNombreIgnoreCase(String nombre);
 
-    List<RolEntity> findAllByActivoTrueOrderByNombreAsc();
-
     List<RolEntity> findAllByRolIdInAndActivoTrue(Collection<Integer> rolIds);
 
     @Query(value = """

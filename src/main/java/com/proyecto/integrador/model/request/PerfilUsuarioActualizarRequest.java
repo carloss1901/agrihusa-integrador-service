@@ -2,9 +2,7 @@ package com.proyecto.integrador.model.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,12 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class UsuarioRegistroRequest {
-
-    @NotBlank(message = "{message.required}")
-    @jakarta.validation.constraints.Pattern(regexp = "\\d{8}", message = "{message.dni}")
-    private String dni;
+public class PerfilUsuarioActualizarRequest {
 
     @NotBlank(message = "{message.required}")
     @Size(max = 80, message = "{message.longitudmax}")
@@ -38,23 +31,4 @@ public class UsuarioRegistroRequest {
 
     @Size(max = 20, message = "{message.longitudmax}")
     private String telefono;
-
-    @NotNull(message = "{message.required}")
-    private Integer rolId;
-
-    @NotBlank(message = "{message.required}")
-    @Size(
-            min = 8,
-            max = 64,
-            message = "La contraseña debe tener entre 8 y 64 caracteres"
-    )
-    @jakarta.validation.constraints.Pattern(
-            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).+$",
-            message = "La contraseña debe contener mayúscula, minúscula, número y carácter especial"
-    )
-    private String contrasenia;
-
-    @NotNull(message = "{message.required}")
-    private Boolean activo;
-
 }

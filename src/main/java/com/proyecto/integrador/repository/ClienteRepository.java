@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ClienteRepository extends JpaRepository<ClienteEntity, Integer> {
-    java.util.List<ClienteEntity> findAllByActivoTrueOrderByRazonSocialAsc();
     boolean existsByNumeroDocumentoIgnoreCase(String numeroDocumento);
     boolean existsByRazonSocialIgnoreCase(String razonSocial);
     boolean existsByNumeroDocumentoIgnoreCaseAndClienteIdNot(String numeroDocumento, Integer clienteId);

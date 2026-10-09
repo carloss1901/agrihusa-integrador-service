@@ -7,10 +7,6 @@ import com.proyecto.integrador.model.entity.RolPermisoEntity;
 import com.proyecto.integrador.model.request.RolRegistroRequest;
 import com.proyecto.integrador.model.request.RolPermisoRequest;
 import com.proyecto.integrador.model.response.RolResponse;
-import com.proyecto.integrador.model.response.ComunResponse;
-import com.proyecto.integrador.model.response.RolDetalleResponse;
-import com.proyecto.integrador.model.response.RolPermisoResponse;
-import com.proyecto.integrador.model.mapper.GlobalMapper;
 import com.proyecto.integrador.repository.PermisoRepository;
 import com.proyecto.integrador.repository.ModuloRepository;
 import com.proyecto.integrador.repository.RolRepository;
@@ -19,14 +15,15 @@ import com.proyecto.integrador.service.RolService;
 import com.proyecto.integrador.utils.CustomPage;
 import com.proyecto.integrador.utils.MessageResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.proyecto.integrador.model.response.RolDetalleResponse;
+import com.proyecto.integrador.model.response.RolPermisoResponse;
+import java.util.LinkedHashMap;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -34,11 +31,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@RequiredArgsConstructor
 public class RolServiceImpl implements RolService {
 
     private static final String MSG_ROL_YA_REGISTRADO = "El rol ya está registrado";
@@ -54,75 +50,88 @@ public class RolServiceImpl implements RolService {
     private final ModuloRepository moduloRepository;
     private final PermisoRepository permisoRepository;
     private final RolPermisoRepository rolPermisoRepository;
-    private final GlobalMapper globalMapper;
-
-    public RolServiceImpl(RolRepository rolRepository,
-                          ModuloRepository moduloRepository,
-                          PermisoRepository permisoRepository,
-                          RolPermisoRepository rolPermisoRepository) {
-        this(rolRepository, moduloRepository, permisoRepository, rolPermisoRepository, new GlobalMapper());
-    }
 
     @Override
     @Transactional(readOnly = true)
     public CustomPage<RolResponse> listarRoles(String nombre, Boolean activo, Pageable pageable) {
-        Page<RolResponse> roles = rolRepository.listarRoles(nombre, activo, pageable)
-                .map(projection -> globalMapper.map(projection, RolResponse.class));
+        Page<RolResponse> roles = rolRepository.listarRoles(nombre, activo, pageable).map(RolResponse::from);
         return new CustomPage<>(roles);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ComunResponse> listarRolesActivosCombo() {
-        return rolRepository.findAllByActivoTrueOrderByNombreAsc()
-                .stream()
-                .map(rol -> new ComunResponse(rol.getRolId(), rol.getNombre()))
-                .toList();
-    }
+    public RolDetalleResponse obtenerPorId(
+            Integer rolId
+    ) {
+        RolEntity rol = rolRepository
+                .findById(rolId)
+                .orElse(null);
 
-    @Override
-    @Transactional(readOnly = true)
-    public RolDetalleResponse obtenerRol(Integer rolId) {
-        RolEntity rol = rolRepository.findById(rolId).orElse(null);
         if (rol == null) {
             return null;
         }
 
-        Map<Integer, RolPermisoResponse> permisosPorModulo = new LinkedHashMap<>();
+        Map<String, List<String>> permisosAgrupados =
+                new LinkedHashMap<>();
 
-        for (RolPermisoEntity relacion : rolPermisoRepository.findAllByRolId(rolId)) {
+        List<RolPermisoEntity> relaciones =
+                rolPermisoRepository.findAllByRolId(rolId);
+
+        for (RolPermisoEntity relacion : relaciones) {
             if (!Boolean.TRUE.equals(relacion.getActivo())) {
                 continue;
             }
 
-            ModuloEntity modulo = moduloRepository.findById(relacion.getModuloId())
-                    .filter(entity -> Boolean.TRUE.equals(entity.getActivo()))
-                    .orElse(null);
-            PermisoEntity permiso = permisoRepository.findById(relacion.getPermisoId())
-                    .filter(entity -> Boolean.TRUE.equals(entity.getActivo()))
+            ModuloEntity modulo = moduloRepository
+                    .findById(relacion.getModuloId())
                     .orElse(null);
 
-            if (modulo == null || permiso == null) {
+            PermisoEntity permiso = permisoRepository
+                    .findById(relacion.getPermisoId())
+                    .orElse(null);
+
+            if (
+                    modulo == null ||
+                            permiso == null ||
+                            !Boolean.TRUE.equals(modulo.getActivo()) ||
+                            !Boolean.TRUE.equals(permiso.getActivo())
+            ) {
                 continue;
             }
 
-            RolPermisoResponse permisoResponse = permisosPorModulo.computeIfAbsent(
-                    modulo.getModuloId(),
-                    key -> new RolPermisoResponse(modulo.getCodigo(), new ArrayList<>())
-            );
-            permisoResponse.getAcciones().add(permiso.getAccion());
+            permisosAgrupados
+                    .computeIfAbsent(
+                            modulo.getCodigo(),
+                            clave -> new ArrayList<>()
+                    )
+                    .add(permiso.getAccion());
         }
 
+        List<RolPermisoResponse> permisos =
+                permisosAgrupados
+                        .entrySet()
+                        .stream()
+                        .map(entry ->
+                                new RolPermisoResponse(
+                                        entry.getKey(),
+                                        entry.getValue()
+                                )
+                        )
+                        .toList();
+
         return new RolDetalleResponse(
+                rol.getRolId(),
                 rol.getNombre(),
                 rol.getDescripcion(),
-                new ArrayList<>(permisosPorModulo.values())
+                rol.getEsSistema(),
+                rol.getActivo(),
+                permisos
         );
     }
 
     @Override
     @Transactional
-    public ResponseEntity<MessageResponse> cambiarEstado(Integer rolId, Boolean activo) {
+    public ResponseEntity<Object> cambiarEstado(Integer rolId, Boolean activo) {
         RolEntity entity = rolRepository.findById(rolId).orElse(null);
         if (entity == null) {
             return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_ROL_NO_ENCONTRADO);
@@ -137,7 +146,7 @@ public class RolServiceImpl implements RolService {
 
     @Override
     @Transactional
-    public ResponseEntity<MessageResponse> registrar(RolRegistroRequest request) {
+    public ResponseEntity<Object> registrar(RolRegistroRequest request) {
         String nombre = request.getNombre().trim();
         String descripcion = request.getDescripcion().trim();
         List<PermisoSeleccionado> permisos = new ArrayList<>();
@@ -252,4 +261,3 @@ public class RolServiceImpl implements RolService {
 
     private record PermisoSeleccionado(Integer moduloId, PermisoEntity permiso) {}
 }
-

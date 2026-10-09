@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface DestinoRepository extends JpaRepository<DestinoEntity, Integer> {
-    java.util.List<DestinoEntity> findAllByActivoTrueOrderByCiudadAsc();
 
     boolean existsByPaisIgnoreCaseAndCiudadIgnoreCase(String pais, String ciudad);
 

@@ -1,21 +1,27 @@
 package com.proyecto.integrador.model.response;
 
 import com.proyecto.integrador.model.entity.PuertoLlegadaEntity;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.proyecto.integrador.model.projection.PuertoLlegadaProjection;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class PuertoLlegadaResponse {
+public record PuertoLlegadaResponse(
+        Integer puertoLlegadaId,
+        String codigo,
+        String puerto,
+        String pais,
+        Boolean activo,
+        String estadoDsc
+) {
 
-    private Integer puertoLlegadaId;
-    private String codigo;
-    private String puerto;
-    private String pais;
-    private Boolean activo;
-    private String estadoDsc;
+    public static PuertoLlegadaResponse from(PuertoLlegadaProjection projection) {
+        return new PuertoLlegadaResponse(
+                projection.getPuertoLlegadaId(),
+                projection.getCodigo(),
+                projection.getPuerto(),
+                projection.getPais(),
+                projection.getActivo(),
+                projection.getEstadoDsc()
+        );
+    }
 
     public static PuertoLlegadaResponse from(PuertoLlegadaEntity entity) {
         return new PuertoLlegadaResponse(

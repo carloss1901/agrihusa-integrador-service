@@ -10,7 +10,7 @@ class UsuarioControllerTest {
     void cambiarContrasenia_delegaAlServicio() {
         UsuarioService service = mock(UsuarioService.class);
         CambiarContraseniaRequest request = new CambiarContraseniaRequest("anterior", "nueva123", "nueva123");
-        new UsuarioController(service).cambiarContraseniaUsuario(request);
+        new UsuarioController(service).cambiarContrasenia(request);
         verify(service).cambiarContrasenia(request);
     }
 }

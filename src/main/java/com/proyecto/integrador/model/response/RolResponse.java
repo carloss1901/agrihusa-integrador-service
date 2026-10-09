@@ -1,22 +1,29 @@
 package com.proyecto.integrador.model.response;
 
 import com.proyecto.integrador.model.entity.RolEntity;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.proyecto.integrador.model.projection.RolProjection;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class RolResponse {
+public record RolResponse(
+        Integer rolId,
+        String nombre,
+        String descripcion,
+        Boolean esSistema,
+        Boolean activo,
+        Long cantidadPermisos,
+        String estadoDsc
+) {
 
-    private Integer rolId;
-    private String nombre;
-    private String descripcion;
-    private Boolean esSistema;
-    private Boolean activo;
-    private Long cantidadPermisos;
-    private String estadoDsc;
+    public static RolResponse from(RolProjection projection) {
+        return new RolResponse(
+                projection.getRolId(),
+                projection.getNombre(),
+                projection.getDescripcion(),
+                projection.getEsSistema(),
+                projection.getActivo(),
+                projection.getCantidadPermisos(),
+                projection.getEstadoDsc()
+        );
+    }
 
     public static RolResponse from(RolEntity entity) {
         return new RolResponse(

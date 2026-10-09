@@ -3,13 +3,11 @@ package com.proyecto.integrador.service.impl;
 import com.proyecto.integrador.model.entity.ClienteEntity;
 import com.proyecto.integrador.model.request.ClienteRegistroRequest;
 import com.proyecto.integrador.model.response.ClienteResponse;
-import com.proyecto.integrador.model.mapper.GlobalMapper;
 import com.proyecto.integrador.repository.ClienteRepository;
 import com.proyecto.integrador.service.ClienteService;
 import com.proyecto.integrador.utils.CustomPage;
 import com.proyecto.integrador.utils.MessageResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -17,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service @RequiredArgsConstructor(onConstructor_ = @Autowired)
+@Service @RequiredArgsConstructor
 public class ClienteServiceImpl implements ClienteService {
     private static final String MSG_DOCUMENTO = "El número de documento ya está registrado";
     private static final String MSG_RAZON = "La razón social ya está registrada";
@@ -27,21 +25,15 @@ public class ClienteServiceImpl implements ClienteService {
     private static final String MSG_ACTIVADO = "Cliente activado correctamente";
     private static final String MSG_DESACTIVADO = "Cliente desactivado correctamente";
     private final ClienteRepository clienteRepository;
-    private final GlobalMapper globalMapper;
-
-    public ClienteServiceImpl(ClienteRepository clienteRepository) {
-        this(clienteRepository, new GlobalMapper());
-    }
 
     @Override @Transactional(readOnly = true)
     public CustomPage<ClienteResponse> listarClientes(String texto, String tipoDocumento, Boolean activo, Pageable pageable) {
-        Page<ClienteResponse> page = clienteRepository.listarClientes(texto, tipoDocumento, activo, pageable)
-                .map(projection -> globalMapper.map(projection, ClienteResponse.class));
+        Page<ClienteResponse> page = clienteRepository.listarClientes(texto, tipoDocumento, activo, pageable).map(ClienteResponse::from);
         return new CustomPage<>(page);
     }
 
     @Override @Transactional
-    public ResponseEntity<MessageResponse> registrar(ClienteRegistroRequest request) {
+    public ResponseEntity<Object> registrar(ClienteRegistroRequest request) {
         String numero = request.getNumeroDocumento().trim(), razon = request.getRazonSocial().trim();
         if (request.getClienteId() == 0) {
             if (clienteRepository.existsByNumeroDocumentoIgnoreCase(numero)) return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_DOCUMENTO);
@@ -66,11 +58,10 @@ public class ClienteServiceImpl implements ClienteService {
     private String normalizar(String value) { return value == null || value.isBlank() ? null : value.trim(); }
 
     @Override @Transactional
-    public ResponseEntity<MessageResponse> cambiarEstado(Integer clienteId, Boolean activo) {
+    public ResponseEntity<Object> cambiarEstado(Integer clienteId, Boolean activo) {
         ClienteEntity entity = clienteRepository.findById(clienteId).orElse(null);
         if (entity == null) return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_NO_ENCONTRADO);
         entity.setActivo(activo); clienteRepository.save(entity);
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, Boolean.TRUE.equals(activo) ? MSG_ACTIVADO : MSG_DESACTIVADO);
     }
 }
-

@@ -1,19 +1,23 @@
 package com.proyecto.integrador.model.response;
 
 import com.proyecto.integrador.model.entity.ViaEntity;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.proyecto.integrador.model.projection.ViaProjection;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class ViaResponse {
+public record ViaResponse(
+        Integer viaId,
+        String descripcion,
+        Boolean activo,
+        String estadoDsc
+) {
 
-    private Integer viaId;
-    private String descripcion;
-    private Boolean activo;
-    private String estadoDsc;
+    public static ViaResponse from(ViaProjection projection) {
+        return new ViaResponse(
+                projection.getViaId(),
+                projection.getDescripcion(),
+                projection.getActivo(),
+                projection.getEstadoDsc()
+        );
+    }
 
     public static ViaResponse from(ViaEntity entity) {
         return new ViaResponse(

@@ -9,7 +9,27 @@ class DespachoControllerTest {
     @Test
     void listar_delegaAlServicio() {
         DespachoService service = mock(DespachoService.class);
-        new DespachoController(service).listarDespachos("texto", 1, 2, true, 1, 10);
-        verify(service).listarDespachos("texto", 1, 2, true, PageRequest.of(0, 10));
+        new DespachoController(service).listar(
+                "texto",
+                1,
+                2,
+                3,
+                true,
+                null,
+                null,
+                1,
+                10
+        );
+
+        verify(service).listarDespachos(
+                "texto",
+                1,
+                2,
+                3,
+                true,
+                null,
+                null,
+                PageRequest.of(0, 10)
+        );
     }
 }

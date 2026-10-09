@@ -10,7 +10,11 @@ class BitacoraServiceTest {
     @Test
     void listar_noUsaBaseDeDatos() {
         var service = new BitacoraServiceImpl(TestMocks.repository(BitacoraRepository.class));
-        assertDoesNotThrow(() -> service.listarBitacoras(null, null, null, null, null, null, TestMocks.page()));
+        assertDoesNotThrow(() -> service.listarBitacoras(
+                null, null, null, null,
+                null, null, null, null,
+                TestMocks.page()
+        ));
     }
 
     @Test

@@ -3,13 +3,11 @@ package com.proyecto.integrador.service.impl;
 import com.proyecto.integrador.model.entity.PuertoLlegadaEntity;
 import com.proyecto.integrador.model.request.PuertoLlegadaRegistroRequest;
 import com.proyecto.integrador.model.response.PuertoLlegadaResponse;
-import com.proyecto.integrador.model.mapper.GlobalMapper;
 import com.proyecto.integrador.repository.PuertoLlegadaRepository;
 import com.proyecto.integrador.service.PuertoLlegadaService;
 import com.proyecto.integrador.utils.CustomPage;
 import com.proyecto.integrador.utils.MessageResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -18,7 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@RequiredArgsConstructor
 public class PuertoLlegadaServiceImpl implements PuertoLlegadaService {
 
     private static final String MSG_PUERTO_YA_REGISTRADO = "El código ya está registrado";
@@ -30,11 +28,6 @@ public class PuertoLlegadaServiceImpl implements PuertoLlegadaService {
     private static final String MSG_PUERTO_DESACTIVADO = "Puerto de llegada desactivado correctamente";
 
     private final PuertoLlegadaRepository puertoRepository;
-    private final GlobalMapper globalMapper;
-
-    public PuertoLlegadaServiceImpl(PuertoLlegadaRepository puertoRepository) {
-        this(puertoRepository, new GlobalMapper());
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -42,13 +35,13 @@ public class PuertoLlegadaServiceImpl implements PuertoLlegadaService {
             String texto, String pais, Boolean activo, Pageable pageable) {
         Page<PuertoLlegadaResponse> puertos = puertoRepository
                 .listarPuertos(texto, pais, activo, pageable)
-                .map(projection -> globalMapper.map(projection, PuertoLlegadaResponse.class));
+                .map(PuertoLlegadaResponse::from);
         return new CustomPage<>(puertos);
     }
 
     @Override
     @Transactional
-    public ResponseEntity<MessageResponse> registrar(PuertoLlegadaRegistroRequest request) {
+    public ResponseEntity<Object> registrar(PuertoLlegadaRegistroRequest request) {
         String codigo = request.getCodigo().trim();
         String puerto = request.getPuerto().trim();
         String pais = request.getPais().trim();
@@ -94,7 +87,7 @@ public class PuertoLlegadaServiceImpl implements PuertoLlegadaService {
 
     @Override
     @Transactional
-    public ResponseEntity<MessageResponse> cambiarEstado(Integer puertoLlegadaId, Boolean activo) {
+    public ResponseEntity<Object> cambiarEstado(Integer puertoLlegadaId, Boolean activo) {
         PuertoLlegadaEntity entity = puertoRepository.findById(puertoLlegadaId).orElse(null);
         if (entity == null) {
             return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_PUERTO_NO_ENCONTRADO);
@@ -107,4 +100,3 @@ public class PuertoLlegadaServiceImpl implements PuertoLlegadaService {
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
     }
 }
-

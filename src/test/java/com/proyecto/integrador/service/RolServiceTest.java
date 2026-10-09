@@ -17,13 +17,6 @@ class RolServiceTest {
     }
 
     @Test
-    void listarRolesActivosCombo_usaRepositorio() {
-        var service = new RolServiceImpl(TestMocks.repository(RolRepository.class), TestMocks.repository(ModuloRepository.class),
-                TestMocks.repository(PermisoRepository.class), TestMocks.repository(RolPermisoRepository.class));
-        assertDoesNotThrow(service::listarRolesActivosCombo);
-    }
-
-    @Test
     void registrar_usaRepositoriosMock() {
         var service = new RolServiceImpl(TestMocks.repository(RolRepository.class), TestMocks.repository(ModuloRepository.class),
                 TestMocks.repository(PermisoRepository.class), TestMocks.repository(RolPermisoRepository.class));

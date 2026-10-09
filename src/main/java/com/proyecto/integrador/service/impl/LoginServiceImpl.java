@@ -20,7 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -58,6 +58,12 @@ public class LoginServiceImpl implements LoginService {
                             null
                     ));
         }
+
+        usuario.setUltimoAcceso(
+                LocalDateTime.now()
+        );
+
+        usuarioRepository.save(usuario);
 
         List<Integer> rolesIds = usuarioRolRepository.findAllByUsuarioIdAndActivoTrue(usuario.getUsuarioId())
                 .stream()

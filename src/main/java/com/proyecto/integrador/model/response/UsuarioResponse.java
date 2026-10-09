@@ -1,28 +1,48 @@
 package com.proyecto.integrador.model.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.proyecto.integrador.model.entity.UsuarioEntity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class UsuarioResponse {
+public record UsuarioResponse(
+        Integer usuarioId,
+        String dni,
+        String usuario,
+        String nombres,
+        String apellidoPaterno,
+        String apellidoMaterno,
+        String correo,
+        String telefono,
+        Integer rolId,
+        Boolean esSistema,
+        Boolean resetContrasenia,
+        LocalDateTime ultimoAcceso,
+        Boolean activo,
+        LocalDate fechaCreacion,
+        LocalDate fechaModificacion
+) {
 
-    private Integer usuarioId;
-    private String usuario;
-    private String nombres;
-    private String apellidos;
-    private String correo;
-    private Integer rolId;
-    private String rolDescripcion;
-    private Boolean esSistema;
-    private LocalDateTime ultimoAcceso;
-    private Integer estadoId;
-    private String tipo;
-    private Boolean activo;
-    private String estadoDsc;
-
+    public static UsuarioResponse from(
+            UsuarioEntity entity,
+            Integer rolId
+    ) {
+        return new UsuarioResponse(
+                entity.getUsuarioId(),
+                entity.getDni(),
+                entity.getUsuario(),
+                entity.getNombres(),
+                entity.getApellidoPaterno(),
+                entity.getApellidoMaterno(),
+                entity.getCorreo(),
+                entity.getTelefono(),
+                rolId,
+                entity.getEsSistema(),
+                entity.getResetContrasenia(),
+                entity.getUltimoAcceso(),
+                entity.getActivo(),
+                entity.getFechaCreacion(),
+                entity.getFechaModificacion()
+        );
+    }
 }

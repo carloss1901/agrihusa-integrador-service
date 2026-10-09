@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface OperadorLogisticoRepository extends JpaRepository<OperadorLogisticoEntity, Integer> {
-    java.util.List<OperadorLogisticoEntity> findAllByActivoTrueOrderByRazonSocialAsc();
 
     boolean existsByRucIgnoreCase(String ruc);
 

@@ -1,34 +1,64 @@
 package com.proyecto.integrador.model.response;
 
 import com.proyecto.integrador.model.entity.BitacoraEntity;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.proyecto.integrador.model.projection.BitacoraProjection;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class BitacoraResponse {
+public record BitacoraResponse(
+        Integer bitacoraId,
+        LocalDateTime fecha,
+        Integer usuarioId,
+        String nombreUsuario,
+        String modulo,
+        String accion,
+        String entidad,
+        Integer registroId,
+        String detalle,
+        String resultado,
+        Boolean activo,
+        LocalDate fechaCreacion,
+        LocalDate fechaModificacion
+) {
 
-    private Integer bitacoraId;
-    private LocalDateTime fecha;
-    private Integer usuarioId;
-    private String modulo;
-    private String accion;
-    private String entidad;
-    private Integer registroId;
-    private String detalle;
-    private String resultado;
-    private Boolean activo;
-    private LocalDate fechaCreacion;
-    private LocalDate fechaModificacion;
+    public static BitacoraResponse from(
+            BitacoraProjection projection
+    ) {
+        return new BitacoraResponse(
+                projection.getBitacoraId(),
+                projection.getFecha(),
+                projection.getUsuarioId(),
+                projection.getNombreUsuario(),
+                projection.getModulo(),
+                projection.getAccion(),
+                projection.getEntidad(),
+                projection.getRegistroId(),
+                projection.getDetalle(),
+                projection.getResultado(),
+                projection.getActivo(),
+                projection.getFechaCreacion(),
+                projection.getFechaModificacion()
+        );
+    }
 
-    public static BitacoraResponse from(BitacoraEntity e) {
-        return new BitacoraResponse(e.getBitacoraId(), e.getFecha(), e.getUsuarioId(), e.getModulo(),
-                e.getAccion(), e.getEntidad(), e.getRegistroId(), e.getDetalle(), e.getResultado(),
-                e.getActivo(), e.getFechaCreacion(), e.getFechaModificacion());
+    public static BitacoraResponse from(
+            BitacoraEntity entity
+    ) {
+        return new BitacoraResponse(
+                entity.getBitacoraId(),
+                entity.getFecha(),
+                entity.getUsuarioId(),
+                null,
+                entity.getModulo(),
+                entity.getAccion(),
+                entity.getEntidad(),
+                entity.getRegistroId(),
+                entity.getDetalle(),
+                entity.getResultado(),
+                entity.getActivo(),
+                entity.getFechaCreacion(),
+                entity.getFechaModificacion()
+        );
     }
 }

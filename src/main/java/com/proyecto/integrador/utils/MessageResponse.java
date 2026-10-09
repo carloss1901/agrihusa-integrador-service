@@ -33,7 +33,7 @@ public class MessageResponse {
         return new MessageResponse(success, message, status.value(), data);
     }
 
-    public static ResponseEntity<MessageResponse> setResponse(
+    public static ResponseEntity<Object> setResponse(
             @Nullable boolean success,
             HttpStatus status,
             @Nullable String message,
@@ -44,25 +44,25 @@ public class MessageResponse {
         );
     }
 
-    public static ResponseEntity<MessageResponse> setResponse(
+    public static ResponseEntity<Object> setResponse(
             HttpStatus status,
             String message,
             @Nullable Object data) {
         return setResponse(Boolean.FALSE, status, message, data);
     }
 
-    public static ResponseEntity<MessageResponse> setResponse(
+    public static ResponseEntity<Object> setResponse(
             boolean success,
             HttpStatus status,
             String message) {
         return setResponse(success, status, message, null);
     }
 
-    public static ResponseEntity<MessageResponse> setResponse(HttpStatus status, String message) {
+    public static ResponseEntity<Object> setResponse(HttpStatus status, String message) {
         return setResponse(Boolean.FALSE, status, message, null);
     }
 
-    public static ResponseEntity<MessageResponse> setResponse(
+    public static ResponseEntity<Object> setResponse(
             boolean success,
             String message,
             @Nullable Object data) {
@@ -70,11 +70,11 @@ public class MessageResponse {
         return setResponse(success, status, message, data);
     }
 
-    public static ResponseEntity<MessageResponse> setResponse(boolean success, String message) {
+    public static ResponseEntity<Object> setResponse(boolean success, String message) {
         return setResponse(success, message, null);
     }
 
-    public static ResponseEntity<MessageResponse> setResponse(
+    public static ResponseEntity<Object> setResponse(
             Set<? extends ConstraintViolation<?>> violations) {
         String message = violations.stream()
                 .map(ConstraintViolation::getMessage)
@@ -82,4 +82,3 @@ public class MessageResponse {
         return setResponse(Boolean.FALSE, HttpStatus.BAD_REQUEST, message, null);
     }
 }
-

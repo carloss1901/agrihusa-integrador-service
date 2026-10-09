@@ -1,7 +1,5 @@
 package com.proyecto.integrador.service;
 
-import com.proyecto.integrador.utils.MessageResponse;
-
 import com.proyecto.integrador.model.request.ViaRegistroRequest;
 import com.proyecto.integrador.model.response.ViaResponse;
 import com.proyecto.integrador.utils.CustomPage;
@@ -12,11 +10,10 @@ public interface ViaService {
 
     CustomPage<ViaResponse> listarVias(String descripcion, Boolean activo, Pageable pageable);
 
-    ResponseEntity<MessageResponse> registrar(ViaRegistroRequest request);
-    default ResponseEntity<MessageResponse> actualizar(ViaRegistroRequest request) {
+    ResponseEntity<Object> registrar(ViaRegistroRequest request);
+    default ResponseEntity<Object> actualizar(ViaRegistroRequest request) {
         return registrar(request);
     }
 
-    ResponseEntity<MessageResponse> cambiarEstado(Integer viaId, Boolean activo);
+    ResponseEntity<Object> cambiarEstado(Integer viaId, Boolean activo);
 }
-

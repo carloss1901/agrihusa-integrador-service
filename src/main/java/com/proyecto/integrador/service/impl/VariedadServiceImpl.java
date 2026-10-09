@@ -4,14 +4,12 @@ import com.proyecto.integrador.model.entity.ProductoEntity;
 import com.proyecto.integrador.model.entity.VariedadEntity;
 import com.proyecto.integrador.model.request.VariedadRegistroRequest;
 import com.proyecto.integrador.model.response.VariedadResponse;
-import com.proyecto.integrador.model.mapper.GlobalMapper;
 import com.proyecto.integrador.repository.ProductoRepository;
 import com.proyecto.integrador.repository.VariedadRepository;
 import com.proyecto.integrador.service.VariedadService;
 import com.proyecto.integrador.utils.CustomPage;
 import com.proyecto.integrador.utils.MessageResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -20,7 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@RequiredArgsConstructor
 public class VariedadServiceImpl implements VariedadService {
 
     private static final String MSG_VARIEDAD_YA_REGISTRADA = "La variedad ya está registrada";
@@ -34,11 +32,6 @@ public class VariedadServiceImpl implements VariedadService {
 
     private final VariedadRepository variedadRepository;
     private final ProductoRepository productoRepository;
-    private final GlobalMapper globalMapper;
-
-    public VariedadServiceImpl(VariedadRepository variedadRepository, ProductoRepository productoRepository) {
-        this(variedadRepository, productoRepository, new GlobalMapper());
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -46,13 +39,13 @@ public class VariedadServiceImpl implements VariedadService {
             String texto, Integer productoId, Boolean activo, Pageable pageable) {
         Page<VariedadResponse> variedades = variedadRepository
             .listarVariedades(texto, productoId, activo, pageable)
-            .map(projection -> globalMapper.map(projection, VariedadResponse.class));
+            .map(VariedadResponse::from);
         return new CustomPage<>(variedades);
     }
 
     @Override
     @Transactional
-    public ResponseEntity<MessageResponse> registrar(VariedadRegistroRequest request) {
+    public ResponseEntity<Object> registrar(VariedadRegistroRequest request) {
         String nombre = request.getNombre().trim();
         ProductoEntity producto = productoRepository.findById(request.getProductoId()).orElse(null);
         if (producto == null) {
@@ -91,7 +84,7 @@ public class VariedadServiceImpl implements VariedadService {
 
     @Override
     @Transactional
-    public ResponseEntity<MessageResponse> cambiarEstado(Integer variedadId, Boolean activo) {
+    public ResponseEntity<Object> cambiarEstado(Integer variedadId, Boolean activo) {
         VariedadEntity entity = variedadRepository.findById(variedadId).orElse(null);
         if (entity == null) {
             return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_VARIEDAD_NO_ENCONTRADA);
@@ -114,4 +107,3 @@ public class VariedadServiceImpl implements VariedadService {
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
     }
 }
-

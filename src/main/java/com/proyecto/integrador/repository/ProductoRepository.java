@@ -10,8 +10,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface ProductoRepository extends JpaRepository<ProductoEntity, Integer> {
 
-    java.util.List<ProductoEntity> findAllByActivoTrueOrderByNombreAsc();
-
     boolean existsByCodigoIgnoreCase(String codigo);
 
     boolean existsByNombreIgnoreCase(String nombre);

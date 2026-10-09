@@ -3,6 +3,7 @@ package com.proyecto.integrador.service.impl;
 import com.proyecto.integrador.model.entity.DespachoEntity;
 import com.proyecto.integrador.model.request.DespachoRegistroRequest;
 import com.proyecto.integrador.model.response.DespachoResponse;
+import com.proyecto.integrador.model.response.ReporteDespachoResponse;
 import com.proyecto.integrador.model.mapper.GlobalMapper;
 import com.proyecto.integrador.repository.ClienteRepository;
 import com.proyecto.integrador.repository.DespachoRepository;
@@ -25,6 +26,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -78,17 +83,14 @@ public class DespachoServiceImpl implements DespachoService {
     @Override
     @Transactional
     public ResponseEntity<MessageResponse> registrar(DespachoRegistroRequest request) {
-        String codigo = request.getCodigo().trim();
         if (!referenciasExisten(request)) {
             return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_REFERENCIA);
         }
 
         if (request.getDespachoId() == 0) {
-            if (despachoRepository.existsByCodigoIgnoreCase(codigo)) {
-                return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_CODIGO);
-            }
             DespachoEntity entity = new DespachoEntity();
-            asignar(entity, request, codigo);
+            asignar(entity, request);
+            entity.setCodigo(generarCodigo());
             entity.setActivo(Boolean.TRUE);
             despachoRepository.save(entity);
             return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.CREATED, MSG_REGISTRADO);
@@ -98,16 +100,12 @@ public class DespachoServiceImpl implements DespachoService {
         if (entity == null) {
             return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_NO_ENCONTRADO);
         }
-        if (despachoRepository.existsByCodigoIgnoreCaseAndDespachoIdNot(codigo, request.getDespachoId())) {
-            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_CODIGO);
-        }
-        asignar(entity, request, codigo);
+        asignar(entity, request);
         despachoRepository.save(entity);
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, MSG_ACTUALIZADO);
     }
 
-    private void asignar(DespachoEntity entity, DespachoRegistroRequest request, String codigo) {
-        entity.setCodigo(codigo);
+    private void asignar(DespachoEntity entity, DespachoRegistroRequest request) {
         entity.setFechaDespacho(request.getFechaDespacho());
         entity.setFechaEstimadaLlegada(request.getFechaEstimadaLlegada());
         entity.setClienteId(request.getClienteId());
@@ -123,6 +121,14 @@ public class DespachoServiceImpl implements DespachoService {
         entity.setUnidadMedida(request.getUnidadMedida().trim());
         entity.setNumeroContenedor(request.getNumeroContenedor().trim());
         entity.setObservaciones(normalizar(request.getObservaciones()));
+    }
+
+    private String generarCodigo() {
+        String codigo;
+        do {
+            codigo = "DSP-" + System.currentTimeMillis();
+        } while (despachoRepository.existsByCodigoIgnoreCase(codigo));
+        return codigo;
     }
 
     private boolean referenciasExisten(DespachoRegistroRequest request) {
@@ -152,6 +158,19 @@ public class DespachoServiceImpl implements DespachoService {
         despachoRepository.save(entity);
         String mensaje = Boolean.TRUE.equals(activo) ? MSG_ACTIVADO : MSG_DESACTIVADO;
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReporteDespachoResponse> listarReporte(LocalDate fechaDesde, LocalDate fechaHasta,
+                                                        Integer clienteId, Integer productoId,
+                                                        Integer variedadId, Integer viaId,
+                                                        Integer situacionId, Boolean activo) {
+        return despachoRepository.listarReporte(fechaDesde, fechaHasta, clienteId, productoId,
+                        variedadId, viaId, situacionId, activo)
+                .stream()
+                .map(ReporteDespachoResponse::from)
+                .toList();
     }
 }
 

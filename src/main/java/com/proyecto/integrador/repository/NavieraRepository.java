@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface NavieraRepository extends JpaRepository<NavieraEntity, Integer> {
+    java.util.List<NavieraEntity> findAllByActivoTrueOrderByNombreAsc();
     boolean existsByCodigoIgnoreCase(String codigo);
     boolean existsByNombreIgnoreCase(String nombre);
     boolean existsByCodigoIgnoreCaseAndNavieraIdNot(String codigo, Integer navieraId);

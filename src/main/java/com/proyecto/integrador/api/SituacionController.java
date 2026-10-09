@@ -34,7 +34,7 @@ public class SituacionController {
 
     private final SituacionService situacionService;
 
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_situaciones_consultar')")
     public CustomPage<SituacionResponse> listarSituaciones(
             @RequestParam(value = "descripcion", required = false) String descripcion,

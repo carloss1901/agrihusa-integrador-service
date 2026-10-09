@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface PuertoLlegadaRepository extends JpaRepository<PuertoLlegadaEntity, Integer> {
+    java.util.List<PuertoLlegadaEntity> findAllByActivoTrueOrderByPuertoAsc();
 
     boolean existsByCodigoIgnoreCase(String codigo);
 

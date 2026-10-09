@@ -22,10 +22,6 @@ public class DespachoRegistroRequest {
     @NotNull(message = "{message.required}")
     private Integer despachoId;
 
-    @NotBlank(message = "{message.required}")
-    @Size(max = 30, message = "{message.longitudmax}")
-    private String codigo;
-
     @NotNull(message = "{message.required}")
     private LocalDate fechaDespacho;
 

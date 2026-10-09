@@ -1,11 +1,16 @@
 server:
-  port: ${PORT:8085}
+  address: ${SERVER_ADDRESS:0.0.0.0}
+  port: ${PORT:8080}
 
 jwt:
   secret: ${JWT_SECRET:agrihusa-integrador-dev-secret-key-2026}
   expiration-ms: ${JWT_EXPIRATION_MS:3600000}
 
 spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+
   config:
     import: optional:file:.env[.properties]
 
@@ -25,7 +30,7 @@ spring:
       auto-commit: false
       connection-timeout: ${DB_CONNECTION_TIMEOUT:20000}
       idle-timeout: ${DB_IDLE_TIMEOUT:300000}
-      max-lifetime: ${DB_MAX_LIFETIME:120000}
+      max-lifetime: ${DB_MAX_LIFETIME:1800000}
       minimum-idle: ${DB_MINIMUM_IDLE:5}
 
   jpa:
@@ -33,6 +38,7 @@ spring:
       ddl-auto: none
     show-sql: false
     database-platform: org.hibernate.dialect.SQLServerDialect
+    open-in-view: false
 
 springdoc:
   api-docs:

@@ -4,6 +4,7 @@ import com.proyecto.integrador.utils.MessageResponse;
 
 import com.proyecto.integrador.model.request.DespachoRegistroRequest;
 import com.proyecto.integrador.model.response.DespachoResponse;
+import com.proyecto.integrador.model.response.DespachoResumenResponse;
 import com.proyecto.integrador.model.response.ReporteDespachoResponse;
 import com.proyecto.integrador.service.DespachoService;
 import com.proyecto.integrador.utils.CustomPage;
@@ -39,7 +40,7 @@ public class DespachoController {
     private final DespachoService despachoService;
 
     @GetMapping(value = "/reporte", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_reporte_despacho_consultar')")
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_reporte-despacho_consultar')")
     public List<ReporteDespachoResponse> listarReporte(
             @RequestParam(value = "fechaDesde", required = false) LocalDate fechaDesde,
             @RequestParam(value = "fechaHasta", required = false) LocalDate fechaHasta,
@@ -53,8 +54,23 @@ public class DespachoController {
                 variedadId, viaId, situacionId, activo);
     }
 
+    @GetMapping(value = "/reporte/resumen", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_reporte-despacho_consultar')")
+    public DespachoResumenResponse resumenReporte(
+            @RequestParam(value = "fechaDesde", required = false) LocalDate fechaDesde,
+            @RequestParam(value = "fechaHasta", required = false) LocalDate fechaHasta,
+            @RequestParam(value = "clienteId", required = false) Integer clienteId,
+            @RequestParam(value = "productoId", required = false) Integer productoId,
+            @RequestParam(value = "variedadId", required = false) Integer variedadId,
+            @RequestParam(value = "viaId", required = false) Integer viaId,
+            @RequestParam(value = "situacionId", required = false) Integer situacionId,
+            @RequestParam(value = "activo", required = false) Boolean activo) {
+        return despachoService.resumenReporte(fechaDesde, fechaHasta, clienteId, productoId,
+                variedadId, viaId, situacionId, activo);
+    }
+
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_despachos_consultar')")
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_registro-despacho_consultar')")
     public CustomPage<DespachoResponse> listarDespachos(
             @RequestParam(value = "texto", required = false) String texto,
             @RequestParam(value = "clienteId", required = false) Integer clienteId,
@@ -67,19 +83,19 @@ public class DespachoController {
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_despachos_crear')")
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_registro-despacho_crear')")
     public ResponseEntity<MessageResponse> registrarDespacho(@Valid @RequestBody DespachoRegistroRequest request) {
         return despachoService.registrar(request);
     }
 
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_despachos_editar')")
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_registro-despacho_editar')")
     public ResponseEntity<MessageResponse> actualizarDespacho(@Valid @RequestBody DespachoRegistroRequest request) {
         return despachoService.actualizar(request);
     }
 
     @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_despachos_eliminar')")
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_registro-despacho_eliminar')")
     public ResponseEntity<MessageResponse> cambiarEstadoDespacho(
             @NotNull(message = "{message.required}") @RequestParam("despachoId") Integer despachoId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {

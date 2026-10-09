@@ -23,14 +23,14 @@ class DespachoServiceTest {
     @Test
     void registrar_usaRepositoriosMock() {
         var service = crearService();
-        var request = new DespachoRegistroRequest(0, "DES-001", LocalDate.now(), LocalDate.now().plusDays(1),
+        var request = new DespachoRegistroRequest(0, LocalDate.now(), LocalDate.now().plusDays(1),
                 1, 1, 1, 1, 1, 1, 1, 1, 1, BigDecimal.ONE, "KG", "CONT-001", null);
         assertDoesNotThrow(() -> service.registrar(request));
     }
 
     @Test
     void actualizar_delegaEnRegistrarConRepositoriosMock() {
-        var request = new DespachoRegistroRequest(0, "DES-001", LocalDate.now(), LocalDate.now().plusDays(1),
+        var request = new DespachoRegistroRequest(0, LocalDate.now(), LocalDate.now().plusDays(1),
                 1, 1, 1, 1, 1, 1, 1, 1, 1, BigDecimal.ONE, "KG", "CONT-001", null);
         assertDoesNotThrow(() -> crearService().actualizar(request));
     }

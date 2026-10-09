@@ -2,6 +2,7 @@ package com.proyecto.integrador.repository;
 
 import com.proyecto.integrador.model.entity.DespachoEntity;
 import com.proyecto.integrador.model.projection.DespachoProjection;
+import com.proyecto.integrador.model.projection.DespachoResumenProjection;
 import com.proyecto.integrador.model.projection.ReporteDespachoProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,8 +39,8 @@ public interface DespachoRepository extends JpaRepository<DespachoEntity, Intege
             LEFT JOIN variedad v ON v.variedad_id = d.variedad_id
             LEFT JOIN via vi ON vi.via_id = d.via_id
             LEFT JOIN situacion s ON s.situacion_id = d.situacion_id
-            WHERE (:fechaDesde IS NULL OR d.fecha_despacho >= :fechaDesde)
-              AND (:fechaHasta IS NULL OR d.fecha_despacho <= :fechaHasta)
+            WHERE (CAST(:fechaDesde AS DATE) IS NULL OR d.fecha_despacho >= CAST(:fechaDesde AS DATE))
+              AND (CAST(:fechaHasta AS DATE) IS NULL OR d.fecha_despacho <= CAST(:fechaHasta AS DATE))
               AND (:clienteId IS NULL OR d.cliente_id = :clienteId)
               AND (:productoId IS NULL OR d.producto_id = :productoId)
               AND (:variedadId IS NULL OR d.variedad_id = :variedadId)
@@ -91,4 +92,37 @@ public interface DespachoRepository extends JpaRepository<DespachoEntity, Intege
                                              @Param("situacionId") Integer situacionId,
                                              @Param("activo") Boolean activo,
                                              Pageable pageable);
+
+    @Query(value = """
+            SELECT MAX(TRY_CAST(SUBSTRING(d.codigo, LEN(:prefijo) + 1, 10) AS INT))
+            FROM despacho d WITH (UPDLOCK, HOLDLOCK)
+            WHERE d.codigo LIKE CONCAT(:prefijo, '%')
+            """, nativeQuery = true)
+    Integer obtenerUltimoCorrelativo(@Param("prefijo") String prefijo);
+
+    @Query(value = """
+            SELECT d.unidad_medida AS unidadMedida,
+                   CAST(COUNT(*) AS BIGINT) AS totalDespachos,
+                   SUM(d.cantidad) AS cantidadTotal
+            FROM despacho d
+            WHERE (CAST(:fechaDesde AS DATE) IS NULL OR d.fecha_despacho >= CAST(:fechaDesde AS DATE))
+              AND (CAST(:fechaHasta AS DATE) IS NULL OR d.fecha_despacho <= CAST(:fechaHasta AS DATE))
+              AND (:clienteId IS NULL OR d.cliente_id = :clienteId)
+              AND (:productoId IS NULL OR d.producto_id = :productoId)
+              AND (:variedadId IS NULL OR d.variedad_id = :variedadId)
+              AND (:viaId IS NULL OR d.via_id = :viaId)
+              AND (:situacionId IS NULL OR d.situacion_id = :situacionId)
+              AND (:activo IS NULL OR d.activo = :activo)
+            GROUP BY d.unidad_medida
+            ORDER BY d.unidad_medida
+            """, nativeQuery = true)
+    List<DespachoResumenProjection> resumenDespachos(
+            @Param("fechaDesde") LocalDate fechaDesde,
+            @Param("fechaHasta") LocalDate fechaHasta,
+            @Param("clienteId") Integer clienteId,
+            @Param("productoId") Integer productoId,
+            @Param("variedadId") Integer variedadId,
+            @Param("viaId") Integer viaId,
+            @Param("situacionId") Integer situacionId,
+            @Param("activo") Boolean activo);
 }

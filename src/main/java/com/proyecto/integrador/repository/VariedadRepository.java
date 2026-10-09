@@ -14,6 +14,8 @@ public interface VariedadRepository extends JpaRepository<VariedadEntity, Intege
 
     List<VariedadEntity> findAllByActivoTrueOrderByNombreAsc();
 
+    boolean existsByVariedadIdAndProductoId(Integer variedadId, Integer productoId);
+
     boolean existsByProductoIdAndNombreIgnoreCase(Integer productoId, String nombre);
 
     boolean existsByProductoIdAndNombreIgnoreCaseAndVariedadIdNot(

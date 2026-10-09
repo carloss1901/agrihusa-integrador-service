@@ -3,6 +3,7 @@ package com.proyecto.integrador.service.impl;
 import com.proyecto.integrador.model.entity.DespachoEntity;
 import com.proyecto.integrador.model.request.DespachoRegistroRequest;
 import com.proyecto.integrador.model.response.DespachoResponse;
+import com.proyecto.integrador.model.response.DespachoResumenResponse;
 import com.proyecto.integrador.model.response.ReporteDespachoResponse;
 import com.proyecto.integrador.model.mapper.GlobalMapper;
 import com.proyecto.integrador.repository.ClienteRepository;
@@ -29,6 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -41,6 +44,10 @@ public class DespachoServiceImpl implements DespachoService {
     private static final String MSG_NO_ENCONTRADO = "No se encontró el despacho";
     private static final String MSG_ACTIVADO = "Despacho activado correctamente";
     private static final String MSG_DESACTIVADO = "Despacho desactivado correctamente";
+    private static final Set<String> UNIDADES_VALIDAS = Set.of("CAJAS", "KILOGRAMOS", "TONELADAS", "PALETS");
+    private static final String MSG_VARIEDAD = "La variedad no pertenece al producto seleccionado";
+    private static final String MSG_FECHAS = "La fecha estimada de llegada no puede ser anterior a la fecha de despacho";
+    private static final String MSG_UNIDAD = "La unidad de medida debe ser CAJAS, KILOGRAMOS, TONELADAS o PALETS";
     private static final String MSG_REFERENCIA = "No se encontró una referencia asociada al despacho";
 
     private final DespachoRepository despachoRepository;
@@ -86,6 +93,15 @@ public class DespachoServiceImpl implements DespachoService {
         if (!referenciasExisten(request)) {
             return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_REFERENCIA);
         }
+        if (!variedadRepository.existsByVariedadIdAndProductoId(request.getVariedadId(), request.getProductoId())) {
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.BAD_REQUEST, MSG_VARIEDAD);
+        }
+        if (request.getFechaEstimadaLlegada().isBefore(request.getFechaDespacho())) {
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.BAD_REQUEST, MSG_FECHAS);
+        }
+        if (!UNIDADES_VALIDAS.contains(request.getUnidadMedida().trim().toUpperCase())) {
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.BAD_REQUEST, MSG_UNIDAD);
+        }
 
         if (request.getDespachoId() == 0) {
             DespachoEntity entity = new DespachoEntity();
@@ -118,17 +134,17 @@ public class DespachoServiceImpl implements DespachoService {
         entity.setViaId(request.getViaId());
         entity.setSituacionId(request.getSituacionId());
         entity.setCantidad(request.getCantidad());
-        entity.setUnidadMedida(request.getUnidadMedida().trim());
+        entity.setUnidadMedida(request.getUnidadMedida().trim().toUpperCase());
         entity.setNumeroContenedor(request.getNumeroContenedor().trim());
         entity.setObservaciones(normalizar(request.getObservaciones()));
     }
 
+    /** Genera el siguiente código con el formato DES-AAAA-NNNN (correlativo anual). */
     private String generarCodigo() {
-        String codigo;
-        do {
-            codigo = "DSP-" + System.currentTimeMillis();
-        } while (despachoRepository.existsByCodigoIgnoreCase(codigo));
-        return codigo;
+        String prefijo = "DES-" + LocalDate.now().getYear() + "-";
+        Integer ultimo = despachoRepository.obtenerUltimoCorrelativo(prefijo);
+        int siguiente = (ultimo == null ? 0 : ultimo) + 1;
+        return prefijo + String.format("%04d", siguiente);
     }
 
     private boolean referenciasExisten(DespachoRegistroRequest request) {
@@ -172,5 +188,22 @@ public class DespachoServiceImpl implements DespachoService {
                 .map(ReporteDespachoResponse::from)
                 .toList();
     }
-}
 
+    @Override
+    @Transactional(readOnly = true)
+    public DespachoResumenResponse resumenReporte(LocalDate fechaDesde, LocalDate fechaHasta,
+                                                  Integer clienteId, Integer productoId, Integer variedadId,
+                                                  Integer viaId, Integer situacionId, Boolean activo) {
+        List<DespachoResumenResponse.PorUnidad> porUnidad = despachoRepository
+                .resumenDespachos(fechaDesde, fechaHasta, clienteId, productoId, variedadId, viaId,
+                        situacionId, activo)
+                .stream()
+                .map(item -> new DespachoResumenResponse.PorUnidad(
+                        item.getUnidadMedida(), item.getTotalDespachos(), item.getCantidadTotal()))
+                .collect(Collectors.toList());
+        long total = porUnidad.stream()
+                .mapToLong(item -> item.getTotalDespachos() == null ? 0L : item.getTotalDespachos())
+                .sum();
+        return new DespachoResumenResponse(total, porUnidad);
+    }
+}

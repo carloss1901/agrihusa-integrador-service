@@ -46,7 +46,7 @@ class AllServiceMethodsTest {
                 TestMocks.repository(OperadorLogisticoRepository.class), TestMocks.repository(PuertoLlegadaRepository.class),
                 TestMocks.repository(ProductoRepository.class), TestMocks.repository(VariedadRepository.class),
                 TestMocks.repository(ViaRepository.class), TestMocks.repository(SituacionRepository.class));
-        var request = new DespachoRegistroRequest(1, "DES-001", LocalDate.now(), LocalDate.now().plusDays(1),
+        var request = new DespachoRegistroRequest(1, LocalDate.now(), LocalDate.now().plusDays(1),
                 1, 1, 1, 1, 1, 1, 1, 1, 1, BigDecimal.ONE, "KG", "CONT-001", null);
 
         assertDoesNotThrow(() -> {

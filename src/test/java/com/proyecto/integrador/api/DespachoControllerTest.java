@@ -12,4 +12,11 @@ class DespachoControllerTest {
         new DespachoController(service).listarDespachos("texto", 1, 2, true, 1, 10);
         verify(service).listarDespachos("texto", 1, 2, true, PageRequest.of(0, 10));
     }
+
+    @Test
+    void resumenReporte_delegaAlServicio() {
+        DespachoService service = mock(DespachoService.class);
+        new DespachoController(service).resumenReporte(null, null, 1, 2, 3, 4, 5, true);
+        verify(service).resumenReporte(null, null, 1, 2, 3, 4, 5, true);
+    }
 }

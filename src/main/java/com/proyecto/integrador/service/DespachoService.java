@@ -4,6 +4,7 @@ import com.proyecto.integrador.utils.MessageResponse;
 
 import com.proyecto.integrador.model.request.DespachoRegistroRequest;
 import com.proyecto.integrador.model.response.DespachoResponse;
+import com.proyecto.integrador.model.response.DespachoResumenResponse;
 import com.proyecto.integrador.model.response.ReporteDespachoResponse;
 import com.proyecto.integrador.utils.CustomPage;
 import org.springframework.data.domain.Pageable;
@@ -23,5 +24,7 @@ public interface DespachoService {
     List<ReporteDespachoResponse> listarReporte(LocalDate fechaDesde, LocalDate fechaHasta,
                                                  Integer clienteId, Integer productoId, Integer variedadId,
                                                  Integer viaId, Integer situacionId, Boolean activo);
+    DespachoResumenResponse resumenReporte(LocalDate fechaDesde, LocalDate fechaHasta,
+                                           Integer clienteId, Integer productoId, Integer variedadId,
+                                           Integer viaId, Integer situacionId, Boolean activo);
 }
-

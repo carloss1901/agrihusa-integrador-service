@@ -179,7 +179,7 @@ class ServiceConditionalBranchesTest {
     }
 
     @Test
-    void despacho_cubreReferenciaInexistenteYCodigoDuplicado() {
+    void despacho_cubreReferenciaInexistenteYRegistroValido() {
         DespachoRepository despacho = mock(DespachoRepository.class);
         ClienteRepository cliente = mock(ClienteRepository.class);
         NavieraRepository naviera = mock(NavieraRepository.class);
@@ -202,8 +202,8 @@ class ServiceConditionalBranchesTest {
         when(variedad.existsById(1)).thenReturn(true);
         when(via.existsById(1)).thenReturn(true);
         when(situacion.existsById(1)).thenReturn(true);
-        when(despacho.existsByCodigoIgnoreCase("D-1")).thenReturn(true);
-        assertEquals(HttpStatus.CONFLICT, service.registrar(request).getStatusCode());
+        when(variedad.existsByVariedadIdAndProductoId(1, 1)).thenReturn(true);
+        assertEquals(HttpStatus.CREATED, service.registrar(request).getStatusCode());
     }
 
     @Test
@@ -239,7 +239,7 @@ class ServiceConditionalBranchesTest {
     }
 
     private static DespachoRegistroRequest despachoRequest(Integer id) {
-        return new DespachoRegistroRequest(id, "D-1", LocalDate.now(), LocalDate.now().plusDays(1),
-                1, 1, 1, 1, 1, 1, 1, 1, 1, BigDecimal.ONE, "KG", "CONT-1", null);
+        return new DespachoRegistroRequest(id, LocalDate.now(), LocalDate.now().plusDays(1),
+                1, 1, 1, 1, 1, 1, 1, 1, 1, BigDecimal.ONE, "CAJAS", "CONT-1", null);
     }
 }

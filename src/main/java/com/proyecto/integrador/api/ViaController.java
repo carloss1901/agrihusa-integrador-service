@@ -47,7 +47,7 @@ public class ViaController {
 
     @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_vias_eliminar')")
-    public ResponseEntity<MessageResponse> cambiarEstado(
+    public ResponseEntity<MessageResponse> cambiarEstadoVia(
             @NotNull(message = "{message.required}") @RequestParam("viaId") Integer viaId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {
         return viaService.cambiarEstado(viaId, activo);
@@ -55,13 +55,13 @@ public class ViaController {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_vias_crear')")
-    public ResponseEntity<MessageResponse> registrar(@Valid @RequestBody ViaRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrarVia(@Valid @RequestBody ViaRegistroRequest request) {
         return viaService.registrar(request);
     }
 
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_vias_editar')")
-    public ResponseEntity<MessageResponse> actualizar(@Valid @RequestBody ViaRegistroRequest request) {
+    public ResponseEntity<MessageResponse> actualizarVia(@Valid @RequestBody ViaRegistroRequest request) {
         return viaService.actualizar(request);
     }
 }

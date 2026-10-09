@@ -3,11 +3,13 @@ package com.proyecto.integrador.service.impl;
 import com.proyecto.integrador.model.entity.DestinoEntity;
 import com.proyecto.integrador.model.request.DestinoRegistroRequest;
 import com.proyecto.integrador.model.response.DestinoResponse;
+import com.proyecto.integrador.model.mapper.GlobalMapper;
 import com.proyecto.integrador.repository.DestinoRepository;
 import com.proyecto.integrador.service.DestinoService;
 import com.proyecto.integrador.utils.CustomPage;
 import com.proyecto.integrador.utils.MessageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -16,7 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class DestinoServiceImpl implements DestinoService {
 
     private static final String MSG_DESTINO_YA_REGISTRADO = "El destino ya está registrado";
@@ -27,6 +29,11 @@ public class DestinoServiceImpl implements DestinoService {
     private static final String MSG_DESTINO_DESACTIVADO = "Destino desactivado correctamente";
 
     private final DestinoRepository destinoRepository;
+    private final GlobalMapper globalMapper;
+
+    public DestinoServiceImpl(DestinoRepository destinoRepository) {
+        this(destinoRepository, new GlobalMapper());
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -34,7 +41,7 @@ public class DestinoServiceImpl implements DestinoService {
             String pais, String ciudad, Boolean activo, Pageable pageable) {
         Page<DestinoResponse> destinos = destinoRepository
                 .listarDestinos(pais, ciudad, activo, pageable)
-                .map(DestinoResponse::from);
+                .map(projection -> globalMapper.map(projection, DestinoResponse.class));
         return new CustomPage<>(destinos);
     }
 

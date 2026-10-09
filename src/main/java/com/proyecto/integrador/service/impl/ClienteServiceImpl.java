@@ -3,11 +3,13 @@ package com.proyecto.integrador.service.impl;
 import com.proyecto.integrador.model.entity.ClienteEntity;
 import com.proyecto.integrador.model.request.ClienteRegistroRequest;
 import com.proyecto.integrador.model.response.ClienteResponse;
+import com.proyecto.integrador.model.mapper.GlobalMapper;
 import com.proyecto.integrador.repository.ClienteRepository;
 import com.proyecto.integrador.service.ClienteService;
 import com.proyecto.integrador.utils.CustomPage;
 import com.proyecto.integrador.utils.MessageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -15,7 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service @RequiredArgsConstructor
+@Service @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ClienteServiceImpl implements ClienteService {
     private static final String MSG_DOCUMENTO = "El número de documento ya está registrado";
     private static final String MSG_RAZON = "La razón social ya está registrada";
@@ -25,10 +27,16 @@ public class ClienteServiceImpl implements ClienteService {
     private static final String MSG_ACTIVADO = "Cliente activado correctamente";
     private static final String MSG_DESACTIVADO = "Cliente desactivado correctamente";
     private final ClienteRepository clienteRepository;
+    private final GlobalMapper globalMapper;
+
+    public ClienteServiceImpl(ClienteRepository clienteRepository) {
+        this(clienteRepository, new GlobalMapper());
+    }
 
     @Override @Transactional(readOnly = true)
     public CustomPage<ClienteResponse> listarClientes(String texto, String tipoDocumento, Boolean activo, Pageable pageable) {
-        Page<ClienteResponse> page = clienteRepository.listarClientes(texto, tipoDocumento, activo, pageable).map(ClienteResponse::from);
+        Page<ClienteResponse> page = clienteRepository.listarClientes(texto, tipoDocumento, activo, pageable)
+                .map(projection -> globalMapper.map(projection, ClienteResponse.class));
         return new CustomPage<>(page);
     }
 

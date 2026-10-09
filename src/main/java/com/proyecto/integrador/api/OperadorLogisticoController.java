@@ -47,7 +47,7 @@ public class OperadorLogisticoController {
 
     @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_operadores-logisticos_eliminar')")
-    public ResponseEntity<MessageResponse> cambiarEstado(
+    public ResponseEntity<MessageResponse> cambiarEstadoOperadorLogistico(
             @NotNull(message = "{message.required}") @RequestParam("operadorLogisticoId") Integer operadorLogisticoId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {
         return operadorService.cambiarEstado(operadorLogisticoId, activo);
@@ -55,13 +55,13 @@ public class OperadorLogisticoController {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_operadores-logisticos_crear')")
-    public ResponseEntity<MessageResponse> registrar(@Valid @RequestBody OperadorLogisticoRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrarOperadorLogistico(@Valid @RequestBody OperadorLogisticoRegistroRequest request) {
         return operadorService.registrar(request);
     }
 
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_operadores-logisticos_editar')")
-    public ResponseEntity<MessageResponse> actualizar(@Valid @RequestBody OperadorLogisticoRegistroRequest request) {
+    public ResponseEntity<MessageResponse> actualizarOperadorLogistico(@Valid @RequestBody OperadorLogisticoRegistroRequest request) {
         return operadorService.actualizar(request);
     }
 }

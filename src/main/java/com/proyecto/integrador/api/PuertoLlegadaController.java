@@ -48,7 +48,7 @@ public class PuertoLlegadaController {
 
     @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_puertos-llegada_eliminar')")
-    public ResponseEntity<MessageResponse> cambiarEstado(
+    public ResponseEntity<MessageResponse> cambiarEstadoPuertoLlegada(
             @NotNull(message = "{message.required}") @RequestParam("puertoLlegadaId") Integer puertoLlegadaId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {
         return puertoService.cambiarEstado(puertoLlegadaId, activo);
@@ -56,13 +56,13 @@ public class PuertoLlegadaController {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_puertos-llegada_crear')")
-    public ResponseEntity<MessageResponse> registrar(@Valid @RequestBody PuertoLlegadaRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrarPuertoLlegada(@Valid @RequestBody PuertoLlegadaRegistroRequest request) {
         return puertoService.registrar(request);
     }
 
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_puertos-llegada_editar')")
-    public ResponseEntity<MessageResponse> actualizar(@Valid @RequestBody PuertoLlegadaRegistroRequest request) {
+    public ResponseEntity<MessageResponse> actualizarPuertoLlegada(@Valid @RequestBody PuertoLlegadaRegistroRequest request) {
         return puertoService.actualizar(request);
     }
 }

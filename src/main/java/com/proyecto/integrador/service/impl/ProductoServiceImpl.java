@@ -3,11 +3,13 @@ package com.proyecto.integrador.service.impl;
 import com.proyecto.integrador.model.entity.ProductoEntity;
 import com.proyecto.integrador.model.request.ProductoRegistroRequest;
 import com.proyecto.integrador.model.response.ProductoResponse;
+import com.proyecto.integrador.model.mapper.GlobalMapper;
 import com.proyecto.integrador.repository.ProductoRepository;
 import com.proyecto.integrador.service.ProductoService;
 import com.proyecto.integrador.utils.CustomPage;
 import com.proyecto.integrador.utils.MessageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -16,7 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ProductoServiceImpl implements ProductoService {
 
     private static final String MSG_PRODUCTO_YA_REGISTRADO = "El producto ya está registrado";
@@ -29,6 +31,11 @@ public class ProductoServiceImpl implements ProductoService {
     private static final String MSG_PRODUCTO_DESACTIVADO = "Producto desactivado correctamente";
 
     private final ProductoRepository productoRepository;
+    private final GlobalMapper globalMapper;
+
+    public ProductoServiceImpl(ProductoRepository productoRepository) {
+        this(productoRepository, new GlobalMapper());
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -36,7 +43,7 @@ public class ProductoServiceImpl implements ProductoService {
             String texto, Boolean activo, Pageable pageable) {
         Page<ProductoResponse> productos = productoRepository
                 .listarProductos(texto, activo, pageable)
-                .map(ProductoResponse::from);
+                .map(projection -> globalMapper.map(projection, ProductoResponse.class));
         return new CustomPage<>(productos);
     }
 

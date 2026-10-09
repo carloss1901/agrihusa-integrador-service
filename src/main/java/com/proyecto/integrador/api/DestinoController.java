@@ -47,7 +47,7 @@ public class DestinoController {
 
     @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_destinos_eliminar')")
-    public ResponseEntity<MessageResponse> cambiarEstado(
+    public ResponseEntity<MessageResponse> cambiarEstadoDestino(
             @NotNull(message = "{message.required}") @RequestParam("destinoId") Integer destinoId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {
         return destinoService.cambiarEstado(destinoId, activo);
@@ -55,13 +55,13 @@ public class DestinoController {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_destinos_crear')")
-    public ResponseEntity<MessageResponse> registrar(@Valid @RequestBody DestinoRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrarDestino(@Valid @RequestBody DestinoRegistroRequest request) {
         return destinoService.registrar(request);
     }
 
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_destinos_editar')")
-    public ResponseEntity<MessageResponse> actualizar(@Valid @RequestBody DestinoRegistroRequest request) {
+    public ResponseEntity<MessageResponse> actualizarDestino(@Valid @RequestBody DestinoRegistroRequest request) {
         return destinoService.actualizar(request);
     }
 }

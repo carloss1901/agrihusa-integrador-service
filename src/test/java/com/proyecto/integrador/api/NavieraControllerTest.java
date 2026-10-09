@@ -9,7 +9,7 @@ class NavieraControllerTest {
     @Test
     void listar_delegaAlServicio() {
         NavieraService service = mock(NavieraService.class);
-        new NavieraController(service).listar("texto", "Perú", true, 1, 10);
+        new NavieraController(service).listarNavieras("texto", "Perú", true, 1, 10);
         verify(service).listarNavieras("texto", "Perú", true, PageRequest.of(0, 10));
     }
 }

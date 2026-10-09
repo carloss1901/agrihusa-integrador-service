@@ -36,7 +36,7 @@ public class NavieraController {
 
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_navieras_consultar')")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public CustomPage<NavieraResponse> listar(
+    public CustomPage<NavieraResponse> listarNavieras(
             @RequestParam(value = "texto", required = false) String texto,
             @RequestParam(value = "pais", required = false) String pais,
             @RequestParam(value = "activo", required = false) Boolean activo,
@@ -48,7 +48,7 @@ public class NavieraController {
 
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_navieras_eliminar')")
     @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MessageResponse> cambiarEstado(
+    public ResponseEntity<MessageResponse> cambiarEstadoNaviera(
             @NotNull(message = "{message.required}") @RequestParam("navieraId") Integer navieraId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {
         return navieraService.cambiarEstado(navieraId, activo);
@@ -56,13 +56,13 @@ public class NavieraController {
 
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_navieras_crear')")
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MessageResponse> registrar(@Valid @RequestBody NavieraRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrarNaviera(@Valid @RequestBody NavieraRegistroRequest request) {
         return navieraService.registrar(request);
     }
 
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_navieras_editar')")
-    public ResponseEntity<MessageResponse> actualizar(@Valid @RequestBody NavieraRegistroRequest request) {
+    public ResponseEntity<MessageResponse> actualizarNaviera(@Valid @RequestBody NavieraRegistroRequest request) {
         return navieraService.actualizar(request);
     }
 }

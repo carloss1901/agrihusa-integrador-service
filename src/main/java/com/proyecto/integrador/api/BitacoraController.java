@@ -31,7 +31,7 @@ public class BitacoraController {
 
     @GetMapping
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_bitacora_consultar')")
-    public CustomPage<BitacoraResponse> listar(
+    public CustomPage<BitacoraResponse> listarBitacoras(
             @RequestParam(value = "usuarioId", required = false) Integer usuarioId,
             @RequestParam(value = "modulo", required = false) String modulo,
             @RequestParam(value = "accion", required = false) String accion,
@@ -46,7 +46,7 @@ public class BitacoraController {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_bitacora_crear')")
-    public ResponseEntity<MessageResponse> registrar(@Valid @RequestBody BitacoraRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrarBitacora(@Valid @RequestBody BitacoraRegistroRequest request) {
         return bitacoraService.registrar(request);
     }
 }

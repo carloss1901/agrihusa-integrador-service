@@ -3,11 +3,13 @@ package com.proyecto.integrador.service.impl;
 import com.proyecto.integrador.model.entity.NavieraEntity;
 import com.proyecto.integrador.model.request.NavieraRegistroRequest;
 import com.proyecto.integrador.model.response.NavieraResponse;
+import com.proyecto.integrador.model.mapper.GlobalMapper;
 import com.proyecto.integrador.repository.NavieraRepository;
 import com.proyecto.integrador.service.NavieraService;
 import com.proyecto.integrador.utils.CustomPage;
 import com.proyecto.integrador.utils.MessageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -15,7 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service @RequiredArgsConstructor
+@Service @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class NavieraServiceImpl implements NavieraService {
     private static final String MSG_CODIGO = "El código ya está registrado";
     private static final String MSG_NOMBRE = "El nombre ya está registrado";
@@ -25,10 +27,16 @@ public class NavieraServiceImpl implements NavieraService {
     private static final String MSG_ACTIVADA = "Naviera activada correctamente";
     private static final String MSG_DESACTIVADA = "Naviera desactivada correctamente";
     private final NavieraRepository navieraRepository;
+    private final GlobalMapper globalMapper;
+
+    public NavieraServiceImpl(NavieraRepository navieraRepository) {
+        this(navieraRepository, new GlobalMapper());
+    }
 
     @Override @Transactional(readOnly = true)
     public CustomPage<NavieraResponse> listarNavieras(String texto, String pais, Boolean activo, Pageable pageable) {
-        Page<NavieraResponse> page = navieraRepository.listarNavieras(texto, pais, activo, pageable).map(NavieraResponse::from);
+        Page<NavieraResponse> page = navieraRepository.listarNavieras(texto, pais, activo, pageable)
+                .map(projection -> globalMapper.map(projection, NavieraResponse.class));
         return new CustomPage<>(page);
     }
 

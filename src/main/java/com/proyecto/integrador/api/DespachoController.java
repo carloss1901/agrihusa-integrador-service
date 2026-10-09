@@ -36,7 +36,7 @@ public class DespachoController {
 
     @GetMapping
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_despachos_consultar')")
-    public CustomPage<DespachoResponse> listar(
+    public CustomPage<DespachoResponse> listarDespachos(
             @RequestParam(value = "texto", required = false) String texto,
             @RequestParam(value = "clienteId", required = false) Integer clienteId,
             @RequestParam(value = "situacionId", required = false) Integer situacionId,
@@ -49,19 +49,19 @@ public class DespachoController {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_despachos_crear')")
-    public ResponseEntity<MessageResponse> registrar(@Valid @RequestBody DespachoRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrarDespacho(@Valid @RequestBody DespachoRegistroRequest request) {
         return despachoService.registrar(request);
     }
 
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_despachos_editar')")
-    public ResponseEntity<MessageResponse> actualizar(@Valid @RequestBody DespachoRegistroRequest request) {
+    public ResponseEntity<MessageResponse> actualizarDespacho(@Valid @RequestBody DespachoRegistroRequest request) {
         return despachoService.actualizar(request);
     }
 
     @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_despachos_eliminar')")
-    public ResponseEntity<MessageResponse> cambiarEstado(
+    public ResponseEntity<MessageResponse> cambiarEstadoDespacho(
             @NotNull(message = "{message.required}") @RequestParam("despachoId") Integer despachoId,
             @NotNull(message = "{message.required}") @RequestParam("activo") Boolean activo) {
         return despachoService.cambiarEstado(despachoId, activo);

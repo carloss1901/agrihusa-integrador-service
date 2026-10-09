@@ -4,6 +4,7 @@ import com.proyecto.integrador.utils.MessageResponse;
 
 import com.proyecto.integrador.model.request.DespachoRegistroRequest;
 import com.proyecto.integrador.model.response.DespachoResponse;
+import com.proyecto.integrador.model.response.ReporteDespachoResponse;
 import com.proyecto.integrador.service.DespachoService;
 import com.proyecto.integrador.utils.CustomPage;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -25,6 +26,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/despachos")
 @RequiredArgsConstructor
@@ -34,7 +38,22 @@ public class DespachoController {
 
     private final DespachoService despachoService;
 
-    @GetMapping
+    @GetMapping(value = "/reporte", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_reporte_despacho_consultar')")
+    public List<ReporteDespachoResponse> listarReporte(
+            @RequestParam(value = "fechaDesde", required = false) LocalDate fechaDesde,
+            @RequestParam(value = "fechaHasta", required = false) LocalDate fechaHasta,
+            @RequestParam(value = "clienteId", required = false) Integer clienteId,
+            @RequestParam(value = "productoId", required = false) Integer productoId,
+            @RequestParam(value = "variedadId", required = false) Integer variedadId,
+            @RequestParam(value = "viaId", required = false) Integer viaId,
+            @RequestParam(value = "situacionId", required = false) Integer situacionId,
+            @RequestParam(value = "activo", required = false) Boolean activo) {
+        return despachoService.listarReporte(fechaDesde, fechaHasta, clienteId, productoId,
+                variedadId, viaId, situacionId, activo);
+    }
+
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('Administrador') or hasAuthority('PERM_despachos_consultar')")
     public CustomPage<DespachoResponse> listarDespachos(
             @RequestParam(value = "texto", required = false) String texto,

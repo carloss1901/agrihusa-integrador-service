@@ -11,4 +11,9 @@ public class ComunResponse {
 
     private Integer id;
     private String descripcion;
+    private Integer value2;
+
+    public ComunResponse(Integer id, String descripcion) {
+        this(id, descripcion, null);
+    }
 }

@@ -3,6 +3,7 @@ package com.proyecto.integrador.service.impl;
 import com.proyecto.integrador.model.entity.ProductoEntity;
 import com.proyecto.integrador.model.request.ProductoRegistroRequest;
 import com.proyecto.integrador.model.response.ProductoResponse;
+import com.proyecto.integrador.model.response.ComunResponse;
 import com.proyecto.integrador.model.mapper.GlobalMapper;
 import com.proyecto.integrador.repository.ProductoRepository;
 import com.proyecto.integrador.service.ProductoService;
@@ -14,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +48,15 @@ public class ProductoServiceImpl implements ProductoService {
                 .listarProductos(texto, activo, pageable)
                 .map(projection -> globalMapper.map(projection, ProductoResponse.class));
         return new CustomPage<>(productos);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ComunResponse> listarProductosActivosCombo() {
+        return productoRepository.findAllByActivoTrueOrderByNombreAsc()
+                .stream()
+                .map(producto -> new ComunResponse(producto.getProductoId(), producto.getNombre()))
+                .toList();
     }
 
     @Override

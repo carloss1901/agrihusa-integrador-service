@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface VariedadRepository extends JpaRepository<VariedadEntity, Integer> {
+    boolean existsByVariedadIdAndProductoIdAndActivoTrue(Integer variedadId, Integer productoId);
 
     List<VariedadEntity> findAllByActivoTrueOrderByNombreAsc();
 

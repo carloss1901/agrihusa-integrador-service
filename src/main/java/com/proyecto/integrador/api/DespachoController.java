@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -60,8 +62,8 @@ public class DespachoController {
             @RequestParam(value = "clienteId", required = false) Integer clienteId,
             @RequestParam(value = "situacionId", required = false) Integer situacionId,
             @RequestParam(value = "activo", required = false) Boolean activo,
-            @RequestParam(value = "pagina", defaultValue = "1") Integer pagina,
-            @RequestParam(value = "tamPagina", defaultValue = "10") Integer tamPagina) {
+            @RequestParam(value = "pagina", defaultValue = "1") @Min(value = 1, message = "{message.valorminimo}") Integer pagina,
+            @RequestParam(value = "tamPagina", defaultValue = "10") @Min(value = 1, message = "{message.valorminimo}") @Max(value = 100, message = "{message.longitudmax}") Integer tamPagina) {
         Pageable pageable = PageRequest.of(pagina - 1, tamPagina);
         return despachoService.listarDespachos(texto, clienteId, situacionId, activo, pageable);
     }

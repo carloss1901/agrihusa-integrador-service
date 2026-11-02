@@ -83,6 +83,10 @@ public class DespachoServiceImpl implements DespachoService {
     @Override
     @Transactional
     public ResponseEntity<MessageResponse> registrar(DespachoRegistroRequest request) {
+        if (request.getFechaEstimadaLlegada().isBefore(request.getFechaDespacho())) {
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.BAD_REQUEST,
+                    "La fecha estimada de llegada no puede ser anterior a la fecha de despacho");
+        }
         if (!referenciasExisten(request)) {
             return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_REFERENCIA);
         }
@@ -132,15 +136,15 @@ public class DespachoServiceImpl implements DespachoService {
     }
 
     private boolean referenciasExisten(DespachoRegistroRequest request) {
-        return clienteRepository.existsById(request.getClienteId())
-                && navieraRepository.existsById(request.getNavieraId())
-                && destinoRepository.existsById(request.getDestinoId())
-                && operadorLogisticoRepository.existsById(request.getOperadorLogisticoId())
-                && puertoLlegadaRepository.existsById(request.getPuertoLlegadaId())
-                && productoRepository.existsById(request.getProductoId())
-                && variedadRepository.existsById(request.getVariedadId())
-                && viaRepository.existsById(request.getViaId())
-                && situacionRepository.existsById(request.getSituacionId());
+        return clienteRepository.existsByClienteIdAndActivoTrue(request.getClienteId())
+                && navieraRepository.existsByNavieraIdAndActivoTrue(request.getNavieraId())
+                && destinoRepository.existsByDestinoIdAndActivoTrue(request.getDestinoId())
+                && operadorLogisticoRepository.existsByOperadorLogisticoIdAndActivoTrue(request.getOperadorLogisticoId())
+                && puertoLlegadaRepository.existsByPuertoLlegadaIdAndActivoTrue(request.getPuertoLlegadaId())
+                && productoRepository.existsByProductoIdAndActivoTrue(request.getProductoId())
+                && variedadRepository.existsByVariedadIdAndProductoIdAndActivoTrue(request.getVariedadId(), request.getProductoId())
+                && viaRepository.existsByViaIdAndActivoTrue(request.getViaId())
+                && situacionRepository.existsBySituacionIdAndActivoTrue(request.getSituacionId());
     }
 
     private String normalizar(String value) {

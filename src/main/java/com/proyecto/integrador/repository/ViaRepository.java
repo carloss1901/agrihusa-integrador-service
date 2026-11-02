@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ViaRepository extends JpaRepository<ViaEntity, Integer> {
+    boolean existsByViaIdAndActivoTrue(Integer viaId);
     java.util.List<ViaEntity> findAllByActivoTrueOrderByDescripcionAsc();
 
     boolean existsByDescripcionIgnoreCase(String descripcion);

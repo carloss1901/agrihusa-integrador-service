@@ -24,8 +24,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<Object> handleApiException(ApiException exception) {
-        LOGGER.warn(exception.getErrorGenerico().getCodigo(), exception.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getErrorGenerico());
+        HttpStatus estado = HttpStatus.resolve(
+                Integer.parseInt(exception.getErrorGenerico().getCodigo())
+        );
+
+        if (estado == null) {
+            estado = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+
+        LOGGER.warn("{} | {}", exception.getErrorGenerico().getCodigo(), exception.getMessage());
+
+        return ResponseEntity
+                .status(estado)
+                .body(exception.getErrorGenerico());
     }
 
     @ExceptionHandler(CustomNotFoundException.class)

@@ -1,27 +1,21 @@
 package com.proyecto.integrador.model.response;
 
 import com.proyecto.integrador.model.entity.ProductoEntity;
-import com.proyecto.integrador.model.projection.ProductoProjection;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public record ProductoResponse(
-        Integer productoId,
-        String codigo,
-        String nombre,
-        String descripcion,
-        Boolean activo,
-        String estadoDsc
-) {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProductoResponse {
 
-    public static ProductoResponse from(ProductoProjection projection) {
-        return new ProductoResponse(
-                projection.getProductoId(),
-                projection.getCodigo(),
-                projection.getNombre(),
-                projection.getDescripcion(),
-                projection.getActivo(),
-                projection.getEstadoDsc()
-        );
-    }
+    private Integer productoId;
+    private String codigo;
+    private String nombre;
+    private String descripcion;
+    private Boolean activo;
+    private String estadoDsc;
 
     public static ProductoResponse from(ProductoEntity entity) {
         return new ProductoResponse(

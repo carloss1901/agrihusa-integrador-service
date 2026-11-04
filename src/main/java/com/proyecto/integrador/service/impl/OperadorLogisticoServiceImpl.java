@@ -3,11 +3,13 @@ package com.proyecto.integrador.service.impl;
 import com.proyecto.integrador.model.entity.OperadorLogisticoEntity;
 import com.proyecto.integrador.model.request.OperadorLogisticoRegistroRequest;
 import com.proyecto.integrador.model.response.OperadorLogisticoResponse;
+import com.proyecto.integrador.model.mapper.GlobalMapper;
 import com.proyecto.integrador.repository.OperadorLogisticoRepository;
 import com.proyecto.integrador.service.OperadorLogisticoService;
 import com.proyecto.integrador.utils.CustomPage;
 import com.proyecto.integrador.utils.MessageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -16,7 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class OperadorLogisticoServiceImpl implements OperadorLogisticoService {
 
     private static final String MSG_OPERADOR_YA_REGISTRADO = "El operador logístico ya está registrado";
@@ -29,6 +31,11 @@ public class OperadorLogisticoServiceImpl implements OperadorLogisticoService {
     private static final String MSG_OPERADOR_DESACTIVADO = "Operador logístico desactivado correctamente";
 
     private final OperadorLogisticoRepository operadorRepository;
+    private final GlobalMapper globalMapper;
+
+    public OperadorLogisticoServiceImpl(OperadorLogisticoRepository operadorRepository) {
+        this(operadorRepository, new GlobalMapper());
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -36,13 +43,13 @@ public class OperadorLogisticoServiceImpl implements OperadorLogisticoService {
             String texto, Boolean activo, Pageable pageable) {
         Page<OperadorLogisticoResponse> operadores = operadorRepository
                 .listarOperadores(texto, activo, pageable)
-                .map(OperadorLogisticoResponse::from);
+                .map(projection -> globalMapper.map(projection, OperadorLogisticoResponse.class));
         return new CustomPage<>(operadores);
     }
 
     @Override
     @Transactional
-    public ResponseEntity<Object> registrar(OperadorLogisticoRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(OperadorLogisticoRegistroRequest request) {
         String ruc = request.getRuc().trim();
         String razonSocial = request.getRazonSocial().trim();
 
@@ -101,7 +108,7 @@ public class OperadorLogisticoServiceImpl implements OperadorLogisticoService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> cambiarEstado(Integer operadorLogisticoId, Boolean activo) {
+    public ResponseEntity<MessageResponse> cambiarEstado(Integer operadorLogisticoId, Boolean activo) {
         OperadorLogisticoEntity entity = operadorRepository
                 .findById(operadorLogisticoId).orElse(null);
         if (entity == null) {
@@ -115,3 +122,4 @@ public class OperadorLogisticoServiceImpl implements OperadorLogisticoService {
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
     }
 }
+

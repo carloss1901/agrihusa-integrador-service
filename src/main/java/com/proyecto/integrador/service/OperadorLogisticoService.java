@@ -1,5 +1,7 @@
 package com.proyecto.integrador.service;
 
+import com.proyecto.integrador.utils.MessageResponse;
+
 import com.proyecto.integrador.model.request.OperadorLogisticoRegistroRequest;
 import com.proyecto.integrador.model.response.OperadorLogisticoResponse;
 import com.proyecto.integrador.utils.CustomPage;
@@ -11,10 +13,11 @@ public interface OperadorLogisticoService {
     CustomPage<OperadorLogisticoResponse> listarOperadores(
             String texto, Boolean activo, Pageable pageable);
 
-    ResponseEntity<Object> registrar(OperadorLogisticoRegistroRequest request);
-    default ResponseEntity<Object> actualizar(OperadorLogisticoRegistroRequest request) {
+    ResponseEntity<MessageResponse> registrar(OperadorLogisticoRegistroRequest request);
+    default ResponseEntity<MessageResponse> actualizar(OperadorLogisticoRegistroRequest request) {
         return registrar(request);
     }
 
-    ResponseEntity<Object> cambiarEstado(Integer operadorLogisticoId, Boolean activo);
+    ResponseEntity<MessageResponse> cambiarEstado(Integer operadorLogisticoId, Boolean activo);
 }
+

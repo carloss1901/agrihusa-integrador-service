@@ -5,9 +5,11 @@ import com.proyecto.integrador.repository.*;
 import com.proyecto.integrador.service.impl.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+
 import static org.mockito.Mockito.mock;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
@@ -19,11 +21,7 @@ class AllServiceMethodsTest {
         var request = new BitacoraRegistroRequest(1, "modulo", "crear", "Entidad", 1, "detalle", "OK");
 
         assertDoesNotThrow(() -> {
-            service.listarBitacoras(
-                    null, null, null, null,
-                    null, null, null, null,
-                    TestMocks.page()
-            );
+            service.listarBitacoras(null, null, null, null, null, null, TestMocks.page());
             service.registrar(request);
         });
     }
@@ -48,15 +46,11 @@ class AllServiceMethodsTest {
                 TestMocks.repository(OperadorLogisticoRepository.class), TestMocks.repository(PuertoLlegadaRepository.class),
                 TestMocks.repository(ProductoRepository.class), TestMocks.repository(VariedadRepository.class),
                 TestMocks.repository(ViaRepository.class), TestMocks.repository(SituacionRepository.class));
-        var request = new DespachoRegistroRequest(1, "DES-001", LocalDate.now(), LocalDate.now().plusDays(1),
+        var request = new DespachoRegistroRequest(1, LocalDate.now(), LocalDate.now().plusDays(1),
                 1, 1, 1, 1, 1, 1, 1, 1, 1, BigDecimal.ONE, "KG", "CONT-001", null);
 
         assertDoesNotThrow(() -> {
-            service.listarDespachos(
-                    null, null, null, null,
-                    null, null, null,
-                    TestMocks.page()
-            );
+            service.listarDespachos(null, null, null, null, TestMocks.page());
             service.registrar(request);
             service.cambiarEstado(1, true);
         });
@@ -154,17 +148,8 @@ class AllServiceMethodsTest {
         var service = new UsuarioServiceImpl(TestMocks.repository(UsuarioRepository.class),
                 TestMocks.repository(RolRepository.class), TestMocks.repository(UsuarioRolRepository.class),
                 mock(PasswordEncoder.class));
-        var registro = new UsuarioRegistroRequest(
-                "12345678",
-                "Nombres",
-                "Paterno",
-                "Materno",
-                "correo@correo.com",
-                "999999999",
-                1,
-                "Temporal1!",
-                true
-        );
+        var registro = new UsuarioRegistroRequest("12345678", "Nombres", "Paterno", "Materno",
+                "correo@correo.com", "999999999", 1);
         var cambio = mock(CambiarContraseniaRequest.class);
 
         assertDoesNotThrow(() -> {

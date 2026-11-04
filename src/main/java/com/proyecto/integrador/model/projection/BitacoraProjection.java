@@ -7,7 +7,6 @@ public interface BitacoraProjection {
     Integer getBitacoraId();
     LocalDateTime getFecha();
     Integer getUsuarioId();
-    String getNombreUsuario();
     String getModulo();
     String getAccion();
     String getEntidad();

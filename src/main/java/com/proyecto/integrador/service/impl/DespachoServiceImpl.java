@@ -3,6 +3,8 @@ package com.proyecto.integrador.service.impl;
 import com.proyecto.integrador.model.entity.DespachoEntity;
 import com.proyecto.integrador.model.request.DespachoRegistroRequest;
 import com.proyecto.integrador.model.response.DespachoResponse;
+import com.proyecto.integrador.model.response.ReporteDespachoResponse;
+import com.proyecto.integrador.model.mapper.GlobalMapper;
 import com.proyecto.integrador.repository.ClienteRepository;
 import com.proyecto.integrador.repository.DespachoRepository;
 import com.proyecto.integrador.repository.DestinoRepository;
@@ -17,16 +19,20 @@ import com.proyecto.integrador.service.DespachoService;
 import com.proyecto.integrador.utils.CustomPage;
 import com.proyecto.integrador.utils.MessageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
+import java.util.List;
+
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class DespachoServiceImpl implements DespachoService {
 
     private static final String MSG_CODIGO = "El código de despacho ya está registrado";
@@ -47,50 +53,48 @@ public class DespachoServiceImpl implements DespachoService {
     private final VariedadRepository variedadRepository;
     private final ViaRepository viaRepository;
     private final SituacionRepository situacionRepository;
+    private final GlobalMapper globalMapper;
+
+    public DespachoServiceImpl(DespachoRepository despachoRepository,
+                               ClienteRepository clienteRepository,
+                               NavieraRepository navieraRepository,
+                               DestinoRepository destinoRepository,
+                               OperadorLogisticoRepository operadorLogisticoRepository,
+                               PuertoLlegadaRepository puertoLlegadaRepository,
+                               ProductoRepository productoRepository,
+                               VariedadRepository variedadRepository,
+                               ViaRepository viaRepository,
+                               SituacionRepository situacionRepository) {
+        this(despachoRepository, clienteRepository, navieraRepository, destinoRepository,
+                operadorLogisticoRepository, puertoLlegadaRepository, productoRepository,
+                variedadRepository, viaRepository, situacionRepository, new GlobalMapper());
+    }
 
     @Override
     @Transactional(readOnly = true)
-    public CustomPage<DespachoResponse> listarDespachos(
-            String texto,
-            Integer clienteId,
-            Integer productoId,
-            Integer situacionId,
-            Boolean activo,
-            LocalDate fechaDesde,
-            LocalDate fechaHasta,
-            Pageable pageable
-    ) {
-        Page<DespachoResponse> page =
-                despachoRepository
-                        .listarDespachos(
-                                texto,
-                                clienteId,
-                                productoId,
-                                situacionId,
-                                activo,
-                                fechaDesde,
-                                fechaHasta,
-                                pageable
-                        )
-                        .map(DespachoResponse::from);
-
+    public CustomPage<DespachoResponse> listarDespachos(String texto, Integer clienteId, Integer situacionId,
+                                                        Boolean activo, Pageable pageable) {
+        Page<DespachoResponse> page = despachoRepository
+                .listarDespachos(texto, clienteId, situacionId, activo, pageable)
+                .map(projection -> globalMapper.map(projection, DespachoResponse.class));
         return new CustomPage<>(page);
     }
 
     @Override
     @Transactional
-    public ResponseEntity<Object> registrar(DespachoRegistroRequest request) {
-        String codigo = request.getCodigo().trim();
+    public ResponseEntity<MessageResponse> registrar(DespachoRegistroRequest request) {
+        if (request.getFechaEstimadaLlegada().isBefore(request.getFechaDespacho())) {
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.BAD_REQUEST,
+                    "La fecha estimada de llegada no puede ser anterior a la fecha de despacho");
+        }
         if (!referenciasExisten(request)) {
             return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_REFERENCIA);
         }
 
         if (request.getDespachoId() == 0) {
-            if (despachoRepository.existsByCodigoIgnoreCase(codigo)) {
-                return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_CODIGO);
-            }
             DespachoEntity entity = new DespachoEntity();
-            asignar(entity, request, codigo);
+            asignar(entity, request);
+            entity.setCodigo(generarCodigo());
             entity.setActivo(Boolean.TRUE);
             despachoRepository.save(entity);
             return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.CREATED, MSG_REGISTRADO);
@@ -100,16 +104,12 @@ public class DespachoServiceImpl implements DespachoService {
         if (entity == null) {
             return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_NO_ENCONTRADO);
         }
-        if (despachoRepository.existsByCodigoIgnoreCaseAndDespachoIdNot(codigo, request.getDespachoId())) {
-            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_CODIGO);
-        }
-        asignar(entity, request, codigo);
+        asignar(entity, request);
         despachoRepository.save(entity);
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, MSG_ACTUALIZADO);
     }
 
-    private void asignar(DespachoEntity entity, DespachoRegistroRequest request, String codigo) {
-        entity.setCodigo(codigo);
+    private void asignar(DespachoEntity entity, DespachoRegistroRequest request) {
         entity.setFechaDespacho(request.getFechaDespacho());
         entity.setFechaEstimadaLlegada(request.getFechaEstimadaLlegada());
         entity.setClienteId(request.getClienteId());
@@ -127,16 +127,24 @@ public class DespachoServiceImpl implements DespachoService {
         entity.setObservaciones(normalizar(request.getObservaciones()));
     }
 
+    private String generarCodigo() {
+        String codigo;
+        do {
+            codigo = "DSP-" + System.currentTimeMillis();
+        } while (despachoRepository.existsByCodigoIgnoreCase(codigo));
+        return codigo;
+    }
+
     private boolean referenciasExisten(DespachoRegistroRequest request) {
-        return clienteRepository.existsById(request.getClienteId())
-                && navieraRepository.existsById(request.getNavieraId())
-                && destinoRepository.existsById(request.getDestinoId())
-                && operadorLogisticoRepository.existsById(request.getOperadorLogisticoId())
-                && puertoLlegadaRepository.existsById(request.getPuertoLlegadaId())
-                && productoRepository.existsById(request.getProductoId())
-                && variedadRepository.existsById(request.getVariedadId())
-                && viaRepository.existsById(request.getViaId())
-                && situacionRepository.existsById(request.getSituacionId());
+        return clienteRepository.existsByClienteIdAndActivoTrue(request.getClienteId())
+                && navieraRepository.existsByNavieraIdAndActivoTrue(request.getNavieraId())
+                && destinoRepository.existsByDestinoIdAndActivoTrue(request.getDestinoId())
+                && operadorLogisticoRepository.existsByOperadorLogisticoIdAndActivoTrue(request.getOperadorLogisticoId())
+                && puertoLlegadaRepository.existsByPuertoLlegadaIdAndActivoTrue(request.getPuertoLlegadaId())
+                && productoRepository.existsByProductoIdAndActivoTrue(request.getProductoId())
+                && variedadRepository.existsByVariedadIdAndProductoIdAndActivoTrue(request.getVariedadId(), request.getProductoId())
+                && viaRepository.existsByViaIdAndActivoTrue(request.getViaId())
+                && situacionRepository.existsBySituacionIdAndActivoTrue(request.getSituacionId());
     }
 
     private String normalizar(String value) {
@@ -145,7 +153,7 @@ public class DespachoServiceImpl implements DespachoService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> cambiarEstado(Integer despachoId, Boolean activo) {
+    public ResponseEntity<MessageResponse> cambiarEstado(Integer despachoId, Boolean activo) {
         DespachoEntity entity = despachoRepository.findById(despachoId).orElse(null);
         if (entity == null) {
             return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_NO_ENCONTRADO);
@@ -155,4 +163,18 @@ public class DespachoServiceImpl implements DespachoService {
         String mensaje = Boolean.TRUE.equals(activo) ? MSG_ACTIVADO : MSG_DESACTIVADO;
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReporteDespachoResponse> listarReporte(LocalDate fechaDesde, LocalDate fechaHasta,
+                                                        Integer clienteId, Integer productoId,
+                                                        Integer variedadId, Integer viaId,
+                                                        Integer situacionId, Boolean activo) {
+        return despachoRepository.listarReporte(fechaDesde, fechaHasta, clienteId, productoId,
+                        variedadId, viaId, situacionId, activo)
+                .stream()
+                .map(ReporteDespachoResponse::from)
+                .toList();
+    }
 }
+

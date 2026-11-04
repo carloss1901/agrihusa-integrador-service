@@ -1,44 +1,24 @@
 package com.proyecto.integrador.service;
 
-import com.proyecto.integrador.model.entity.UsuarioEntity;
+import com.proyecto.integrador.utils.MessageResponse;
+
+import com.proyecto.integrador.model.response.UsuarioResponse;
+import com.proyecto.integrador.utils.CustomPage;
 import com.proyecto.integrador.model.request.UsuarioRegistroRequest;
 import com.proyecto.integrador.model.request.CambiarContraseniaRequest;
 import org.springframework.http.ResponseEntity;
-import com.proyecto.integrador.model.response.UsuarioResponse;
-import com.proyecto.integrador.utils.CustomPage;
 import org.springframework.data.domain.Pageable;
-import com.proyecto.integrador.model.request.UsuarioActualizarRequest;
-import com.proyecto.integrador.model.request.PerfilUsuarioActualizarRequest;
 
 public interface UsuarioService {
 
-    CustomPage<UsuarioResponse> listarUsuarios(
-            String texto,
-            Integer rolId,
-            Boolean activo,
-            Pageable pageable
-    );
+    ResponseEntity<MessageResponse> registrar(UsuarioRegistroRequest request);
 
-    UsuarioResponse obtenerPorId(Integer usuarioId);
+    CustomPage<UsuarioResponse> listar(String texto, Boolean activo, Pageable pageable);
 
-    ResponseEntity<Object> actualizar(
-            UsuarioActualizarRequest request
-    );
+    ResponseEntity<MessageResponse> actualizar(UsuarioRegistroRequest request);
 
-    ResponseEntity<Object> cambiarEstado(
-            Integer usuarioId,
-            Boolean activo
-    );
+    ResponseEntity<MessageResponse> cambiarEstado(Integer usuarioId, Boolean activo);
 
-    ResponseEntity<Object> registrar(
-            UsuarioRegistroRequest request
-    );
-
-    ResponseEntity<Object> actualizarPerfil(
-            PerfilUsuarioActualizarRequest request
-    );
-
-    ResponseEntity<Object> cambiarContrasenia(
-            CambiarContraseniaRequest request
-    );
+    ResponseEntity<MessageResponse> cambiarContrasenia(CambiarContraseniaRequest request);
 }
+

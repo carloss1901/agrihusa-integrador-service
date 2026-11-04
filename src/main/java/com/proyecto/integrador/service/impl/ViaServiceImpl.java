@@ -3,11 +3,13 @@ package com.proyecto.integrador.service.impl;
 import com.proyecto.integrador.model.entity.ViaEntity;
 import com.proyecto.integrador.model.request.ViaRegistroRequest;
 import com.proyecto.integrador.model.response.ViaResponse;
+import com.proyecto.integrador.model.mapper.GlobalMapper;
 import com.proyecto.integrador.repository.ViaRepository;
 import com.proyecto.integrador.service.ViaService;
 import com.proyecto.integrador.utils.CustomPage;
 import com.proyecto.integrador.utils.MessageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -16,7 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ViaServiceImpl implements ViaService {
 
     private static final String MSG_VIA_YA_REGISTRADA = "La vía ya está registrada";
@@ -27,6 +29,11 @@ public class ViaServiceImpl implements ViaService {
     private static final String MSG_VIA_DESACTIVADA = "Vía desactivada correctamente";
 
     private final ViaRepository viaRepository;
+    private final GlobalMapper globalMapper;
+
+    public ViaServiceImpl(ViaRepository viaRepository) {
+        this(viaRepository, new GlobalMapper());
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -34,13 +41,13 @@ public class ViaServiceImpl implements ViaService {
             String descripcion, Boolean activo, Pageable pageable) {
         Page<ViaResponse> vias = viaRepository
                 .listarVias(descripcion, activo, pageable)
-                .map(ViaResponse::from);
+                .map(projection -> globalMapper.map(projection, ViaResponse.class));
         return new CustomPage<>(vias);
     }
 
     @Override
     @Transactional
-    public ResponseEntity<Object> registrar(ViaRegistroRequest request) {
+    public ResponseEntity<MessageResponse> registrar(ViaRegistroRequest request) {
         String descripcion = request.getDescripcion().trim();
 
         if (request.getViaId() == 0) {
@@ -72,7 +79,7 @@ public class ViaServiceImpl implements ViaService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> cambiarEstado(Integer viaId, Boolean activo) {
+    public ResponseEntity<MessageResponse> cambiarEstado(Integer viaId, Boolean activo) {
         ViaEntity entity = viaRepository.findById(viaId).orElse(null);
         if (entity == null) {
             return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.NOT_FOUND, MSG_VIA_NO_ENCONTRADA);
@@ -85,3 +92,4 @@ public class ViaServiceImpl implements ViaService {
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, mensaje);
     }
 }
+

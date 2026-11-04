@@ -15,17 +15,8 @@ class UsuarioServiceTest {
         var service = new UsuarioServiceImpl(TestMocks.repository(UsuarioRepository.class),
                 TestMocks.repository(RolRepository.class), TestMocks.repository(UsuarioRolRepository.class),
                 mock(PasswordEncoder.class));
-        var request = new UsuarioRegistroRequest(
-                "12345678",
-                "Nombres",
-                "Paterno",
-                "Materno",
-                "correo@correo.com",
-                "999999999",
-                1,
-                "Clave123!",
-                true
-        );
+        var request = new UsuarioRegistroRequest("12345678", "Nombres", "Paterno", "Materno",
+                "correo@correo.com", "999999999", 1);
         assertDoesNotThrow(() -> service.registrar(request));
     }
 

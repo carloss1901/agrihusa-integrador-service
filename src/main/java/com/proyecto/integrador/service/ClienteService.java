@@ -1,5 +1,7 @@
 package com.proyecto.integrador.service;
 
+import com.proyecto.integrador.utils.MessageResponse;
+
 import com.proyecto.integrador.model.request.ClienteRegistroRequest;
 import com.proyecto.integrador.model.response.ClienteResponse;
 import com.proyecto.integrador.utils.CustomPage;
@@ -8,9 +10,10 @@ import org.springframework.http.ResponseEntity;
 
 public interface ClienteService {
     CustomPage<ClienteResponse> listarClientes(String texto, String tipoDocumento, Boolean activo, Pageable pageable);
-    ResponseEntity<Object> registrar(ClienteRegistroRequest request);
-    default ResponseEntity<Object> actualizar(ClienteRegistroRequest request) {
+    ResponseEntity<MessageResponse> registrar(ClienteRegistroRequest request);
+    default ResponseEntity<MessageResponse> actualizar(ClienteRegistroRequest request) {
         return registrar(request);
     }
-    ResponseEntity<Object> cambiarEstado(Integer clienteId, Boolean activo);
+    ResponseEntity<MessageResponse> cambiarEstado(Integer clienteId, Boolean activo);
 }
+

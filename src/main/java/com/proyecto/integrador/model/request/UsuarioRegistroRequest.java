@@ -15,6 +15,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UsuarioRegistroRequest {
 
+    private Integer usuarioId = 0;
+
     @NotBlank(message = "{message.required}")
     @jakarta.validation.constraints.Pattern(regexp = "\\d{8}", message = "{message.dni}")
     private String dni;
@@ -42,19 +44,10 @@ public class UsuarioRegistroRequest {
     @NotNull(message = "{message.required}")
     private Integer rolId;
 
-    @NotBlank(message = "{message.required}")
-    @Size(
-            min = 8,
-            max = 64,
-            message = "La contraseña debe tener entre 8 y 64 caracteres"
-    )
-    @jakarta.validation.constraints.Pattern(
-            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).+$",
-            message = "La contraseña debe contener mayúscula, minúscula, número y carácter especial"
-    )
-    private String contrasenia;
-
-    @NotNull(message = "{message.required}")
-    private Boolean activo;
+    public UsuarioRegistroRequest(String dni, String nombres, String apellidoPaterno,
+                                  String apellidoMaterno, String correo, String telefono,
+                                  Integer rolId) {
+        this(0, dni, nombres, apellidoPaterno, apellidoMaterno, correo, telefono, rolId);
+    }
 
 }

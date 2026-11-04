@@ -9,6 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ProductoRepository extends JpaRepository<ProductoEntity, Integer> {
+    boolean existsByProductoIdAndActivoTrue(Integer productoId);
+
+    java.util.List<ProductoEntity> findAllByActivoTrueOrderByNombreAsc();
 
     boolean existsByCodigoIgnoreCase(String codigo);
 

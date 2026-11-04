@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface SituacionRepository extends JpaRepository<SituacionEntity, Integer> {
+    boolean existsBySituacionIdAndActivoTrue(Integer situacionId);
+    java.util.List<SituacionEntity> findAllByActivoTrueOrderByDescripcionAsc();
 
     boolean existsByDescripcionIgnoreCase(String descripcion);
 

@@ -13,7 +13,7 @@ class AllControllerEndpointsTest {
         BitacoraService service = mock(BitacoraService.class);
         BitacoraRegistroRequest request = mock(BitacoraRegistroRequest.class);
 
-        new BitacoraController(service).registrar(request);
+        new BitacoraController(service).registrarBitacora(request);
 
         verify(service).registrar(request);
     }
@@ -24,9 +24,9 @@ class AllControllerEndpointsTest {
         ClienteRegistroRequest request = mock(ClienteRegistroRequest.class);
         ClienteController controller = new ClienteController(service);
 
-        controller.registrar(request);
-        controller.actualizar(request);
-        controller.cambiarEstado(1, true);
+        controller.registrarCliente(request);
+        controller.actualizarCliente(request);
+        controller.cambiarEstadoCliente(1, true);
 
         verify(service).registrar(request);
         verify(service).actualizar(request);
@@ -39,9 +39,9 @@ class AllControllerEndpointsTest {
         DespachoRegistroRequest request = mock(DespachoRegistroRequest.class);
         DespachoController controller = new DespachoController(service);
 
-        controller.registrar(request);
-        controller.actualizar(request);
-        controller.cambiarEstado(1, true);
+        controller.registrarDespacho(request);
+        controller.actualizarDespacho(request);
+        controller.cambiarEstadoDespacho(1, true);
 
         verify(service).registrar(request);
         verify(service).actualizar(request);
@@ -54,9 +54,9 @@ class AllControllerEndpointsTest {
         DestinoRegistroRequest request = mock(DestinoRegistroRequest.class);
         DestinoController controller = new DestinoController(service);
 
-        controller.registrar(request);
-        controller.actualizar(request);
-        controller.cambiarEstado(1, true);
+        controller.registrarDestino(request);
+        controller.actualizarDestino(request);
+        controller.cambiarEstadoDestino(1, true);
 
         verify(service).registrar(request);
         verify(service).actualizar(request);
@@ -69,9 +69,9 @@ class AllControllerEndpointsTest {
         NavieraRegistroRequest request = mock(NavieraRegistroRequest.class);
         NavieraController controller = new NavieraController(service);
 
-        controller.registrar(request);
-        controller.actualizar(request);
-        controller.cambiarEstado(1, true);
+        controller.registrarNaviera(request);
+        controller.actualizarNaviera(request);
+        controller.cambiarEstadoNaviera(1, true);
 
         verify(service).registrar(request);
         verify(service).actualizar(request);
@@ -84,9 +84,9 @@ class AllControllerEndpointsTest {
         OperadorLogisticoRegistroRequest request = mock(OperadorLogisticoRegistroRequest.class);
         OperadorLogisticoController controller = new OperadorLogisticoController(service);
 
-        controller.registrar(request);
-        controller.actualizar(request);
-        controller.cambiarEstado(1, true);
+        controller.registrarOperadorLogistico(request);
+        controller.actualizarOperadorLogistico(request);
+        controller.cambiarEstadoOperadorLogistico(1, true);
 
         verify(service).registrar(request);
         verify(service).actualizar(request);
@@ -99,9 +99,9 @@ class AllControllerEndpointsTest {
         ProductoRegistroRequest request = mock(ProductoRegistroRequest.class);
         ProductoController controller = new ProductoController(service);
 
-        controller.registrar(request);
-        controller.actualizar(request);
-        controller.cambiarEstado(1, true);
+        controller.registrarProducto(request);
+        controller.actualizarProducto(request);
+        controller.cambiarEstadoProducto(1, true);
 
         verify(service).registrar(request);
         verify(service).actualizar(request);
@@ -114,9 +114,9 @@ class AllControllerEndpointsTest {
         PuertoLlegadaRegistroRequest request = mock(PuertoLlegadaRegistroRequest.class);
         PuertoLlegadaController controller = new PuertoLlegadaController(service);
 
-        controller.registrar(request);
-        controller.actualizar(request);
-        controller.cambiarEstado(1, true);
+        controller.registrarPuertoLlegada(request);
+        controller.actualizarPuertoLlegada(request);
+        controller.cambiarEstadoPuertoLlegada(1, true);
 
         verify(service).registrar(request);
         verify(service).actualizar(request);
@@ -129,9 +129,9 @@ class AllControllerEndpointsTest {
         RolRegistroRequest request = mock(RolRegistroRequest.class);
         RolController controller = new RolController(service);
 
-        controller.registrar(request);
-        controller.actualizar(request);
-        controller.cambiarEstado(1, true);
+        controller.registrarRol(request);
+        controller.actualizarRol(request);
+        controller.cambiarEstadoRol(1, true);
 
         verify(service).registrar(request);
         verify(service).actualizar(request);
@@ -144,9 +144,9 @@ class AllControllerEndpointsTest {
         SituacionRegistroRequest request = mock(SituacionRegistroRequest.class);
         SituacionController controller = new SituacionController(service);
 
-        controller.registrar(request);
-        controller.actualizar(request);
-        controller.cambiarEstado(1, true);
+        controller.registrarSituacion(request);
+        controller.actualizarSituacion(request);
+        controller.cambiarEstadoSituacion(1, true);
 
         verify(service).registrar(request);
         verify(service).actualizar(request);
@@ -158,7 +158,7 @@ class AllControllerEndpointsTest {
         UsuarioService service = mock(UsuarioService.class);
         UsuarioRegistroRequest request = mock(UsuarioRegistroRequest.class);
 
-        new UsuarioController(service).registrar(request);
+        new UsuarioController(service).registrarUsuario(request);
 
         verify(service).registrar(request);
     }
@@ -169,9 +169,9 @@ class AllControllerEndpointsTest {
         VariedadRegistroRequest request = mock(VariedadRegistroRequest.class);
         VariedadController controller = new VariedadController(service);
 
-        controller.registrar(request);
-        controller.actualizar(request);
-        controller.cambiarEstado(1, true);
+        controller.registrarVariedad(request);
+        controller.actualizarVariedad(request);
+        controller.cambiarEstadoVariedad(1, true);
 
         verify(service).registrar(request);
         verify(service).actualizar(request);
@@ -184,9 +184,9 @@ class AllControllerEndpointsTest {
         ViaRegistroRequest request = mock(ViaRegistroRequest.class);
         ViaController controller = new ViaController(service);
 
-        controller.registrar(request);
-        controller.actualizar(request);
-        controller.cambiarEstado(1, true);
+        controller.registrarVia(request);
+        controller.actualizarVia(request);
+        controller.cambiarEstadoVia(1, true);
 
         verify(service).registrar(request);
         verify(service).actualizar(request);
@@ -198,7 +198,7 @@ class AllControllerEndpointsTest {
         UsuarioService service = mock(UsuarioService.class);
         CambiarContraseniaRequest request = mock(CambiarContraseniaRequest.class);
 
-        new UsuarioController(service).cambiarContrasenia(request);
+        new UsuarioController(service).cambiarContraseniaUsuario(request);
 
         verify(service).cambiarContrasenia(request);
     }

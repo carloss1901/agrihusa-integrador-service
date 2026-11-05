@@ -39,7 +39,8 @@ public class UsuarioServiceImpl implements UsuarioService {
     private static final String MSG_CONTRASENIAS_NO_COINCIDEN = "La nueva contraseña y su confirmación no coinciden";
     private static final String MSG_CONTRASENIA_ACTUAL = "La nueva contraseña debe ser diferente a la actual";
     private static final String MSG_CONTRASENIA_ACTUALIZADA = "Contraseña actualizada correctamente";
-    private static final String CONTRASENIA_DEFAULT = "contraseña";
+    private static final String MSG_CONTRASENIA_TEMPORAL_REQUERIDA =
+            "La contraseña temporal es obligatoria y debe tener entre 8 y 100 caracteres";
 
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
@@ -72,6 +73,18 @@ public class UsuarioServiceImpl implements UsuarioService {
     public ResponseEntity<MessageResponse> registrar(UsuarioRegistroRequest request) {
         String dni = request.getDni().trim();
         String correo = request.getCorreo().trim().toLowerCase();
+        String contraseniaTemporal = request.getContraseniaTemporal();
+
+        if (contraseniaTemporal == null
+                || contraseniaTemporal.isBlank()
+                || contraseniaTemporal.length() < 8
+                || contraseniaTemporal.length() > 100) {
+            return MessageResponse.setResponse(
+                    Boolean.FALSE,
+                    HttpStatus.BAD_REQUEST,
+                    MSG_CONTRASENIA_TEMPORAL_REQUERIDA
+            );
+        }
 
         if (usuarioRepository.existsByDni(dni)) {
             return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.CONFLICT, MSG_DNI_REGISTRADO);
@@ -93,7 +106,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         entity.setApellidoMaterno(request.getApellidoMaterno().trim());
         entity.setCorreo(correo);
         entity.setTelefono(request.getTelefono() == null ? null : request.getTelefono().trim());
-        entity.setContrasenia(passwordEncoder.encode(CONTRASENIA_DEFAULT));
+        entity.setContrasenia(passwordEncoder.encode(contraseniaTemporal));
         entity.setEsSistema(Boolean.FALSE);
         entity.setResetContrasenia(Boolean.TRUE);
         entity.setUltimoAcceso(null);
@@ -154,14 +167,26 @@ public class UsuarioServiceImpl implements UsuarioService {
         entity.setFechaModificacion(LocalDate.now());
         usuarioRepository.save(entity);
 
-        usuarioRolRepository.findAllByUsuarioIdAndActivoTrue(entity.getUsuarioId())
-                .forEach(relacion -> relacion.setActivo(Boolean.FALSE));
-        UsuarioRolEntity usuarioRol = new UsuarioRolEntity();
+        var relacionesActivas = usuarioRolRepository
+                .findAllByUsuarioIdAndActivoTrue(entity.getUsuarioId());
+        relacionesActivas.forEach(
+                relacion -> relacion.setActivo(Boolean.FALSE)
+        );
+        usuarioRolRepository.saveAll(relacionesActivas);
+
+        UsuarioRolEntity usuarioRol = usuarioRolRepository
+                .findByUsuarioIdAndRolId(
+                        entity.getUsuarioId(),
+                        rol.getRolId()
+                )
+                .orElseGet(UsuarioRolEntity::new);
         usuarioRol.setUsuarioId(entity.getUsuarioId());
         usuarioRol.setRolId(rol.getRolId());
         usuarioRol.setActivo(Boolean.TRUE);
         usuarioRol.setFechaAsignacion(LocalDate.now());
-        usuarioRol.setFechaCreacion(LocalDate.now());
+        if (usuarioRol.getFechaCreacion() == null) {
+            usuarioRol.setFechaCreacion(LocalDate.now());
+        }
         usuarioRolRepository.save(usuarioRol);
 
         return MessageResponse.setResponse(Boolean.TRUE, HttpStatus.OK, MSG_USUARIO_ACTUALIZADO_OK);

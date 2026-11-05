@@ -11,7 +11,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
+import org.springframework.security.access.AccessDeniedException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -127,6 +127,23 @@ public class GlobalExceptionHandler {
         );
         LOGGER.warn("Par\u00e1metros inv\u00e1lidos: {}", exception.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiException.getErrorGenerico());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorGenerico> handleAccessDenied(
+            AccessDeniedException exception) {
+
+        ApiException apiException = new ApiException(
+                TypeMessage.DANGER,
+                "No cuenta con permisos para realizar esta operación",
+                HttpStatus.FORBIDDEN
+        );
+
+        LOGGER.warn("Acceso denegado: {}", exception.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(apiException.getErrorGenerico());
     }
 
     @ExceptionHandler(Exception.class)

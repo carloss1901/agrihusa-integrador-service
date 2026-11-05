@@ -16,6 +16,7 @@ public class BitacoraResponse {
     private Integer bitacoraId;
     private LocalDateTime fecha;
     private Integer usuarioId;
+    private String nombreUsuario;
     private String modulo;
     private String accion;
     private String entidad;
@@ -27,7 +28,7 @@ public class BitacoraResponse {
     private LocalDate fechaModificacion;
 
     public static BitacoraResponse from(BitacoraEntity e) {
-        return new BitacoraResponse(e.getBitacoraId(), e.getFecha(), e.getUsuarioId(), e.getModulo(),
+        return new BitacoraResponse(e.getBitacoraId(), e.getFecha(), e.getUsuarioId(), null, e.getModulo(),
                 e.getAccion(), e.getEntidad(), e.getRegistroId(), e.getDetalle(), e.getResultado(),
                 e.getActivo(), e.getFechaCreacion(), e.getFechaModificacion());
     }

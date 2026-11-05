@@ -16,6 +16,7 @@ public class UsuarioResponse {
     private String nombres;
     private String apellidos;
     private String correo;
+    private String telefono;
     private Integer rolId;
     private String rolDescripcion;
     private Boolean esSistema;

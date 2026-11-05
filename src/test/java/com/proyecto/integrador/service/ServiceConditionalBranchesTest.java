@@ -212,6 +212,7 @@ class ServiceConditionalBranchesTest {
         RolRepository rol = mock(RolRepository.class);
         UsuarioServiceImpl service = new UsuarioServiceImpl(usuario, rol, mock(UsuarioRolRepository.class), mock(PasswordEncoder.class));
         UsuarioRegistroRequest request = new UsuarioRegistroRequest("123", "N", "P", "M", "c@c.com", null, 1);
+        request.setContraseniaTemporal("Temporal123*");
         when(usuario.existsByDni("123")).thenReturn(true);
         assertEquals(HttpStatus.CONFLICT, service.registrar(request).getStatusCode());
         when(usuario.existsByDni("123")).thenReturn(false);

@@ -21,7 +21,7 @@ class AllServiceMethodsTest {
         var request = new BitacoraRegistroRequest(1, "modulo", "crear", "Entidad", 1, "detalle", "OK");
 
         assertDoesNotThrow(() -> {
-            service.listarBitacoras(null, null, null, null, null, null, TestMocks.page());
+        service.listarBitacoras(null, null, null, null, null, null, null, null, TestMocks.page());
             service.registrar(request);
         });
     }
@@ -150,6 +150,7 @@ class AllServiceMethodsTest {
                 mock(PasswordEncoder.class));
         var registro = new UsuarioRegistroRequest("12345678", "Nombres", "Paterno", "Materno",
                 "correo@correo.com", "999999999", 1);
+        registro.setContraseniaTemporal("Temporal123*");
         var cambio = mock(CambiarContraseniaRequest.class);
 
         assertDoesNotThrow(() -> {

@@ -57,7 +57,8 @@ cors:
   mapping: ${CORS_MAPPING:/**}
 
 open-meteo:
-  base-url: ${OPEN_METEO_BASE_URL:https://api.open-meteo.com/v1/forecast}
+  geocoding-url: ${OPEN_METEO_GEOCODING_URL:https://geocoding-api.open-meteo.com/v1/search}
+  forecast-url: ${OPEN_METEO_FORECAST_URL:https://api.open-meteo.com/v1/forecast}
   connect-timeout-ms: ${OPEN_METEO_CONNECT_TIMEOUT_MS:3000}
   read-timeout-ms: ${OPEN_METEO_READ_TIMEOUT_MS:5000}
   cache-seconds: ${OPEN_METEO_CACHE_SECONDS:300}

@@ -14,6 +14,8 @@ public interface UsuarioProjection {
 
     String getCorreo();
 
+    String getTelefono();
+
     Integer getRolId();
 
     String getRolDescripcion();

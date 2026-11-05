@@ -26,7 +26,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.util.Locale;
+import java.util.UUID;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -129,9 +130,21 @@ public class DespachoServiceImpl implements DespachoService {
 
     private String generarCodigo() {
         String codigo;
+
         do {
-            codigo = "DSP-" + System.currentTimeMillis();
-        } while (despachoRepository.existsByCodigoIgnoreCase(codigo));
+            String identificador = UUID.randomUUID()
+                    .toString()
+                    .replace("-", "")
+                    .substring(0, 20)
+                    .toUpperCase(Locale.ROOT);
+
+            codigo = "DSP-" + identificador;
+        } while (
+                despachoRepository.existsByCodigoIgnoreCase(
+                        codigo
+                )
+        );
+
         return codigo;
     }
 

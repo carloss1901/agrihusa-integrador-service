@@ -11,6 +11,8 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.function.Supplier;
 import java.time.Duration;
 import java.time.Instant;
@@ -21,6 +23,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class ClimaServiceImpl implements ClimaService {
+
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(ClimaServiceImpl.class);
 
     private final RestTemplate restTemplate;
     private final String geocodingUrl;
@@ -33,9 +38,9 @@ public class ClimaServiceImpl implements ClimaService {
             String geocodingUrl,
             @Value("${open-meteo.forecast-url:https://api.open-meteo.com/v1/forecast}")
             String forecastUrl,
-            @Value("${open-meteo.connect-timeout-ms:3000}")
+            @Value("${open-meteo.connect-timeout-ms:10000}")
             int connectTimeout,
-            @Value("${open-meteo.read-timeout-ms:5000}")
+            @Value("${open-meteo.read-timeout-ms:15000}")
             int readTimeout,
             @Value("${open-meteo.cache-seconds:300}")
             long cacheSeconds
@@ -75,11 +80,21 @@ public class ClimaServiceImpl implements ClimaService {
         } catch (ApiException exception) {
             throw exception;
         } catch (ResourceAccessException exception) {
+            LOGGER.error(
+                    "No fue posible conectar con Open-Meteo: {}",
+                    exception.getMessage(),
+                    exception
+            );
             throw new ApiException(
                     "El servicio meteorológico no está disponible temporalmente",
                     HttpStatus.SERVICE_UNAVAILABLE
             );
         } catch (HttpStatusCodeException exception) {
+            LOGGER.error(
+                    "Open-Meteo respondió HTTP {}: {}",
+                    exception.getStatusCode().value(),
+                    exception.getResponseBodyAsString()
+            );
             if (exception.getStatusCode().value() == 429
                     || exception.getStatusCode().is5xxServerError()) {
                 throw new ApiException(
@@ -93,6 +108,11 @@ public class ClimaServiceImpl implements ClimaService {
                     HttpStatus.BAD_GATEWAY
             );
         } catch (RestClientException | IllegalStateException exception) {
+            LOGGER.error(
+                    "Open-Meteo devolvió una respuesta no válida: {}",
+                    exception.getMessage(),
+                    exception
+            );
             throw new ApiException(
                     "Open-Meteo devolvió una respuesta no válida",
                     HttpStatus.BAD_GATEWAY

@@ -4,6 +4,8 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +22,7 @@ import java.time.LocalDate;
 public class DespachoRegistroRequest {
 
     @NotNull(message = "{message.required}")
+    @PositiveOrZero(message = "{message.valorminimo}")
     private Integer despachoId;
 
     @NotNull(message = "{message.required}")
@@ -29,31 +32,31 @@ public class DespachoRegistroRequest {
     private LocalDate fechaEstimadaLlegada;
 
     @NotNull(message = "{message.required}")
-    private Integer clienteId;
+    @Positive(message = "{message.valorminimo}") private Integer clienteId;
 
     @NotNull(message = "{message.required}")
-    private Integer navieraId;
+    @Positive(message = "{message.valorminimo}") private Integer navieraId;
 
     @NotNull(message = "{message.required}")
-    private Integer destinoId;
+    @Positive(message = "{message.valorminimo}") private Integer destinoId;
 
     @NotNull(message = "{message.required}")
-    private Integer operadorLogisticoId;
+    @Positive(message = "{message.valorminimo}") private Integer operadorLogisticoId;
 
     @NotNull(message = "{message.required}")
-    private Integer puertoLlegadaId;
+    @Positive(message = "{message.valorminimo}") private Integer puertoLlegadaId;
 
     @NotNull(message = "{message.required}")
-    private Integer productoId;
+    @Positive(message = "{message.valorminimo}") private Integer productoId;
 
     @NotNull(message = "{message.required}")
-    private Integer variedadId;
+    @Positive(message = "{message.valorminimo}") private Integer variedadId;
 
     @NotNull(message = "{message.required}")
-    private Integer viaId;
+    @Positive(message = "{message.valorminimo}") private Integer viaId;
 
     @NotNull(message = "{message.required}")
-    private Integer situacionId;
+    @Positive(message = "{message.valorminimo}") private Integer situacionId;
 
     @NotNull(message = "{message.required}")
     @DecimalMin(value = "0.01", message = "{message.valorminimo}")

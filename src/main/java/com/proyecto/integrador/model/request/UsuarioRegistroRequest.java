@@ -44,10 +44,13 @@ public class UsuarioRegistroRequest {
     @NotNull(message = "{message.required}")
     private Integer rolId;
 
+    @Size(min = 8, max = 100, message = "{message.longitudminmax}")
+    private String contraseniaTemporal;
+
     public UsuarioRegistroRequest(String dni, String nombres, String apellidoPaterno,
                                   String apellidoMaterno, String correo, String telefono,
                                   Integer rolId) {
-        this(0, dni, nombres, apellidoPaterno, apellidoMaterno, correo, telefono, rolId);
+        this(0, dni, nombres, apellidoPaterno, apellidoMaterno, correo, telefono, rolId, null);
     }
 
 }

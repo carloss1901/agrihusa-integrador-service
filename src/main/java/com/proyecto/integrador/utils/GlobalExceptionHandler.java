@@ -6,11 +6,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
+import org.springframework.security.access.AccessDeniedException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,8 +24,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<Object> handleApiException(ApiException exception) {
-        LOGGER.warn(exception.getErrorGenerico().getCodigo(), exception.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getErrorGenerico());
+        HttpStatus estado = HttpStatus.resolve(
+                Integer.parseInt(exception.getErrorGenerico().getCodigo())
+        );
+
+        if (estado == null) {
+            estado = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+
+        LOGGER.warn("{} | {}", exception.getErrorGenerico().getCodigo(), exception.getMessage());
+
+        return ResponseEntity
+                .status(estado)
+                .body(exception.getErrorGenerico());
     }
 
     @ExceptionHandler(CustomNotFoundException.class)
@@ -93,5 +105,55 @@ public class GlobalExceptionHandler {
         );
         LOGGER.warn(exception.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiException.getErrorGenerico());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorGenerico> handleDataIntegrity(DataIntegrityViolationException exception) {
+        ApiException apiException = new ApiException(
+                TypeMessage.DANGER,
+                "No se pudo procesar la solicitud por datos no v\u00e1lidos o duplicados",
+                HttpStatus.CONFLICT
+        );
+        LOGGER.warn("Error de datos: {}", exception.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(apiException.getErrorGenerico());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorGenerico> handleIllegalArgument(IllegalArgumentException exception) {
+        ApiException apiException = new ApiException(
+                TypeMessage.DANGER,
+                "Los par\u00e1metros de la solicitud no son v\u00e1lidos",
+                HttpStatus.BAD_REQUEST
+        );
+        LOGGER.warn("Par\u00e1metros inv\u00e1lidos: {}", exception.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiException.getErrorGenerico());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorGenerico> handleAccessDenied(
+            AccessDeniedException exception) {
+
+        ApiException apiException = new ApiException(
+                TypeMessage.DANGER,
+                "No cuenta con permisos para realizar esta operación",
+                HttpStatus.FORBIDDEN
+        );
+
+        LOGGER.warn("Acceso denegado: {}", exception.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(apiException.getErrorGenerico());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorGenerico> handleUnexpected(Exception exception) {
+        ApiException apiException = new ApiException(
+                TypeMessage.DANGER,
+                "Ocurri\u00f3 un error interno al procesar la solicitud",
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
+        LOGGER.error("Error no controlado", exception);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiException.getErrorGenerico());
     }
 }

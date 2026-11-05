@@ -179,7 +179,7 @@ class ServiceConditionalBranchesTest {
     }
 
     @Test
-    void despacho_cubreReferenciaInexistenteYCodigoDuplicado() {
+    void despacho_cubreReferenciaInexistenteYRegistroConCodigoGenerado() {
         DespachoRepository despacho = mock(DespachoRepository.class);
         ClienteRepository cliente = mock(ClienteRepository.class);
         NavieraRepository naviera = mock(NavieraRepository.class);
@@ -193,17 +193,17 @@ class ServiceConditionalBranchesTest {
         DespachoServiceImpl service = new DespachoServiceImpl(despacho, cliente, naviera, destino, operador, puerto, producto, variedad, via, situacion);
         DespachoRegistroRequest request = despachoRequest(0);
         assertEquals(HttpStatus.NOT_FOUND, service.registrar(request).getStatusCode());
-        when(cliente.existsById(1)).thenReturn(true);
-        when(naviera.existsById(1)).thenReturn(true);
-        when(destino.existsById(1)).thenReturn(true);
-        when(operador.existsById(1)).thenReturn(true);
-        when(puerto.existsById(1)).thenReturn(true);
-        when(producto.existsById(1)).thenReturn(true);
-        when(variedad.existsById(1)).thenReturn(true);
-        when(via.existsById(1)).thenReturn(true);
-        when(situacion.existsById(1)).thenReturn(true);
-        when(despacho.existsByCodigoIgnoreCase("D-1")).thenReturn(true);
-        assertEquals(HttpStatus.CONFLICT, service.registrar(request).getStatusCode());
+        when(cliente.existsByClienteIdAndActivoTrue(1)).thenReturn(true);
+        when(naviera.existsByNavieraIdAndActivoTrue(1)).thenReturn(true);
+        when(destino.existsByDestinoIdAndActivoTrue(1)).thenReturn(true);
+        when(operador.existsByOperadorLogisticoIdAndActivoTrue(1)).thenReturn(true);
+        when(puerto.existsByPuertoLlegadaIdAndActivoTrue(1)).thenReturn(true);
+        when(producto.existsByProductoIdAndActivoTrue(1)).thenReturn(true);
+        when(variedad.existsByVariedadIdAndProductoIdAndActivoTrue(1, 1)).thenReturn(true);
+        when(via.existsByViaIdAndActivoTrue(1)).thenReturn(true);
+        when(situacion.existsBySituacionIdAndActivoTrue(1)).thenReturn(true);
+        assertEquals(HttpStatus.CREATED, service.registrar(request).getStatusCode());
+        verify(despacho).save(argThat(entity -> entity.getCodigo().startsWith("DSP-")));
     }
 
     @Test
@@ -212,6 +212,7 @@ class ServiceConditionalBranchesTest {
         RolRepository rol = mock(RolRepository.class);
         UsuarioServiceImpl service = new UsuarioServiceImpl(usuario, rol, mock(UsuarioRolRepository.class), mock(PasswordEncoder.class));
         UsuarioRegistroRequest request = new UsuarioRegistroRequest("123", "N", "P", "M", "c@c.com", null, 1);
+        request.setContraseniaTemporal("Temporal123*");
         when(usuario.existsByDni("123")).thenReturn(true);
         assertEquals(HttpStatus.CONFLICT, service.registrar(request).getStatusCode());
         when(usuario.existsByDni("123")).thenReturn(false);
@@ -239,7 +240,7 @@ class ServiceConditionalBranchesTest {
     }
 
     private static DespachoRegistroRequest despachoRequest(Integer id) {
-        return new DespachoRegistroRequest(id, "D-1", LocalDate.now(), LocalDate.now().plusDays(1),
+        return new DespachoRegistroRequest(id, LocalDate.now(), LocalDate.now().plusDays(1),
                 1, 1, 1, 1, 1, 1, 1, 1, 1, BigDecimal.ONE, "KG", "CONT-1", null);
     }
 }

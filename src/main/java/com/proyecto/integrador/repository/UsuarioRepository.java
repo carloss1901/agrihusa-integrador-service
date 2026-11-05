@@ -25,6 +25,7 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
             u.nombres AS nombres,
             CONCAT(u.apellido_paterno, ' ', u.apellido_materno) AS apellidos,
             u.correo AS correo,
+            u.telefono AS telefono,
             r.rol_id AS rolId,
             r.descripcion AS rolDescripcion,
             u.es_sistema AS esSistema,

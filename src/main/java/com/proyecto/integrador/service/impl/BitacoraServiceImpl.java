@@ -6,6 +6,7 @@ import com.proyecto.integrador.model.response.BitacoraResponse;
 import com.proyecto.integrador.model.mapper.GlobalMapper;
 import com.proyecto.integrador.repository.BitacoraRepository;
 import com.proyecto.integrador.service.BitacoraService;
+import com.proyecto.integrador.security.JwtData;
 import com.proyecto.integrador.utils.CustomPage;
 import com.proyecto.integrador.utils.MessageResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -33,11 +35,13 @@ public class BitacoraServiceImpl implements BitacoraService {
 
     @Override
     @Transactional(readOnly = true)
-    public CustomPage<BitacoraResponse> listarBitacoras(Integer usuarioId, String modulo, String accion,
+    public CustomPage<BitacoraResponse> listarBitacoras(String usuario, String modulo, String accion,
                                                          String entidad, String resultado, Boolean activo,
+                                                         LocalDate fechaDesde, LocalDate fechaHasta,
                                                          Pageable pageable) {
         Page<BitacoraResponse> page = bitacoraRepository
-                .listarBitacoras(usuarioId, modulo, accion, entidad, resultado, activo, pageable)
+                .listarBitacoras(usuario, modulo, accion, entidad, resultado, activo,
+                        fechaDesde, fechaHasta, pageable)
                 .map(projection -> globalMapper.map(projection, BitacoraResponse.class));
         return new CustomPage<>(page);
     }
@@ -45,9 +49,14 @@ public class BitacoraServiceImpl implements BitacoraService {
     @Override
     @Transactional
     public ResponseEntity<MessageResponse> registrar(BitacoraRegistroRequest request) {
+        Integer usuarioId = JwtData.getUsuarioId();
+        if (usuarioId == null) {
+            return MessageResponse.setResponse(Boolean.FALSE, HttpStatus.UNAUTHORIZED,
+                    "No se pudo identificar al usuario autenticado");
+        }
         BitacoraEntity entity = new BitacoraEntity();
         entity.setFecha(LocalDateTime.now());
-        entity.setUsuarioId(request.getUsuarioId());
+        entity.setUsuarioId(usuarioId);
         entity.setModulo(request.getModulo().trim());
         entity.setAccion(request.getAccion().trim());
         entity.setEntidad(request.getEntidad().trim());
